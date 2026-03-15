@@ -12,7 +12,13 @@
       "Bash(python3 -c \":*)",
       "Bash(/Users/nishimurayasushiakira/.nvm/versions/node/v20.20.1/bin/node /Users/nishimurayasushiakira/.nvm/versions/node/v20.20.1/bin/npm run build)",
       "Bash(PATH=\"/Users/nishimurayasushiakira/.nvm/versions/node/v20.20.1/bin:$PATH\" node --version)",
-      "Bash(PATH=\"/Users/nishimurayasushiakira/.nvm/versions/node/v20.20.1/bin:$PATH\" npm run build)"
+      "Bash(PATH=\"/Users/nishimurayasushiakira/.nvm/versions/node/v20.20.1/bin:$PATH\" npm run build)",
+      "Bash(command -v nvm)",
+      "Bash(node -e \"require\\(''@tailwindcss/oxide-darwin-arm64''\\)\")",
+      "Bash(node -e \"require\\(''@tailwindcss/oxide-darwin-arm64''\\)\" --prefix /Users/nishimurayasushiakira/rugclub)",
+      "Bash(node -e \"const m = require\\(''@tailwindcss/oxide''\\); console.log\\(typeof m\\)\")",
+      "Bash(node -e \"console.log\\(require\\(''@tailwindcss/oxide''\\)\\)\")",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }
