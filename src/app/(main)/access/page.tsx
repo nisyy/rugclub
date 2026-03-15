@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 // Data
 // ─────────────────────────────────────────────
 const openingHours = [
-  { day: 'Weekday',  time: '07:00 — 20:00' },
-  { day: 'Saturday', time: '08:00 — 22:00' },
-  { day: 'Sunday',   time: '09:00 — 18:00' },
+  { day: '月・火・木', time: '9:00 - 18:00' },
+  { day: '金・土・日・祝', time: '9:00 - 21:00' },
+  { day: '水', time: '定休日' },
 ] as const;
 
 const MAPS_URL =
@@ -185,7 +185,7 @@ function MainContent() {
                     <InfoIcon />
                   </span>
                   <p className="text-[11px] italic text-gray-400 leading-relaxed">
-                    Last order for food is 30 minutes before closing.
+                    フードのラストオーダーは閉店30分前です。
                   </p>
                 </div>
               </div>
