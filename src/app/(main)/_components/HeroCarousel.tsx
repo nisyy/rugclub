@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 const photos = [
   {
@@ -22,18 +22,52 @@ const photos = [
   },
 ];
 
+const INTERVAL = 3000;
+
 export default function HeroCarousel() {
   const [current, setCurrent] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
-  const next = useCallback(
-    () => setCurrent((c) => (c + 1) % photos.length),
-    [],
-  );
+  // タイマーをリセットして再起動
+  const restartTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(
+      () => setCurrent((c) => (c + 1) % photos.length),
+      INTERVAL,
+    );
+  }, []);
 
   useEffect(() => {
-    const timer = setInterval(next, 3000);
-    return () => clearInterval(timer);
-  }, [next]);
+    restartTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [restartTimer]);
+
+  const goTo = useCallback((index: number) => {
+    setCurrent(index);
+    restartTimer();
+  }, [restartTimer]);
+
+  const goPrev = useCallback(() => {
+    goTo((current - 1 + photos.length) % photos.length);
+  }, [current, goTo]);
+
+  const goNext = useCallback(() => {
+    goTo((current + 1) % photos.length);
+  }, [current, goTo]);
+
+  // タッチスワイプ
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      diff > 0 ? goNext() : goPrev();
+    }
+    touchStartX.current = null;
+  };
 
   return (
     <>
@@ -57,12 +91,47 @@ export default function HeroCarousel() {
         </div>
       ))}
 
+      {/* タッチ操作エリア（画像全面） */}
+      <div
+        className="absolute inset-0 z-10"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      />
+
+      {/* 左右矢印ボタン（PC） */}
+      <button
+        onClick={goPrev}
+        aria-label="前の画像"
+        className="hidden lg:flex absolute left-3 top-1/2 -translate-y-1/2 z-20
+          w-9 h-9 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm
+          items-center justify-center transition-colors duration-200"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+          viewBox="0 0 24 24" fill="none" stroke="white"
+          strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <button
+        onClick={goNext}
+        aria-label="次の画像"
+        className="hidden lg:flex absolute right-3 top-1/2 -translate-y-1/2 z-20
+          w-9 h-9 rounded-full bg-black/25 hover:bg-black/45 backdrop-blur-sm
+          items-center justify-center transition-colors duration-200"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+          viewBox="0 0 24 24" fill="none" stroke="white"
+          strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+
       {/* ドットインジケーター */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
         {photos.map((_, i) => (
           <button
             key={i}
-            onClick={() => setCurrent(i)}
+            onClick={() => goTo(i)}
             aria-label={`スライド ${i + 1}`}
             className={`rounded-full transition-all duration-300 ${
               i === current
