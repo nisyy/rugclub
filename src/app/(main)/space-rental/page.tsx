@@ -4,9 +4,9 @@ import type { Metadata } from 'next';
 import FadeIn from '@/components/ui/FadeIn';
 
 export const metadata: Metadata = {
-  title: 'SPACE RENTAL',
+  title: 'RENTAL SPACE',
   description:
-    'Cafe RUG CLUBのスペースレンタル。展示会、ワークショップ、プライベートイベントにご利用いただけます。',
+    'Cafe RUG CLUBのレンタルスペース。展示会、ワークショップ、プライベートイベントにご利用いただけます。',
 };
 
 // ─────────────────────────────────────────────

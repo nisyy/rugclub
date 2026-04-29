@@ -13,7 +13,7 @@ interface FormData {
 
 const SUBJECT_OPTIONS = [
   'カフェについて',
-  'スペースレンタルについて',
+  'レンタルスペースについて',
   '作品展示について',
   'その他',
 ];
