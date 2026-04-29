@@ -1,128 +1,184 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { AdminNewsItem } from '@/types/admin';
 
-const ITEMS_PER_PAGE = 5;
-const FALLBACK_THUMB = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600';
+const ITEMS_PER_PAGE = 8;
 
-// Notion returns "2026-03-08" → display as "2026.03.08"
+// "2026-03-08" → "2026.4.8"（先頭ゼロを除いた表示）
 function formatDate(iso: string): string {
-  return iso.replace(/-/g, '.');
+  const [y, m, d] = iso.split('-');
+  return `${y}.${Number(m)}.${Number(d)}`;
 }
 
-// ─── 矢印アイコン ──────────────────────────────
-function ChevronRight({ className }: { className?: string }) {
+// ─── 斜め矢印ボタン ────────────────────────────
+function ArrowCircle() {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
+    <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-navy/25 text-navy group-hover:bg-navy group-hover:text-cream group-hover:border-navy transition-all duration-300 shrink-0">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <line x1="7" y1="17" x2="17" y2="7" />
+        <polyline points="7 7 17 7 17 17" />
+      </svg>
+    </span>
   );
 }
 
 // ─── ニュースリスト ────────────────────────────
 export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [activeCategory, setActiveCategory] = useState<string>('ALL');
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
-  const totalPages = Math.max(1, Math.ceil(items.length / ITEMS_PER_PAGE));
-  const start = (currentPage - 1) * ITEMS_PER_PAGE;
-  const pageItems = items.slice(start, start + ITEMS_PER_PAGE);
+  // アイテムから一意のカテゴリを抽出
+  const categories = useMemo(() => {
+    const set = new Set(items.map((i) => i.category));
+    return ['ALL', ...Array.from(set)];
+  }, [items]);
+
+  // カテゴリでフィルタリング
+  const filtered = useMemo(
+    () =>
+      activeCategory === 'ALL'
+        ? items
+        : items.filter((i) => i.category === activeCategory),
+    [items, activeCategory]
+  );
+
+  const visibleItems = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
+
+  // カテゴリ切り替え時にvisibleCountをリセット
+  function handleCategory(cat: string) {
+    setActiveCategory(cat);
+    setVisibleCount(ITEMS_PER_PAGE);
+  }
 
   return (
-    <>
-      {/* ── ニュースリスト ── */}
-      <section className="bg-cream pb-16 lg:pb-20">
-        <div className="max-w-3xl mx-auto px-6 lg:px-10">
-          {pageItems.length > 0 ? (
-            <ul>
-              {pageItems.map((item) => (
-                <li key={item.id}>
-                  <Link
-                    href={`/news/${item.id}`}
-                    className="flex items-center gap-5 py-7 group"
-                  >
-                    {/* サムネイル */}
-                    <div className="relative w-20 h-20 shrink-0 overflow-hidden">
-                      <Image
-                        src={item.thumbnailUrl || FALLBACK_THUMB}
-                        alt={item.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
+    <section className="bg-cream pb-20 lg:pb-28">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10">
 
-                    {/* 日付 + タイトル */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-semibold text-accent tracking-wider mb-1.5">
-                        {formatDate(item.date)}
-                      </p>
-                      <h2 className="text-base font-semibold text-charcoal leading-snug group-hover:text-accent transition-colors duration-200">
-                        {item.title}
-                      </h2>
-                    </div>
-
-                    {/* 矢印 */}
-                    <ChevronRight className="text-accent/60 shrink-0 group-hover:text-accent group-hover:translate-x-0.5 transition-all duration-200" />
-                  </Link>
-
-                  {/* ボーダーライン */}
-                  <div className="h-px bg-charcoal/10" />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-400 text-center py-20">
-              記事がありません。
-            </p>
-          )}
+        {/* セクションラベル */}
+        <div className="pt-12 pb-10">
+          <h2 className="font-display text-navy/35 text-[11px] tracking-[0.4em] uppercase paren-label">
+            NEWS
+          </h2>
         </div>
-      </section>
 
-      {/* ── ページネーション ── */}
-      {totalPages > 1 && (
-        <section className="bg-cream pb-20 lg:pb-28">
-          <div className="flex items-center justify-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                aria-label={`${page}ページ目`}
-                aria-current={currentPage === page ? 'page' : undefined}
-                className={`w-10 h-10 rounded-full text-sm font-semibold transition-colors duration-200 ${
-                  currentPage === page
-                    ? 'bg-charcoal text-white'
-                    : 'bg-white text-charcoal border border-charcoal/20 hover:border-charcoal/50'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+        {/* 2カラムレイアウト */}
+        <div className="flex gap-12 lg:gap-16 items-start">
 
-            {/* 次へボタン */}
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              aria-label="次のページ"
-              className="w-10 h-10 rounded-full bg-white text-charcoal border border-charcoal/20 hover:border-charcoal/50 text-sm font-semibold flex items-center justify-center transition-colors duration-200"
-            >
-              <ChevronRight />
-            </button>
+          {/* ── 左：カテゴリサイドバー ── */}
+          <nav aria-label="カテゴリフィルター" className="hidden md:block shrink-0 w-44">
+            <div className="bg-white/60 border border-navy/8 py-4">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategory(cat)}
+                  className={`w-full text-left px-5 py-2.5 text-sm tracking-wide whitespace-nowrap transition-colors duration-200 ${
+                    activeCategory === cat
+                      ? 'text-orange font-bold'
+                      : 'text-navy/60 hover:text-navy'
+                  }`}
+                >
+                  {cat === 'ALL' ? 'すべて' : cat}
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          {/* ── 右：記事一覧 ── */}
+          <div className="flex-1 min-w-0">
+
+            {/* カテゴリ名ヘッダー（上下ライン＋中央タイトル） */}
+            <div className="mb-8">
+              <hr className="border-navy/15" />
+              <p className="font-display text-navy text-2xl md:text-3xl text-center py-5">
+                {activeCategory === 'ALL' ? 'ALL' : activeCategory}
+              </p>
+              <hr className="border-navy/15" />
+            </div>
+
+            {/* スマホ用カテゴリ横スクロール */}
+            <div className="flex md:hidden gap-2 overflow-x-auto pb-4 mb-4 -mx-1 px-1">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategory(cat)}
+                  className={`shrink-0 text-[11px] font-bold tracking-[0.15em] px-4 py-2 border transition-colors duration-200 ${
+                    activeCategory === cat
+                      ? 'bg-navy text-cream border-navy'
+                      : 'bg-transparent text-navy/60 border-navy/20 hover:border-navy/50'
+                  }`}
+                >
+                  {cat === 'ALL' ? 'すべて' : cat}
+                </button>
+              ))}
+            </div>
+
+            {/* リスト */}
+            {visibleItems.length > 0 ? (
+              <ul>
+                {visibleItems.map((item) => (
+                  <li key={item.id}>
+                    <Link
+                      href={`/news/${item.id}`}
+                      className="flex items-center gap-5 py-5 group"
+                    >
+                      {/* カテゴリバッジ（固定幅・1行強制） */}
+                      <span className="shrink-0 w-44 text-center text-[10px] font-bold tracking-[0.1em] text-navy/55 whitespace-nowrap overflow-hidden">
+                        （{item.category}）
+                      </span>
+
+                      {/* 日付 + タイトル */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-semibold tracking-[0.2em] text-navy/40 mb-1.5 tabular-nums">
+                          {formatDate(item.date)}
+                        </p>
+                        <h2 className="text-sm text-navy leading-snug group-hover:text-orange transition-colors duration-200">
+                          {item.title}
+                        </h2>
+                      </div>
+
+                      {/* 矢印ボタン */}
+                      <ArrowCircle />
+                    </Link>
+
+                    {/* 区切りライン */}
+                    <div className="h-px bg-navy/12" />
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-navy/40 text-center py-16">
+                記事がありません。
+              </p>
+            )}
+
+            {/* MORE ボタン */}
+            {hasMore && (
+              <div className="mt-12 text-center">
+                <button
+                  onClick={() => setVisibleCount((c) => c + ITEMS_PER_PAGE)}
+                  className="btn-pill"
+                >
+                  MORE
+                </button>
+              </div>
+            )}
           </div>
-        </section>
-      )}
-    </>
+        </div>
+      </div>
+    </section>
   );
 }

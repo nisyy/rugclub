@@ -5,147 +5,153 @@ import { getNewsItems, getGalleryItems } from '@/lib/notion';
 import { DEMO_NEWS, DEMO_GALLERY } from '@/lib/demoData';
 import type { AdminNewsItem, AdminGalleryItem } from '@/types/admin';
 import FadeIn from '@/components/ui/FadeIn';
+import HeroCarousel from './_components/HeroCarousel';
 
-// テンプレートを使わず独立したタイトルを設定
 export const metadata: Metadata = {
-  title: {
-    absolute: 'CAFE RUG CLUB | ギャラリーカフェ 東大阪',
-  },
+  title: { absolute: 'CAFE RUG CLUB | ギャラリーカフェ 東大阪' },
 };
-
 export const revalidate = 60;
 
-const ASPECTS = ['aspect-[4/5]', 'aspect-[4/4]'];
-const NEWS_FALLBACK = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600';
+function formatDate(iso: string) { return iso.replace(/-/g, '.'); }
+
+const NEWS_FALLBACK    = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600';
 const GALLERY_FALLBACK = 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800';
 
-// Notion returns "2026-03-08" → display as "2026.03.08"
-function formatDate(iso: string): string {
-  return iso.replace(/-/g, '.');
+// ─────────────────────────────────────────────
+// Section Label（dilly-dally のセクション名バー）
+// ─────────────────────────────────────────────
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="py-5 px-6 lg:px-10">
+      <h2 className="font-display text-cream text-2xl md:text-3xl tracking-wide">
+        {children}
+      </h2>
+    </div>
+  );
 }
 
 // ─────────────────────────────────────────────
-// 1. Hero
+// 1. Hero  bg: orange（dilly-dally 風）
 // ─────────────────────────────────────────────
 function HeroSection() {
   return (
-    <section className="relative -mt-16 min-h-screen flex items-center">
-      <Image
-        src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200"
-        alt="RUG CLUB カフェ店内"
-        fill
-        className="object-cover"
-        priority
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-10 pt-24 pb-20">
-        <p className="text-xs text-white/50 tracking-[0.3em] uppercase mb-6">
-          Crafted with care, inspired by art.
-        </p>
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.15] tracking-tight">
-          今日も、<span className="text-accent italic">感性</span>から
-          <br />
-          手づくりで仕込んで。
-        </h1>
-        <p className="mt-5 text-sm text-white/50 tracking-wider max-w-sm">
-          Every cup is a canvas. Every visit, a new story.
-        </p>
-      </div>
-    </section>
-  );
-}
+    <section className="bg-orange mx-3 lg:mx-5 mt-16 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
 
-// ─────────────────────────────────────────────
-// 2. Concept
-// ─────────────────────────────────────────────
-function ConceptSection() {
-  return (
-    <section className="bg-white py-20 lg:py-28">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 items-center">
+      {/* ════════════════════════════════
+          SP レイアウト（lg 未満のみ表示）
+          上: 大見出し → 写真が重なる → 下: 本文
+          ════════════════════════════════ */}
+      <div className="lg:hidden flex flex-col">
+
+        {/* 見出し（z-10 で写真より前面） */}
+        <div className="relative z-10 px-6 pt-10 pb-2">
           <FadeIn>
-            <div className="relative aspect-[4/3] overflow-hidden group">
-              <Image
-                src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200"
-                alt="コーヒーを注ぐバリスタ"
-                fill
-                className="object-cover group-hover:scale-[1.04] transition-transform duration-700"
-              />
-            </div>
+            <p className="font-display text-cream/60 text-xs tracking-[0.35em] uppercase mb-4">
+              Gallery Cafe · Higashi-Osaka
+            </p>
+            <h1 className="font-display leading-[0.88]">
+              <span className="block text-outline text-cream text-[22vw]">
+                今日も、
+              </span>
+              <span className="block text-cream text-[22vw]">
+                感性から。
+              </span>
+            </h1>
           </FadeIn>
-          <FadeIn delay={120}>
-            <div className="flex flex-col gap-6">
-              <p className="text-[11px] font-semibold tracking-[0.25em] text-accent uppercase">
-                The Concept
-              </p>
-              <h2 className="text-xl md:text-2xl font-bold text-charcoal leading-relaxed">
+        </div>
+
+        {/* カルーセル：-mt で見出し下端に重なる */}
+        <div className="relative -mt-[14vw] h-[62vh] overflow-hidden">
+          <HeroCarousel />
+        </div>
+
+        {/* 本文 + CTA */}
+        <div className="px-6 py-10">
+          <FadeIn>
+            <p className="text-cream/80 text-sm leading-[2] mb-8">
+              RUG CLUBのバリスタ・キュレーターが、<br />
+              日常のひとときを少しだけ特別なものにします。<br />
+              毎日でも通えるように、身近なものから仕入れ、<br />
+              感性を持つすべての方へ丁寧に仕込んでご提供します。
+            </p>
+            <Link href="/about" className="btn-solid">
+              RUG CLUB について
+            </Link>
+          </FadeIn>
+        </div>
+
+      </div>
+
+      {/* ════════════════════════════════
+          PC レイアウト（lg 以上のみ表示）
+          左: 見出し+本文 / 右: カルーセル（浮かせ+少し重なる）
+          ════════════════════════════════ */}
+      <div className="hidden lg:flex flex-row min-h-[calc(100vh-4.5rem)]">
+
+        {/* 左: テキスト */}
+        <div className="flex flex-col justify-between py-14 px-12 w-[45%]">
+          <FadeIn>
+            <p className="font-display text-cream/60 text-xs tracking-[0.35em] uppercase mb-6">
+              Gallery Cafe · Higashi-Osaka
+            </p>
+            <h1 className="font-display leading-[0.9]">
+              <span className="block text-outline text-cream text-[9.5vw]">
+                今日も、
+              </span>
+              <span className="block text-cream text-[9.5vw]">
+                感性から。
+              </span>
+            </h1>
+          </FadeIn>
+
+          <FadeIn delay={180}>
+            <div>
+              <p className="text-cream/80 text-sm leading-[2] mb-8">
                 RUG CLUBのバリスタ・キュレーターが、<br />
-                日常のひとときを少しだけ特別なものにします。
-              </h2>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                毎日でも通えるように、身近なものから仕入れ、自分の感性の持ち主に対して
-                丁寧に仕込んでご提供します。私たちの感性を活かし、たくさんのパワーを
-                想像しながら、新しい場所に出会うためのキャンバスです。
+                日常のひとときを少しだけ特別なものにします。<br />
+                毎日でも通えるように、身近なものから仕入れ、<br />
+                感性を持つすべての方へ丁寧に仕込んでご提供します。
               </p>
-              <div className="pt-2">
-                <Link
-                  href="/about"
-                  className="inline-block border border-charcoal text-charcoal text-[11px] font-semibold tracking-[0.2em] uppercase px-7 py-3 hover:bg-charcoal hover:text-white transition-colors duration-300"
-                >
-                  RUG CLUB について
-                </Link>
-              </div>
+              <Link href="/about" className="btn-solid">
+                RUG CLUB について
+              </Link>
             </div>
           </FadeIn>
         </div>
+
+        {/* 右: カルーセル（上下・右余白で浮かせ、左はテキストに少し被せる） */}
+        <div className="relative flex-1 mt-10 mb-10 mr-8 -ml-6 rounded-[1.5rem] overflow-hidden">
+          <HeroCarousel />
+        </div>
+
       </div>
+
     </section>
   );
 }
 
 // ─────────────────────────────────────────────
-// 3. Menu Highlights
+// 2. Concept  bg: navy
 // ─────────────────────────────────────────────
-function MenuHighlightsSection() {
+function ConceptSection() {
   return (
-    <section className="bg-forest py-20 lg:py-28">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+    <section className="bg-navy mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
+      <SectionLabel>Concept</SectionLabel>
+      <hr className="border-cream/15 mx-6 lg:mx-10" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 section-pad">
         <FadeIn>
-          <div className="text-center mb-12">
-            <p className="text-[11px] font-semibold tracking-[0.3em] text-white/40 uppercase mb-4">
-              Seasonal Offerings
+          <div className="max-w-2xl">
+            <h2 className="font-display text-cream text-3xl md:text-5xl leading-tight mb-8">
+              アートを、<br />もっと身近に。
+            </h2>
+            <p className="text-cream/70 text-sm leading-[2.2] mb-10">
+              RUG CLUBは単なるカフェではありません。日常と芸術表現の境界が溶け合う、
+              洗練された空間です。アートは静かなギャラリーの中だけに閉じ込められるべきではない、
+              私たちはそう考えています。
             </p>
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Menu Highlights</h2>
-            <p className="mt-3 text-white/60 text-sm tracking-wider">素材の味を、アートのように仕上げ。</p>
-            <p className="mt-1 text-white/30 text-[11px] tracking-widest">
-              Signature dishes and seasonal blends, crafted with precision.
-            </p>
-          </div>
-        </FadeIn>
-        <FadeIn delay={100}>
-          <div className="relative aspect-[16/9] max-w-3xl mx-auto overflow-hidden group">
-            <Image
-              src="https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=800"
-              alt="メニュー写真"
-              fill
-              className="object-cover group-hover:scale-[1.04] transition-transform duration-700"
-            />
-          </div>
-        </FadeIn>
-        <FadeIn delay={180}>
-          <div className="text-center mt-10 max-w-xl mx-auto">
-            <p className="text-white/60 text-sm leading-relaxed mb-7">
-              店家族のスパイスを使用したバリスタ、トップクオリティのスペシャルティコーヒーまで、
-              すべては、あなたの感性を刺激するために。
-            </p>
-            <Link
-              href="/menu"
-              className="inline-flex items-center gap-2 text-white text-sm font-medium tracking-widest group"
-            >
-              <span className="border-b border-white/40 pb-0.5 group-hover:border-white transition-colors duration-200">
-                さらに詳しく
-              </span>
-              <span className="group-hover:translate-x-1 transition-transform duration-200">→</span>
+            <Link href="/about" className="btn-outline text-cream border-cream">
+              LEARN MORE
             </Link>
           </div>
         </FadeIn>
@@ -155,56 +161,84 @@ function MenuHighlightsSection() {
 }
 
 // ─────────────────────────────────────────────
-// 4. Gallery（Notion データ）
+// 3. Menu Highlights  bg: cream（明るいセクション）
 // ─────────────────────────────────────────────
-function GallerySection({ items }: { items: AdminGalleryItem[] }) {
-  // 最大2件を表示
-  const display = items.slice(0, 2);
-
+function MenuSection() {
   return (
-    <section className="bg-cream py-20 lg:py-28">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+    <section className="bg-white mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
+      {/* white bg なので text-navy で見出し */}
+      <div className="py-5 px-6 lg:px-10">
+        <h2 className="font-display text-navy text-2xl md:text-3xl tracking-wide">
+          Menu Highlights
+        </h2>
+      </div>
+      <hr className="border-navy/15 mx-6 lg:mx-10" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 section-pad">
         <FadeIn>
-          <div className="mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-charcoal">Gallery</h2>
-            <p className="mt-2 text-sm text-charcoal/70">その場所ならではの美を求めて。</p>
-            <p className="mt-1 text-[11px] text-charcoal/40 tracking-widest">
-              Every piece finds its home in the art of daily ritual, with or without you.
-            </p>
+          <div className="relative aspect-[16/9] max-w-3xl mx-auto overflow-hidden mb-10">
+            <Image
+              src="https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=800"
+              alt="メニュー写真"
+              fill
+              className="object-cover"
+            />
           </div>
         </FadeIn>
+        <FadeIn delay={100}>
+          <div className="text-center max-w-xl mx-auto">
+            <p className="font-display text-navy text-2xl md:text-3xl mb-4">
+              素材の味を、アートのように。
+            </p>
+            <p className="text-navy/60 text-sm leading-relaxed mb-8">
+              スペシャルティコーヒーから職人技のパフェまで、
+              すべてはあなたの感性を刺激するために。
+            </p>
+            <Link href="/menu" className="btn-outline text-navy border-navy">
+              MENU を見る
+            </Link>
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
 
+// ─────────────────────────────────────────────
+// 4. Gallery  bg: teal
+// ─────────────────────────────────────────────
+function GallerySection({ items }: { items: AdminGalleryItem[] }) {
+  const display = items.slice(0, 4);
+  return (
+    <section className="bg-teal mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
+      <SectionLabel>Gallery</SectionLabel>
+      <hr className="border-cream/15 mx-6 lg:mx-10" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 section-pad">
         {display.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
             {display.map((item, i) => (
-              <FadeIn key={item.id} delay={i * 120}>
-                <div className="group">
-                  <div className={`relative ${ASPECTS[i] ?? 'aspect-square'} overflow-hidden bg-gray-200`}>
-                    <Image
-                      src={item.imageUrl || GALLERY_FALLBACK}
-                      alt={item.title}
-                      fill
-                      className="object-cover group-hover:scale-[1.03] transition-transform duration-700"
-                    />
-                  </div>
-                  <div className="mt-4 space-y-1">
-                    <h3 className="text-base font-bold text-charcoal">{item.title}</h3>
-                    <p className="text-xs text-charcoal/60">{item.artist}</p>
-                  </div>
+              <FadeIn key={item.id} delay={i * 80}>
+                <div className="relative aspect-square overflow-hidden group">
+                  <Image
+                    src={item.imageUrl || GALLERY_FALLBACK}
+                    alt={item.title}
+                    fill
+                    className="object-cover group-hover:scale-[1.05] transition-transform duration-700"
+                  />
                 </div>
               </FadeIn>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-charcoal/40 py-10">現在展示中の作品はありません。</p>
+          <p className="text-cream/50 text-sm py-10 text-center">現在展示中の作品はありません。</p>
         )}
-
-        <FadeIn delay={80}>
-          <div className="mt-14 text-center">
-            <Link
-              href="/gallery"
-              className="inline-block border border-charcoal text-charcoal text-[11px] font-semibold tracking-[0.2em] uppercase px-10 py-3 hover:bg-charcoal hover:text-white transition-colors duration-300"
-            >
+        <FadeIn>
+          <div className="text-center">
+            <p className="font-display text-cream text-xl md:text-2xl mb-6">
+              その場所ならではの美を求めて。
+            </p>
+            <Link href="/gallery" className="btn-outline text-cream border-cream">
               すべての作品を見る
             </Link>
           </div>
@@ -215,37 +249,29 @@ function GallerySection({ items }: { items: AdminGalleryItem[] }) {
 }
 
 // ─────────────────────────────────────────────
-// 5. News（Notion データ）
+// 5. News  bg: olive
 // ─────────────────────────────────────────────
 function NewsSection({ items }: { items: AdminNewsItem[] }) {
-  // 最大3件を表示
   const display = items.slice(0, 3);
-
   return (
-    <section className="bg-white py-20 lg:py-28">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <FadeIn>
-          <div className="flex items-baseline justify-between mb-1">
-            <h2 className="text-3xl md:text-4xl font-bold text-charcoal">News</h2>
-            <Link
-              href="/news"
-              className="text-[11px] font-semibold tracking-[0.2em] text-charcoal/50 hover:text-accent transition-colors duration-200"
-            >
-              VIEW ALL →
-            </Link>
-          </div>
-          <p className="text-[11px] text-charcoal/35 tracking-[0.25em] uppercase mb-12">
-            Latest Updates from RUG CLUB
-          </p>
-        </FadeIn>
+    <section className="bg-olive mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
+      <div className="flex items-center justify-between">
+        <SectionLabel>News</SectionLabel>
+        <Link href="/news"
+          className="eyebrow text-cream/60 hover:text-cream transition-colors mr-6 lg:mr-10">
+          VIEW ALL →
+        </Link>
+      </div>
+      <hr className="border-cream/15 mx-6 lg:mx-10" />
 
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 section-pad">
         {display.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {display.map((item, i) => (
               <FadeIn key={item.id} delay={i * 100}>
                 <Link href={`/news/${item.id}`}>
-                  <article className="group cursor-pointer">
-                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 mb-4">
+                  <article className="group">
+                    <div className="relative aspect-[4/3] overflow-hidden mb-4">
                       <Image
                         src={item.thumbnailUrl || NEWS_FALLBACK}
                         alt={item.title}
@@ -253,14 +279,14 @@ function NewsSection({ items }: { items: AdminNewsItem[] }) {
                         className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
                       />
                     </div>
-                    <p className="text-[10px] font-semibold tracking-[0.2em] text-accent uppercase mb-2">
+                    <p className="eyebrow text-orange mb-2">
                       {item.category} · {formatDate(item.date)}
                     </p>
-                    <h3 className="text-sm font-medium text-charcoal leading-relaxed mb-3">
+                    <h3 className="font-display text-cream text-base leading-snug mb-2">
                       {item.title}
                     </h3>
-                    <span className="text-[11px] font-semibold tracking-widest text-charcoal/50 group-hover:text-accent transition-colors duration-200">
-                      Read More →
+                    <span className="eyebrow text-cream/50 group-hover:text-cream transition-colors duration-200">
+                      READ MORE →
                     </span>
                   </article>
                 </Link>
@@ -268,7 +294,7 @@ function NewsSection({ items }: { items: AdminNewsItem[] }) {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-charcoal/40 py-10">最新のニュースはありません。</p>
+          <p className="text-cream/50 text-sm text-center py-10">最新のニュースはありません。</p>
         )}
       </div>
     </section>
@@ -283,14 +309,14 @@ export default async function HomePage() {
     getNewsItems(),
     getGalleryItems(),
   ]);
-  const newsItems = notionNews.length > 0 ? notionNews : DEMO_NEWS;
+  const newsItems    = notionNews.length    > 0 ? notionNews    : DEMO_NEWS;
   const galleryItems = notionGallery.length > 0 ? notionGallery : DEMO_GALLERY;
 
   return (
     <>
       <HeroSection />
       <ConceptSection />
-      <MenuHighlightsSection />
+      <MenuSection />
       <GallerySection items={galleryItems} />
       <NewsSection items={newsItems} />
     </>

@@ -1,10 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Noto_Sans_JP, Dela_Gothic_One } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// 本文・UIフォント（日本語対応）
+const notoSansJP = Noto_Sans_JP({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "500", "700", "900"],
+});
+
+// 見出し表示フォント（dilly-dally 近似・極太ゴシック）
+const delaGothic = Dela_Gothic_One({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 const siteUrl = "https://ragclubprod.vercel.app";
@@ -25,14 +34,7 @@ export const metadata: Metadata = {
     siteName: "CAFE RUG CLUB",
     title: "CAFE RUG CLUB | ギャラリーカフェ 東大阪",
     description: siteDescription,
-    images: [
-      {
-        url: "/og-logo.png",
-        width: 1080,
-        height: 1080,
-        alt: "CAFE RUG CLUB ロゴ",
-      },
-    ],
+    images: [{ url: "/og-logo.png", width: 1080, height: 1080, alt: "CAFE RUG CLUB ロゴ" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -43,17 +45,15 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F5F0E8",
+  themeColor: "#C4531A",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ja">
-      <body className={`${geistSans.variable} antialiased`}>
+      <body className={`${notoSansJP.variable} ${delaGothic.variable} antialiased`}>
         {children}
       </body>
     </html>

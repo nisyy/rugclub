@@ -90,9 +90,9 @@ function InfoIcon() {
 // ─────────────────────────────────────────────
 function PageHeader() {
   return (
-    <section className="bg-cream -mt-16 pt-[7.5rem] pb-8 lg:pt-32 lg:pb-10">
+    <section className="bg-navy -mt-16 pt-[7.5rem] pb-8 lg:pt-32 lg:pb-10">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <h1 className="font-serif text-6xl sm:text-7xl md:text-8xl font-bold text-charcoal leading-none tracking-tight">
+        <h1 className="text-6xl sm:text-7xl md:text-8xl font-bold text-charcoal leading-none tracking-tight">
           ACCESS
         </h1>
         {/* 赤い横線（短め・左寄せ） */}
@@ -107,7 +107,7 @@ function PageHeader() {
 // ─────────────────────────────────────────────
 function MainContent() {
   return (
-    <section className="bg-cream pb-20 lg:pb-28">
+    <section className="bg-navy pb-20 lg:pb-28">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16 items-start">
 
@@ -115,7 +115,7 @@ function MainContent() {
           <div className="order-2 md:order-1">
 
             {/* ラベル */}
-            <p className="text-[11px] font-semibold tracking-[0.3em] text-gray-400 uppercase mb-8">
+            <p className="text-[11px] font-semibold tracking-[0.3em] text-charcoal/40 uppercase mb-8">
               Location &amp; Directions
             </p>
 
@@ -155,7 +155,7 @@ function MainContent() {
 
             {/* Opening Hours */}
             <div>
-              <p className="text-[11px] font-semibold tracking-[0.3em] text-gray-400 uppercase mb-4">
+              <p className="text-[11px] font-semibold tracking-[0.3em] text-charcoal/40 uppercase mb-4">
                 Opening Hours
               </p>
 
@@ -181,10 +181,10 @@ function MainContent() {
 
                 {/* 注記 */}
                 <div className="px-6 pb-5 flex items-center gap-2">
-                  <span className="text-gray-400 shrink-0">
+                  <span className="text-charcoal/40 shrink-0">
                     <InfoIcon />
                   </span>
-                  <p className="text-[11px] italic text-gray-400 leading-relaxed">
+                  <p className="text-[11px] italic text-charcoal/40 leading-relaxed">
                     フードのラストオーダーは閉店30分前です。
                   </p>
                 </div>
@@ -214,7 +214,7 @@ function MainContent() {
                 href={MAPS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.25em] text-gray-400 hover:text-charcoal transition-colors duration-200 uppercase"
+                className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.25em] text-charcoal/40 hover:text-charcoal transition-colors duration-200 uppercase"
               >
                 Open in Google Maps
                 <svg

@@ -4,6 +4,7 @@ import { getMenuItems } from '@/lib/notion';
 import { DEMO_MENU } from '@/lib/demoData';
 import type { AdminMenuItem } from '@/types/admin';
 import FadeIn from '@/components/ui/FadeIn';
+import SectionHeader from '@/components/ui/SectionHeader';
 
 export const revalidate = 60;
 
@@ -41,14 +42,14 @@ function ItemImage({
 // ─────────────────────────────────────────────
 function PageHeader() {
   return (
-    <section className="bg-cream -mt-16 pt-32 pb-16 lg:pt-36 lg:pb-20">
+    <section className="bg-orange -mt-16 pt-32 pb-16 lg:pt-36 lg:pb-20">
       <FadeIn>
         <div className="max-w-2xl mx-auto px-6 text-center">
-          <h1 className="font-serif text-7xl md:text-8xl lg:text-9xl font-bold text-charcoal tracking-tight">
+          <h1 className="text-7xl md:text-8xl lg:text-9xl font-bold text-charcoal tracking-tight">
             MENU
           </h1>
           <div className="w-14 h-px bg-accent mx-auto my-5" />
-          <p className="text-sm text-gray-500 leading-relaxed max-w-sm mx-auto">
+          <p className="text-sm text-charcoal/60 leading-relaxed max-w-sm mx-auto">
             淹れたてのコーヒー、職人技が光るパフェ、そして情熱を込めて手作りされた
             季節のスイーツをご用意しております。
           </p>
@@ -64,15 +65,10 @@ function PageHeader() {
 function CoffeeSection({ items }: { items: AdminMenuItem[] }) {
   if (items.length === 0) return null;
   return (
-    <section className="bg-white py-16 lg:py-24">
+    <section className="bg-navy section-pad">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <FadeIn>
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-charcoal">Coffee</h2>
-            <p className="text-[11px] font-semibold tracking-[0.3em] text-gray-400 uppercase mt-1.5">
-              THE ART OF EXTRACTION
-            </p>
-          </div>
+          <SectionHeader eyebrow="The Art of Extraction" heading="Coffee" className="mb-10" />
         </FadeIn>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -87,7 +83,7 @@ function CoffeeSection({ items }: { items: AdminMenuItem[] }) {
                   <span className="text-sm font-bold text-accent shrink-0 ml-3">{item.price}</span>
                 </div>
                 {item.description && (
-                  <p className="text-xs text-gray-500 leading-[1.9]">{item.description}</p>
+                  <p className="text-xs text-charcoal/60 leading-[1.9]">{item.description}</p>
                 )}
               </article>
             </FadeIn>
@@ -104,15 +100,16 @@ function CoffeeSection({ items }: { items: AdminMenuItem[] }) {
 function ParfaitsSection({ items }: { items: AdminMenuItem[] }) {
   if (items.length === 0) return null;
   return (
-    <section className="bg-forest py-16 lg:py-24">
+    <section className="bg-forest section-pad">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <FadeIn>
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Parfaits</h2>
-            <p className="text-[11px] font-semibold tracking-[0.3em] text-white/40 uppercase mt-2">
-              SWEET SCULPTURES
-            </p>
-          </div>
+          <SectionHeader
+            eyebrow="Sweet Sculptures"
+            heading="Parfaits"
+            theme="dark"
+            align="center"
+            className="mb-12"
+          />
         </FadeIn>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
@@ -151,17 +148,10 @@ function SweetsLunchSection({
   const featuredLunch = lunchItems[0] ?? null;
 
   return (
-    <section className="bg-white py-16 lg:py-24">
+    <section className="bg-navy section-pad">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <FadeIn>
-          <div className="mb-10">
-            <h2 className="text-3xl md:text-4xl font-bold text-charcoal">
-              Sweets &amp; Lunch
-            </h2>
-            <p className="text-[11px] font-semibold tracking-[0.3em] text-gray-400 uppercase mt-1.5">
-              CRAFTED DAILY
-            </p>
-          </div>
+          <SectionHeader eyebrow="Crafted Daily" heading="Sweets &amp; Lunch" className="mb-10" />
         </FadeIn>
 
         {/* Sweets grid */}
@@ -207,7 +197,7 @@ function SweetsLunchSection({
                     {featuredLunch.name}
                   </h3>
                   {featuredLunch.description && (
-                    <p className="text-sm text-gray-500 leading-[2] mb-8">
+                    <p className="text-sm text-charcoal/60 leading-[2] mb-8">
                       {featuredLunch.description}
                     </p>
                   )}

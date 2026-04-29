@@ -13,13 +13,14 @@ export const metadata: Metadata = {
 // ─── ページヘッダー ────────────────────────────
 function PageHeader() {
   return (
-    <section className="bg-cream -mt-16 pt-[7.5rem] pb-8 lg:pt-32 lg:pb-10">
+    <section className="bg-orange -mt-16 pt-[7.5rem] pb-12 lg:pt-32 lg:pb-16">
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
-        <h1 className="font-serif text-6xl sm:text-7xl md:text-8xl font-bold text-charcoal leading-none tracking-tight">
+        <p className="font-display text-cream/60 text-xs tracking-[0.4em] uppercase mb-4">
+          Latest Updates
+        </p>
+        <h1 className="font-display text-cream leading-none text-[18vw] sm:text-[14vw] md:text-[10vw] lg:text-[120px]">
           NEWS
         </h1>
-        {/* 赤い横線（短め・左寄せ） */}
-        <div className="w-14 h-[2px] bg-accent mt-5" />
       </div>
     </section>
   );

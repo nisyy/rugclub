@@ -1,23 +1,172 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────
+   Design Tokens  ― dilly-dally inspired
+   ───────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F0E6D2;
+  --foreground: #1A2535;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-cream: #F5F0E8;
-  --color-accent: #C41E3A;
-  --color-forest: #2D5016;
-  --color-charcoal: #1A1A1A;
+  /* ── Color Palette ── */
+  --color-background:  var(--background);
+  --color-foreground:  var(--foreground);
+
+  --color-orange:  #C4531A;   /* メインオレンジ */
+  --color-navy:    #1A2535;   /* 濃紺 */
+  --color-teal:    #1B4848;   /* テール */
+  --color-olive:   #3A3220;   /* オリーブ */
+  --color-cream:   #F0E6D2;   /* クリーム */
+  --color-white:   #FFFFFF;
+
+  /* 旧トークン互換 */
+  --color-accent:   #C4531A;
+  --color-forest:   #1B4848;  /* teal にリマップ */
+  --color-charcoal: #1A2535;  /* navy にリマップ */
+
+  /* ── Fonts ── */
+  --font-display: var(--font-display), ui-sans-serif, sans-serif;
+  --font-sans:    var(--font-body), ui-sans-serif, sans-serif;
+  --font-mono:    ui-monospace, monospace;
 }
 
+/* ─────────────────────────────────────────────
+   背景色 → テキスト色 自動マッピング
+   ───────────────────────────────────────────── */
+
+/* 暗い背景 → クリームテキスト */
+.bg-orange,
+.bg-navy,
+.bg-teal,
+.bg-olive,
+.bg-forest,
+.bg-charcoal {
+  color: #F0E6D2;
+}
+
+/* 明るい背景 → ネイビーテキスト */
+.bg-cream,
+.bg-white {
+  color: #1A2535;
+}
+
+/* ─────────────────────────────────────────────
+   Base
+   ───────────────────────────────────────────── */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ─────────────────────────────────────────────
+   Display Font
+   ───────────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+/* ─────────────────────────────────────────────
+   Outline Text（抜き文字）
+   ───────────────────────────────────────────── */
+.text-outline {
+  -webkit-text-stroke: 3px currentColor;
+  -webkit-text-fill-color: transparent;
+}
+@media (min-width: 768px) {
+  .text-outline { -webkit-text-stroke: 4px currentColor; }
+}
+
+/* ─────────────────────────────────────────────
+   Eyebrow
+   ───────────────────────────────────────────── */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+/* ─────────────────────────────────────────────
+   Parenthesis Label（ NEWS ）スタイル
+   ───────────────────────────────────────────── */
+.paren-label::before { content: '（ '; }
+.paren-label::after  { content: ' ）'; }
+
+/* ─────────────────────────────────────────────
+   Section Padding
+   ───────────────────────────────────────────── */
+.section-pad {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+@media (min-width: 1024px) {
+  .section-pad {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   CTA Buttons
+   ───────────────────────────────────────────── */
+.btn-solid {
+  display: inline-block;
+  background-color: #F0E6D2;
+  color: #C4531A;
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.85rem 2.5rem;
+  transition: background-color 0.25s, color 0.25s;
+}
+.btn-solid:hover {
+  background-color: #ffffff;
+  color: #1A2535;
+}
+
+/* pill 形状のボタン（More ボタン用） */
+.btn-pill {
+  display: inline-block;
+  background-color: #C4531A;
+  color: #F0E6D2;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 4rem;
+  border-radius: 9999px;
+  transition: background-color 0.25s;
+}
+.btn-pill:hover { background-color: #a33d0f; }
+
+.btn-outline {
+  display: inline-block;
+  border: 2px solid currentColor;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.75rem 1.75rem;
+  transition: background-color 0.25s, color 0.25s;
+}
+.btn-outline:hover { background-color: rgba(255,255,255,0.15); }
+
+.btn-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: opacity 0.2s;
+}
+.btn-text:hover { opacity: 0.7; }
+.btn-text > span:last-child { transition: transform 0.2s; }
+.btn-text:hover > span:last-child { transform: translateX(4px); }

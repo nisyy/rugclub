@@ -96,7 +96,7 @@ const policies = [
 // ─────────────────────────────────────────────
 function PageHeader() {
   return (
-    <section className="bg-cream -mt-16 pt-32 pb-16 lg:pt-36 lg:pb-20">
+    <section className="bg-orange -mt-16 pt-32 pb-16 lg:pt-36 lg:pb-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* 左：テキストコンテンツ */}
@@ -109,13 +109,13 @@ function PageHeader() {
               </p>
 
               {/* タイトル */}
-              <h1 className="font-serif text-5xl sm:text-6xl md:text-5xl lg:text-6xl font-bold text-charcoal leading-tight mb-6">
+              <h1 className="text-5xl sm:text-6xl md:text-5xl lg:text-6xl font-bold text-charcoal leading-tight mb-6">
                 SPACE{' '}
                 <span className="text-accent italic font-black">RENTAL</span>
               </h1>
 
               {/* 説明文 */}
-              <p className="text-sm text-gray-600 leading-[2] mb-8 max-w-sm">
+              <p className="text-sm text-charcoal/60 leading-[2] mb-8 max-w-sm">
                 高い天井と自然光が差し込むギャラリースペースで、展示会、ワークショップ、
                 プライベートイベントを開催しませんか。クリエイティブ地区の中心に位置する
                 Cafe RUG CLUBは、プロフェッショナルなアート展示と居心地の良い社交の場を
@@ -161,13 +161,13 @@ function PageHeader() {
 // ─────────────────────────────────────────────
 function AtmosphereSection() {
   return (
-    <section className="bg-cream py-16 lg:py-24">
+    <section className="bg-navy py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         {/* セクションヘッダー */}
         <FadeIn>
           <div className="mb-10">
             <h2 className="text-3xl md:text-4xl font-bold text-charcoal">Atmosphere</h2>
-            <p className="text-sm text-gray-400 mt-1.5">店内の雰囲気</p>
+            <p className="text-sm text-charcoal/40 mt-1.5">店内の雰囲気</p>
           </div>
         </FadeIn>
 
@@ -196,13 +196,13 @@ function AtmosphereSection() {
 // ─────────────────────────────────────────────
 function RentalPolicySection() {
   return (
-    <section className="bg-white py-16 lg:py-24">
+    <section className="bg-cream py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
         {/* セクションヘッダー */}
         <FadeIn>
           <div className="mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-charcoal">Rental Policy</h2>
-            <p className="text-sm text-gray-400 mt-1.5">レンタル利用規約</p>
+            <p className="text-sm text-charcoal/40 mt-1.5">レンタル利用規約</p>
           </div>
         </FadeIn>
 
@@ -218,7 +218,7 @@ function RentalPolicySection() {
                 {/* タイトル */}
                 <h3 className="text-base font-bold text-charcoal mb-2">{policy.title}</h3>
                 {/* 説明文 */}
-                <p className="text-xs text-gray-500 leading-[2]">{policy.body}</p>
+                <p className="text-xs text-charcoal/60 leading-[2]">{policy.body}</p>
               </div>
             </FadeIn>
           ))}

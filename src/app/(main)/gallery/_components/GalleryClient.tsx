@@ -1,10 +1,11 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
 import { useState } from 'react';
 import type { AdminGalleryItem } from '@/types/admin';
 import FadeIn from '@/components/ui/FadeIn';
+import SectionHeader from '@/components/ui/SectionHeader';
+import CTAButton from '@/components/ui/CTAButton';
 
 // ─────────────────────────────────────────────
 // Types
@@ -39,7 +40,7 @@ function PageHeader({
               <h1 className="font-serif text-6xl sm:text-7xl md:text-8xl font-bold text-charcoal leading-none tracking-tight">
                 GALLERY
               </h1>
-              <p className="text-sm text-gray-500 mt-4 leading-relaxed">
+              <p className="text-sm text-charcoal/60 mt-4 leading-relaxed">
                 Cafe RUG CLUBで現在展示中のユニークな作品をご覧ください。すべての作品には
                 物語があり、購入を通じて地元のインディペンデント・アーティストを支援する
                 ことができます。
@@ -105,7 +106,7 @@ function ArtworkGrid({ items }: { items: AdminGalleryItem[] }) {
                   {/* カード下テキスト */}
                   <div className="mt-2.5">
                     <p className="text-sm font-semibold text-charcoal">{art.title}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{art.artist}</p>
+                    <p className="text-xs text-charcoal/60 mt-0.5">{art.artist}</p>
                   </div>
                 </article>
               </FadeIn>
@@ -128,11 +129,12 @@ function FeaturedArtist() {
           <div className="bg-cream rounded-xl px-8 sm:px-12 py-10 flex flex-col md:flex-row gap-10 items-start">
             {/* 左：テキストコンテンツ */}
             <div className="flex-1">
-              <p className="text-[11px] font-bold tracking-[0.3em] text-accent uppercase mb-3">
-                今月のアーティスト
-              </p>
-              <h2 className="text-4xl md:text-5xl font-bold text-charcoal mb-5">坂本 将</h2>
-              <p className="text-sm text-gray-600 leading-[2] max-w-sm mb-8">
+              <SectionHeader
+                eyebrow="今月のアーティスト"
+                heading="坂本 将"
+                className="mb-5"
+              />
+              <p className="text-sm text-charcoal/60 leading-[2] max-w-sm mb-8">
                 ポートランドを拠点に活動する坂本の作品は、朝の儀式と感情の風景が交差する
                 地点を探求しています。コーヒーで染めたような質感と、鮮やかなインパスト
                 （厚塗り）の油彩は、RUG CLUBコレクションの代名詞となっています。
@@ -193,22 +195,17 @@ function FeaturedArtist() {
 // ─────────────────────────────────────────────
 function SubmissionCTA() {
   return (
-    <section className="bg-cream py-20 lg:py-28">
+    <section className="bg-cream section-pad">
       <FadeIn>
         <div className="max-w-lg mx-auto px-6 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-charcoal leading-snug mb-4">
-            あなたの作品を展示しませんか？
-          </h2>
-          <p className="text-sm text-gray-500 leading-[2] mb-10">
-            私たちは、常に新しい視点を持つ作品を募集しています。
-            応募は四半期ごとに行っています。
-          </p>
-          <Link
-            href="/contact"
-            className="inline-flex items-center justify-center bg-charcoal text-white text-sm font-semibold tracking-wider px-10 py-4 rounded-full hover:bg-charcoal/80 transition-colors duration-200"
-          >
-            応募する
-          </Link>
+          <SectionHeader
+            eyebrow="Open Call"
+            heading="あなたの作品を展示しませんか？"
+            body="私たちは、常に新しい視点を持つ作品を募集しています。応募は四半期ごとに行っています。"
+            align="center"
+            className="mb-10"
+          />
+          <CTAButton href="/contact" variant="outline">応募する</CTAButton>
         </div>
       </FadeIn>
     </section>
