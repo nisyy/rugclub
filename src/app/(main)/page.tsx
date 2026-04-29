@@ -81,8 +81,8 @@ function HeroSection() {
           </FadeIn>
         </div>
 
-        {/* カルーセル：-mt で見出し下端に重なる */}
-        <div className="relative -mt-[14vw] h-[62vh] overflow-hidden">
+        {/* カルーセル：-mt で見出し下端に重なる（SP は 4:3 比率） */}
+        <div className="relative -mt-[14vw] aspect-[4/3] overflow-hidden">
           <HeroCarousel />
         </div>
 
