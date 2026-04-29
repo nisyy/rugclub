@@ -141,25 +141,25 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
                   <li key={item.id}>
                     <Link
                       href={`/news/${item.id}`}
-                      className="flex items-center gap-5 py-5 group"
+                      className="block group py-5"
                     >
-                      {/* カテゴリバッジ（固定幅・1行強制） */}
-                      <span className="shrink-0 w-32 text-center text-[10px] font-bold tracking-[0.08em] text-navy/55 whitespace-nowrap overflow-hidden">
-                        （{displayCat(item.category)}）
-                      </span>
-
-                      {/* 日付 + タイトル */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-semibold tracking-[0.2em] text-navy/40 mb-1.5 tabular-nums">
-                          {formatDate(item.date)}
-                        </p>
-                        <h2 className="text-sm text-navy leading-snug group-hover:text-orange transition-colors duration-200">
-                          {item.title}
-                        </h2>
+                      {/* 上段：カテゴリ + 日付 + 矢印 */}
+                      <div className="flex items-center justify-between mb-2.5">
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] font-bold tracking-[0.08em] text-navy/55 whitespace-nowrap">
+                            （{displayCat(item.category)}）
+                          </span>
+                          <span className="text-[10px] font-semibold tracking-[0.15em] text-navy/40 tabular-nums">
+                            {formatDate(item.date)}
+                          </span>
+                        </div>
+                        <ArrowCircle />
                       </div>
 
-                      {/* 矢印ボタン */}
-                      <ArrowCircle />
+                      {/* 下段：タイトル */}
+                      <h2 className="text-sm font-bold text-navy leading-snug group-hover:text-orange transition-colors duration-200">
+                        {item.title}
+                      </h2>
                     </Link>
 
                     {/* 区切りライン */}
