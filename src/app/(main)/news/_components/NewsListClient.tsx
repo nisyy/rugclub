@@ -12,6 +12,14 @@ function formatDate(iso: string): string {
   return `${y}.${Number(m)}.${Number(d)}`;
 }
 
+// カテゴリ表示名マッピング（長すぎる名前を短縮）
+const CATEGORY_LABEL: Record<string, string> = {
+  'NEWS & EVENTS': 'EVENT',
+};
+function displayCat(cat: string): string {
+  return cat === 'ALL' ? 'すべて' : (CATEGORY_LABEL[cat] ?? cat);
+}
+
 // ─── 斜め矢印ボタン ────────────────────────────
 function ArrowCircle() {
   return (
@@ -91,7 +99,7 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
                       : 'text-navy/60 hover:text-navy'
                   }`}
                 >
-                  {cat === 'ALL' ? 'すべて' : cat}
+                  {displayCat(cat)}
                 </button>
               ))}
             </div>
@@ -104,24 +112,24 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
             <div className="mb-8">
               <hr className="border-navy/15" />
               <p className="font-display text-navy text-2xl md:text-3xl text-center py-5">
-                {activeCategory === 'ALL' ? 'ALL' : activeCategory}
+                {activeCategory === 'ALL' ? 'ALL' : displayCat(activeCategory)}
               </p>
               <hr className="border-navy/15" />
             </div>
 
             {/* スマホ用カテゴリ横スクロール */}
-            <div className="flex md:hidden gap-2 overflow-x-auto pb-4 mb-4 -mx-1 px-1">
+            <div className="flex md:hidden gap-1.5 overflow-x-auto pb-3 mb-4 -mx-1 px-1 scrollbar-none">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => handleCategory(cat)}
-                  className={`shrink-0 text-[11px] font-bold tracking-[0.15em] px-4 py-2 border transition-colors duration-200 ${
+                  className={`shrink-0 text-[10px] font-bold tracking-[0.05em] px-3 py-1.5 border transition-colors duration-200 whitespace-nowrap ${
                     activeCategory === cat
                       ? 'bg-navy text-cream border-navy'
                       : 'bg-transparent text-navy/60 border-navy/20 hover:border-navy/50'
                   }`}
                 >
-                  {cat === 'ALL' ? 'すべて' : cat}
+                  {displayCat(cat)}
                 </button>
               ))}
             </div>
@@ -136,8 +144,8 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
                       className="flex items-center gap-5 py-5 group"
                     >
                       {/* カテゴリバッジ（固定幅・1行強制） */}
-                      <span className="shrink-0 w-44 text-center text-[10px] font-bold tracking-[0.1em] text-navy/55 whitespace-nowrap overflow-hidden">
-                        （{item.category}）
+                      <span className="shrink-0 w-32 text-center text-[10px] font-bold tracking-[0.08em] text-navy/55 whitespace-nowrap overflow-hidden">
+                        （{displayCat(item.category)}）
                       </span>
 
                       {/* 日付 + タイトル */}
