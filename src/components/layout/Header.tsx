@@ -112,9 +112,11 @@ export default function Header() {
               onClick={openMenu}
               aria-label="メニューを開く"
               aria-expanded={menuState !== 'closed'}
-              className="font-display text-navy text-sm tracking-[0.25em] border-b-2 border-navy pb-0.5 hover:opacity-70 transition-opacity"
+              className="flex flex-col justify-center gap-[5px] w-8 h-8 hover:opacity-70 transition-opacity"
             >
-              MENU
+              <span className="block h-[2px] w-full bg-navy rounded-full" />
+              <span className="block h-[2px] w-full bg-navy rounded-full" />
+              <span className="block h-[2px] w-5 bg-navy rounded-full" />
             </button>
           </div>
         </div>

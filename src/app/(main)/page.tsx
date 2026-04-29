@@ -56,7 +56,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 // ─────────────────────────────────────────────
 function HeroSection() {
   return (
-    <section className="bg-orange mx-3 lg:mx-5 mt-16 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
+    <section className="bg-orange mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
 
       {/* ════════════════════════════════
           SP レイアウト（lg 未満のみ表示）
