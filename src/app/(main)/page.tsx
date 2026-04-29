@@ -47,7 +47,7 @@ function HeroSection() {
         <div className="relative z-10 px-6 pt-10 pb-2">
           <FadeIn>
             <p className="font-display text-cream/60 text-xs tracking-[0.35em] uppercase mb-4">
-              Gallery Cafe · Higashi-Osaka
+              Gallery Cafe 
             </p>
             <h1 className="font-display leading-[0.88]">
               <span className="block text-outline text-cream text-[22vw]">
@@ -92,7 +92,7 @@ function HeroSection() {
         <div className="flex flex-col justify-between py-14 px-12 w-[45%]">
           <FadeIn>
             <p className="font-display text-cream/60 text-xs tracking-[0.35em] uppercase mb-6">
-              Gallery Cafe · Higashi-Osaka
+              Gallery Cafe 
             </p>
             <h1 className="font-display leading-[0.9]">
               <span className="block text-outline text-cream text-[9.5vw]">
