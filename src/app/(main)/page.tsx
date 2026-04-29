@@ -12,7 +12,28 @@ export const metadata: Metadata = {
 };
 export const revalidate = 60;
 
-function formatDate(iso: string) { return iso.replace(/-/g, '.'); }
+function formatDate(iso: string): string {
+  const [y, m, d] = iso.split('-');
+  return `${y}.${Number(m)}.${Number(d)}`;
+}
+
+const CATEGORY_LABEL: Record<string, string> = { 'NEWS & EVENTS': 'EVENT' };
+function displayCat(cat: string): string {
+  return CATEGORY_LABEL[cat] ?? cat;
+}
+
+function ArrowCircle() {
+  return (
+    <span className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-navy/25 text-navy group-hover:bg-navy group-hover:text-cream group-hover:border-navy transition-all duration-300 shrink-0">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+        viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <line x1="7" y1="17" x2="17" y2="7" />
+        <polyline points="7 7 17 7 17 17" />
+      </svg>
+    </span>
+  );
+}
 
 const NEWS_FALLBACK    = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600';
 const GALLERY_FALLBACK = 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800';
@@ -131,36 +152,6 @@ function HeroSection() {
 }
 
 // ─────────────────────────────────────────────
-// 2. Concept  bg: navy
-// ─────────────────────────────────────────────
-function ConceptSection() {
-  return (
-    <section className="bg-navy mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
-      <SectionLabel>Concept</SectionLabel>
-      <hr className="border-cream/15 mx-6 lg:mx-10" />
-
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 section-pad">
-        <FadeIn>
-          <div className="max-w-2xl">
-            <h2 className="font-display text-cream text-3xl md:text-5xl leading-tight mb-8">
-              アートを、<br />もっと身近に。
-            </h2>
-            <p className="text-cream/70 text-sm leading-[2.2] mb-10">
-              RUG CLUBは単なるカフェではありません。日常と芸術表現の境界が溶け合う、
-              洗練された空間です。アートは静かなギャラリーの中だけに閉じ込められるべきではない、
-              私たちはそう考えています。
-            </p>
-            <Link href="/about" className="btn-outline text-cream border-cream">
-              LEARN MORE
-            </Link>
-          </div>
-        </FadeIn>
-      </div>
-    </section>
-  );
-}
-
-// ─────────────────────────────────────────────
 // 3. Menu Highlights  bg: cream（明るいセクション）
 // ─────────────────────────────────────────────
 function MenuSection() {
@@ -249,54 +240,55 @@ function GallerySection({ items }: { items: AdminGalleryItem[] }) {
 }
 
 // ─────────────────────────────────────────────
-// 5. News  bg: olive
+// 5. News（フラット・ニュースページと同一スタイル）
 // ─────────────────────────────────────────────
 function NewsSection({ items }: { items: AdminNewsItem[] }) {
   const display = items.slice(0, 3);
   return (
-    <section className="bg-olive mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
-      <div className="flex items-center justify-between">
-        <SectionLabel>News</SectionLabel>
-        <Link href="/news"
-          className="eyebrow text-cream/60 hover:text-cream transition-colors mr-6 lg:mr-10">
-          VIEW ALL →
-        </Link>
-      </div>
-      <hr className="border-cream/15 mx-6 lg:mx-10" />
+    <section className="mb-5 max-w-7xl mx-auto px-6 lg:px-10">
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 section-pad">
-        {display.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {display.map((item, i) => (
-              <FadeIn key={item.id} delay={i * 100}>
-                <Link href={`/news/${item.id}`}>
-                  <article className="group">
-                    <div className="relative aspect-[4/3] overflow-hidden mb-4">
-                      <Image
-                        src={item.thumbnailUrl || NEWS_FALLBACK}
-                        alt={item.title}
-                        fill
-                        className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
-                      />
-                    </div>
-                    <p className="eyebrow text-orange mb-2">
-                      {item.category} · {formatDate(item.date)}
-                    </p>
-                    <h3 className="font-display text-cream text-base leading-snug mb-2">
-                      {item.title}
-                    </h3>
-                    <span className="eyebrow text-cream/50 group-hover:text-cream transition-colors duration-200">
-                      READ MORE →
-                    </span>
-                  </article>
-                </Link>
-              </FadeIn>
-            ))}
-          </div>
-        ) : (
-          <p className="text-cream/50 text-sm text-center py-10">最新のニュースはありません。</p>
-        )}
+      {/* セクション見出し */}
+      <div className="pt-5 pb-4">
+        <h2 className="font-display text-navy text-2xl md:text-3xl tracking-wide">News</h2>
       </div>
+      <hr className="border-navy/15" />
+
+      {/* リスト */}
+      {display.length > 0 ? (
+        <ul>
+          {display.map((item) => (
+            <li key={item.id}>
+              <Link href={`/news/${item.id}`} className="block group py-5">
+                {/* 上段：カテゴリ + 日付 + 矢印 */}
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-bold tracking-[0.08em] text-navy/55 whitespace-nowrap">
+                      （{displayCat(item.category)}）
+                    </span>
+                    <span className="text-[10px] font-semibold tracking-[0.15em] text-navy/40 tabular-nums">
+                      {formatDate(item.date)}
+                    </span>
+                  </div>
+                  <ArrowCircle />
+                </div>
+                {/* 下段：タイトル */}
+                <h3 className="text-sm font-bold text-navy leading-snug group-hover:text-orange transition-colors duration-200">
+                  {item.title}
+                </h3>
+              </Link>
+              <div className="h-px bg-navy/12" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-navy/40 text-sm text-center py-10">最新のニュースはありません。</p>
+      )}
+
+      {/* MORE ボタン */}
+      <div className="mt-8 mb-5 text-center">
+        <Link href="/news" className="btn-pill">MORE</Link>
+      </div>
+
     </section>
   );
 }
@@ -315,7 +307,6 @@ export default async function HomePage() {
   return (
     <>
       <HeroSection />
-      <ConceptSection />
       <MenuSection />
       <GallerySection items={galleryItems} />
       <NewsSection items={newsItems} />
