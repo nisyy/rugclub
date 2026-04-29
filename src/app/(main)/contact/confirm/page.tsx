@@ -42,11 +42,11 @@ function ThanksView() {
           </svg>
         </div>
 
-        <h2 className="font-serif text-4xl sm:text-5xl font-bold text-charcoal tracking-widest mb-5">
+        <h2 className="font-serif text-4xl sm:text-5xl font-bold text-navy tracking-widest mb-5">
           Thank You
         </h2>
-        <div className="w-10 h-px bg-charcoal/20 mx-auto mb-8" />
-        <p className="text-sm text-gray-500 leading-[2.2] mb-10">
+        <div className="w-10 h-px bg-navy/20 mx-auto mb-8" />
+        <p className="text-sm text-navy/50 leading-[2.2] mb-10">
           お問い合わせを受け付けました。<br />
           内容を確認のうえ、担当者よりご連絡いたします。
         </p>
@@ -106,13 +106,13 @@ export default function ContactConfirmPage() {
 
         {/* ページヘッダー */}
         <div className="text-center mb-14">
-          <h1 className="font-serif text-5xl sm:text-6xl font-bold text-charcoal tracking-widest mb-4">
+          <h1 className="font-serif text-5xl sm:text-6xl font-bold text-navy tracking-widest mb-4">
             CONFIRM
           </h1>
-          <p className="text-sm text-gray-400 mb-6">
+          <p className="text-sm text-navy/40 mb-6">
             以下の内容でよろしいですか？
           </p>
-          <div className="w-10 h-px bg-charcoal/20 mx-auto" />
+          <div className="w-10 h-px bg-navy/20 mx-auto" />
         </div>
 
         {/* 入力内容確認テーブル */}
@@ -121,20 +121,20 @@ export default function ContactConfirmPage() {
             <div
               key={key}
               className={`flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-8 py-5 ${
-                i < arr.length - 1 ? 'border-b border-charcoal/10' : ''
+                i < arr.length - 1 ? 'border-b border-navy/10' : ''
               }`}
             >
-              <span className="text-[11px] font-semibold tracking-[0.2em] text-gray-400 uppercase sm:w-36 shrink-0 pt-0.5">
+              <span className="text-[11px] font-semibold tracking-[0.2em] text-navy/40 uppercase sm:w-36 shrink-0 pt-0.5">
                 {label}
               </span>
-              <span className="text-sm text-charcoal leading-[1.8] whitespace-pre-wrap flex-1">
+              <span className="text-sm text-navy leading-[1.8] whitespace-pre-wrap flex-1">
                 {form[key]}
               </span>
             </div>
           ))}
         </div>
 
-        <hr className="border-charcoal/10 mb-10" />
+        <hr className="border-navy/10 mb-10" />
 
         {/* ボタンエリア */}
         <div className="flex flex-col-reverse sm:flex-row items-center justify-center gap-6">
@@ -142,7 +142,7 @@ export default function ContactConfirmPage() {
           {/* ← 修正する */}
           <Link
             href="/contact"
-            className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.25em] text-charcoal/40 uppercase hover:text-charcoal transition-colors duration-200"
+            className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.25em] text-navy/40 uppercase hover:text-navy transition-colors duration-200"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

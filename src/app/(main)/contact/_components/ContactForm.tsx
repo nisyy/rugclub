@@ -19,7 +19,7 @@ const SUBJECT_OPTIONS = [
 ];
 
 const inputBase =
-  'w-full bg-transparent border-0 border-b border-charcoal/20 py-3 text-sm text-charcoal placeholder:text-charcoal/30 focus:outline-none focus:border-[#C8552A] transition-colors duration-200';
+  'w-full bg-white border border-navy/20 rounded-lg px-4 py-3 text-sm text-navy placeholder:text-navy/30 focus:outline-none focus:border-orange transition-colors duration-200';
 
 export default function ContactForm() {
   const router = useRouter();
@@ -66,7 +66,7 @@ export default function ContactForm() {
 
       {/* お名前 */}
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-2">
+        <label className="block text-sm font-medium text-navy mb-2">
           お名前
           <span className="ml-1 text-[#C8552A] text-xs">（必須）</span>
         </label>
@@ -84,7 +84,7 @@ export default function ContactForm() {
 
       {/* メールアドレス */}
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-2">
+        <label className="block text-sm font-medium text-navy mb-2">
           メールアドレス
           <span className="ml-1 text-[#C8552A] text-xs">（必須）</span>
         </label>
@@ -102,7 +102,7 @@ export default function ContactForm() {
 
       {/* 電話番号 */}
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-2">
+        <label className="block text-sm font-medium text-navy mb-2">
           電話番号
         </label>
         <input
@@ -116,7 +116,7 @@ export default function ContactForm() {
 
       {/* お問い合わせ件名 */}
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-2">
+        <label className="block text-sm font-medium text-navy mb-2">
           お問い合わせ件名
           <span className="ml-1 text-[#C8552A] text-xs">（必須）</span>
         </label>
@@ -132,7 +132,7 @@ export default function ContactForm() {
             ))}
           </select>
           {/* chevron */}
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-charcoal/40">
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-navy/40">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -155,7 +155,7 @@ export default function ContactForm() {
 
       {/* お問い合わせ内容 */}
       <div>
-        <label className="block text-sm font-medium text-charcoal mb-2">
+        <label className="block text-sm font-medium text-navy mb-2">
           お問い合わせ内容
           <span className="ml-1 text-[#C8552A] text-xs">（必須）</span>
         </label>
@@ -172,7 +172,7 @@ export default function ContactForm() {
       </div>
 
       {/* Divider */}
-      <hr className="border-charcoal/10" />
+      <hr className="border-navy/10" />
 
       {/* Submit button */}
       <div className="flex justify-center pt-2">
