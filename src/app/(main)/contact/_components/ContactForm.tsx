@@ -68,7 +68,7 @@ export default function ContactForm() {
       <div>
         <label className="block text-sm font-medium text-navy mb-2">
           お名前
-          <span className="ml-1 text-[#C8552A] text-xs">（必須）</span>
+          <span className="ml-1 text-orange text-xs">（必須）</span>
         </label>
         <input
           type="text"
@@ -78,7 +78,7 @@ export default function ContactForm() {
           className={inputBase}
         />
         {errors.name && (
-          <p className="mt-1.5 text-xs text-[#C8552A]">{errors.name}</p>
+          <p className="mt-1.5 text-xs text-orange">{errors.name}</p>
         )}
       </div>
 
@@ -86,7 +86,7 @@ export default function ContactForm() {
       <div>
         <label className="block text-sm font-medium text-navy mb-2">
           メールアドレス
-          <span className="ml-1 text-[#C8552A] text-xs">（必須）</span>
+          <span className="ml-1 text-orange text-xs">（必須）</span>
         </label>
         <input
           type="email"
@@ -96,7 +96,7 @@ export default function ContactForm() {
           className={inputBase}
         />
         {errors.email && (
-          <p className="mt-1.5 text-xs text-[#C8552A]">{errors.email}</p>
+          <p className="mt-1.5 text-xs text-orange">{errors.email}</p>
         )}
       </div>
 
@@ -118,7 +118,7 @@ export default function ContactForm() {
       <div>
         <label className="block text-sm font-medium text-navy mb-2">
           お問い合わせ件名
-          <span className="ml-1 text-[#C8552A] text-xs">（必須）</span>
+          <span className="ml-1 text-orange text-xs">（必須）</span>
         </label>
         <div className="relative">
           <select
@@ -149,7 +149,7 @@ export default function ContactForm() {
           </span>
         </div>
         {errors.subject && (
-          <p className="mt-1.5 text-xs text-[#C8552A]">{errors.subject}</p>
+          <p className="mt-1.5 text-xs text-orange">{errors.subject}</p>
         )}
       </div>
 
@@ -157,7 +157,7 @@ export default function ContactForm() {
       <div>
         <label className="block text-sm font-medium text-navy mb-2">
           お問い合わせ内容
-          <span className="ml-1 text-[#C8552A] text-xs">（必須）</span>
+          <span className="ml-1 text-orange text-xs">（必須）</span>
         </label>
         <textarea
           value={form.message}
@@ -167,7 +167,7 @@ export default function ContactForm() {
           className={`${inputBase} resize-none`}
         />
         {errors.message && (
-          <p className="mt-1.5 text-xs text-[#C8552A]">{errors.message}</p>
+          <p className="mt-1.5 text-xs text-orange">{errors.message}</p>
         )}
       </div>
 
@@ -178,7 +178,7 @@ export default function ContactForm() {
       <div className="flex justify-center pt-2">
         <button
           type="submit"
-          className="w-full max-w-xs bg-[#C8552A] text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-[#a84020] transition-colors duration-200"
+          className="w-full max-w-xs bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-orange-dark transition-colors duration-200"
         >
           確認する →
         </button>

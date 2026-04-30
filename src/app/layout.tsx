@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans_JP, Dela_Gothic_One } from "next/font/google";
 import "./globals.css";
+import { COLORS } from "@/lib/colors";
 
 // 本文・UIフォント（日本語対応）
 const notoSansJP = Noto_Sans_JP({
@@ -45,7 +46,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#C4531A",
+  themeColor: COLORS.orange,
 };
 
 export default function RootLayout({

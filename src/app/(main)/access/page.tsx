@@ -185,7 +185,7 @@ export default function AccessPage() {
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 w-full bg-orange text-cream
                                font-display text-[11px] tracking-[0.25em] uppercase
-                               py-3 rounded-lg hover:bg-[#a33d0f] transition-colors duration-200"
+                               py-3 rounded-lg hover:bg-orange-dark transition-colors duration-200"
                   >
                     <PinIcon />
                     OPEN IN MAPS

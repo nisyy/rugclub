@@ -29,7 +29,7 @@ export default function Footer() {
                 hover:opacity-80 transition-opacity duration-200 shrink-0"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                viewBox="0 0 24 24" fill="none" stroke="#C4531A"
+                viewBox="0 0 24 24" fill="none" stroke="var(--color-orange)"
                 strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -46,7 +46,7 @@ export default function Footer() {
                 hover:opacity-80 transition-opacity duration-200 shrink-0"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                viewBox="0 0 24 24" fill="#C4531A">
+                viewBox="0 0 24 24" fill="var(--color-orange)">
                 <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
               </svg>
             </a>

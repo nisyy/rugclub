@@ -72,10 +72,10 @@ function HeroSection() {
             </p>
             <h1 className="font-display leading-[0.88]">
               <span className="block text-outline text-cream text-[22vw]">
-                今日も、
+                Where coffee
               </span>
               <span className="block text-cream text-[22vw]">
-                感性から。
+                meets art.
               </span>
             </h1>
           </FadeIn>
@@ -117,10 +117,10 @@ function HeroSection() {
             </p>
             <h1 className="font-display leading-[0.9]">
               <span className="block text-outline text-cream text-[9.5vw]">
-                今日も、
+                Where coffee 
               </span>
               <span className="block text-cream text-[9.5vw]">
-                感性から。
+                meets art.
               </span>
             </h1>
           </FadeIn>

@@ -26,14 +26,14 @@ function ThanksView() {
     <section className="bg-cream min-h-screen flex items-center justify-center py-16">
       <div className="text-center px-6">
         {/* チェックアイコン */}
-        <div className="w-16 h-16 rounded-full bg-[#C8552A]/10 flex items-center justify-center mx-auto mb-8">
+        <div className="w-16 h-16 rounded-full bg-orange/10 flex items-center justify-center mx-auto mb-8">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="28"
             height="28"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#C8552A"
+            stroke="var(--color-orange)"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -53,7 +53,7 @@ function ThanksView() {
 
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.25em] text-[#C8552A] uppercase hover:opacity-70 transition-opacity duration-200"
+          className="inline-flex items-center gap-1.5 text-[11px] font-bold tracking-[0.25em] text-orange uppercase hover:opacity-70 transition-opacity duration-200"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -190,8 +190,8 @@ export default function ContactConfirmPage() {
           <button
             onClick={handleSubmit}
             disabled={sending}
-            className="w-full max-w-xs bg-[#C8552A] text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full
-              hover:bg-[#a84020] transition-colors duration-200
+            className="w-full max-w-xs bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full
+              hover:bg-orange-dark transition-colors duration-200
               disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {sending ? (

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { COLORS } from '@/lib/colors';
 
 // ─────────────────────────────────────────────
 // Types
@@ -18,7 +19,7 @@ interface ContactPayload {
 function buildHtml(data: ContactPayload): string {
   return `
 <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e;">
-  <h2 style="border-bottom:2px solid #C4531A;padding-bottom:8px;color:#C4531A;">
+  <h2 style="border-bottom:2px solid ${COLORS.orange};padding-bottom:8px;color:${COLORS.orange};">
     お問い合わせが届きました
   </h2>
   <table style="width:100%;border-collapse:collapse;margin:24px 0;">
@@ -50,7 +51,7 @@ function buildHtml(data: ContactPayload): string {
     </tr>
   </table>
   <h3 style="color:#333;font-size:14px;">お問い合わせ内容</h3>
-  <div style="background:#f9f6f0;padding:16px;border-left:3px solid #C4531A;white-space:pre-wrap;">
+  <div style="background:#f9f6f0;padding:16px;border-left:3px solid ${COLORS.orange};white-space:pre-wrap;">
 ${data.message}
   </div>
   <p style="margin-top:32px;font-size:11px;color:#999;">

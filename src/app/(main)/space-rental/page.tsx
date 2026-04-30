@@ -129,7 +129,7 @@ function PageHeader() {
               {/* CTAボタン */}
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-2.5 bg-accent text-white text-sm font-semibold tracking-wide px-6 py-3 rounded-full hover:bg-red-800 transition-colors duration-200"
+                className="inline-flex items-center gap-2.5 bg-accent text-white text-sm font-semibold tracking-wide px-6 py-3 rounded-full hover:bg-orange-dark transition-colors duration-200"
               >
                 {/* メールアイコン */}
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"

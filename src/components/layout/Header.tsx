@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
 
 // ナビリンク（英語ラベル + 日本語サブタイトル）※ HOME は除く（ロゴがその役割を担う）
@@ -104,8 +105,14 @@ export default function Header() {
       <header className="fixed top-0 inset-x-0 z-50 bg-transparent">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="font-display text-navy text-xl font-bold tracking-wider">
-              RUG<span className="text-orange"> CLUB</span>
+            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200">
+              <Image
+                src="/RUG_CLUB_logo2.png"
+                alt="RUG CLUB ロゴ"
+                width={120}
+                height={80}
+                className="object-contain"
+              />
             </Link>
             <button
               onClick={openMenu}
@@ -131,7 +138,7 @@ export default function Header() {
           width: `${CIRCLE_SIZE}px`,
           height: `${CIRCLE_SIZE}px`,
           borderRadius: '50%',
-          backgroundColor: '#C4531A',
+          backgroundColor: 'var(--color-orange)',
           zIndex: 55,
           transformOrigin: 'center',
           transform: `scale(${circleExpanded ? expandScale : 0})`,
@@ -158,9 +165,18 @@ export default function Header() {
           <Link
             href="/"
             onClick={closeMenu}
-            className="font-display text-cream text-xl font-bold tracking-wider"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-200"
           >
-            RUG<span className="text-cream/60"> CLUB</span>
+            <Image
+              src="/RUG_CLUB_logo2.png"
+              alt="RUG CLUB ロゴ"
+              width={36}
+              height={36}
+              className="object-contain"
+            />
+            <span className="font-display text-cream text-xl font-bold tracking-wider">
+              RUG<span className="text-cream/60"> CLUB</span>
+            </span>
           </Link>
 
           {/* 閉じるボタン（黒丸×） */}
@@ -232,7 +248,7 @@ export default function Header() {
                   hover:opacity-80 transition-opacity duration-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
-                  viewBox="0 0 24 24" fill="none" stroke="#C4531A"
+                  viewBox="0 0 24 24" fill="none" stroke="var(--color-orange)"
                   strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
                   <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
@@ -249,7 +265,7 @@ export default function Header() {
                   hover:opacity-80 transition-opacity duration-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                  viewBox="0 0 24 24" fill="#C4531A">
+                  viewBox="0 0 24 24" fill="var(--color-orange)">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                 </svg>
               </a>
