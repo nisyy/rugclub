@@ -2,10 +2,6 @@ import { Client } from '@notionhq/client';
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import type { AdminMenuItem, AdminNewsItem, AdminGalleryItem } from '@/types/admin';
 
-// ─────────────────────────────────────────────
-// Notion が未設定のときに呼び出してもクラッシュしないよう
-// 空配列を返すラッパー
-// ─────────────────────────────────────────────
 async function safeQuery<T>(fn: () => Promise<T[]>): Promise<T[]> {
   if (!process.env.NOTION_TOKEN) return [];
   try {
@@ -21,14 +17,10 @@ const notion = new Client({
   notionVersion: '2022-06-28',
 });
 
-/** DB ID から ?v=... などのクエリパラメータを除去する */
 function cleanId(raw: string | undefined): string {
   return (raw ?? '').split('?')[0].trim();
 }
 
-// ─────────────────────────────────────────────
-// Helper: Notion プロパティ値を取得
-// ─────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getText(prop: any): string {
   if (!prop) return '';
@@ -48,12 +40,7 @@ function getText(prop: any): string {
   }
 }
 
-// ─────────────────────────────────────────────
-// Menu
-// Notion DB 列名: 商品名(title) / カテゴリ(select) / 価格(number) / 説明文(rich_text) / 画像URL(url) / 公開(checkbox)
-// ─────────────────────────────────────────────
-
-/** 価格: Notion number → "¥1,234" 形式の文字列 */
+// --- Menu ---
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatPrice(prop: any): string {
   const num = prop?.number;
@@ -61,7 +48,6 @@ function formatPrice(prop: any): string {
   return `¥${Number(num).toLocaleString('ja-JP')}`;
 }
 
-/** 価格: "¥1,234" or "1234" → number */
 function parsePrice(str: string): number {
   return parseInt(str.replace(/[¥,]/g, ''), 10) || 0;
 }
@@ -83,56 +69,12 @@ export async function getMenuItems(): Promise<AdminMenuItem[]> {
   return safeQuery(async () => {
     const dbId = cleanId(process.env.NOTION_MENU_DB_ID);
     if (!dbId) return [];
-    const res = await notion.request<{ results: PageObjectResponse[] }>({
-      path: `databases/${dbId}/query`,
-      method: 'post',
-      body: {},
-    });
-    return res.results
-      .filter((p) => p.object === 'page')
-      .map(menuPageToItem);
+    const res = await notion.databases.query({ database_id: dbId });
+    return res.results.filter((p): p is PageObjectResponse => 'properties' in p).map(menuPageToItem);
   });
 }
 
-export async function createMenuItem(data: Omit<AdminMenuItem, 'id'>): Promise<AdminMenuItem> {
-  const dbId = cleanId(process.env.NOTION_MENU_DB_ID);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const page = await notion.pages.create({
-    parent: { database_id: dbId },
-    properties: {
-      '商品名': { title: [{ text: { content: data.name } }] },
-      'カテゴリ': { select: { name: data.category } },
-      '価格': { number: parsePrice(data.price) },
-      '説明文': { rich_text: [{ text: { content: data.description } }] },
-      '画像URL': { url: data.imageUrl || null },
-      '公開': { checkbox: true },
-    },
-  } as Parameters<typeof notion.pages.create>[0]) as PageObjectResponse;
-  return menuPageToItem(page);
-}
-
-export async function updateMenuItem(id: string, data: Partial<Omit<AdminMenuItem, 'id'>>): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const properties: any = {};
-  if (data.name !== undefined) properties['商品名'] = { title: [{ text: { content: data.name } }] };
-  if (data.category !== undefined) properties['カテゴリ'] = { select: { name: data.category } };
-  if (data.price !== undefined) properties['価格'] = { number: parsePrice(data.price) };
-  if (data.description !== undefined) properties['説明文'] = { rich_text: [{ text: { content: data.description } }] };
-  if (data.imageUrl !== undefined) properties['画像URL'] = { url: data.imageUrl || null };
-
-  await notion.pages.update({ page_id: id, properties });
-}
-
-export async function deleteMenuItem(id: string): Promise<void> {
-  await notion.pages.update({ page_id: id, in_trash: true });
-}
-
-// ─────────────────────────────────────────────
-// News
-// Notion DB 列名: タイトル(title) / サムネイルURL(url) / 公開(date) / 日付(date) / 本文(rich_text)
-// ※ ShortTitle・HeroURL・Category 列なし → タイトル/サムネイルURL/'NEWS' で代用
-// ─────────────────────────────────────────────
-
+// --- News ---
 function newsPageToItem(page: PageObjectResponse): AdminNewsItem {
   const props = page.properties;
   const title = getText(props['タイトル']);
@@ -140,12 +82,12 @@ function newsPageToItem(page: PageObjectResponse): AdminNewsItem {
   return {
     id: page.id,
     title,
-    shortTitle: title,       // 列なし → タイトルで代用
+    shortTitle: title,
     date: getText(props['日付']),
     body: getText(props['本文']),
     thumbnailUrl: thumbUrl,
-    heroUrl: thumbUrl,       // 列なし → サムネイルURLで代用
-    category: 'NEWS',        // 列なし → 固定値
+    heroUrl: thumbUrl,
+    category: 'NEWS',
   };
 }
 
@@ -153,18 +95,11 @@ export async function getNewsItems(): Promise<AdminNewsItem[]> {
   return safeQuery(async () => {
     const dbId = cleanId(process.env.NOTION_NEWS_DB_ID);
     if (!dbId) return [];
-    const res = await notion.request<{ results: PageObjectResponse[] }>({
-      path: `databases/${dbId}/query`,
-      method: 'post',
-      body: {},
-    });
-    return res.results
-      .filter((p) => p.object === 'page')
-      .map(newsPageToItem);
+    const res = await notion.databases.query({ database_id: dbId });
+    return res.results.filter((p): p is PageObjectResponse => 'properties' in p).map(newsPageToItem);
   });
 }
 
-// 1件取得（詳細ページ用）
 export async function getNewsItemById(id: string): Promise<AdminNewsItem | null> {
   if (!process.env.NOTION_TOKEN) return null;
   try {
@@ -175,42 +110,7 @@ export async function getNewsItemById(id: string): Promise<AdminNewsItem | null>
   }
 }
 
-export async function createNewsItem(data: Omit<AdminNewsItem, 'id'>): Promise<AdminNewsItem> {
-  const dbId = cleanId(process.env.NOTION_NEWS_DB_ID);
-  const today = new Date().toISOString().split('T')[0];
-  const page = await notion.pages.create({
-    parent: { database_id: dbId },
-    properties: {
-      'タイトル': { title: [{ text: { content: data.title } }] },
-      '日付': { date: { start: data.date } },
-      '本文': { rich_text: [{ text: { content: data.body } }] },
-      'サムネイルURL': { url: data.thumbnailUrl || null },
-      '公開': { date: { start: today } },
-    },
-  } as Parameters<typeof notion.pages.create>[0]) as PageObjectResponse;
-  return newsPageToItem(page);
-}
-
-export async function updateNewsItem(id: string, data: Partial<Omit<AdminNewsItem, 'id'>>): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const properties: any = {};
-  if (data.title !== undefined) properties['タイトル'] = { title: [{ text: { content: data.title } }] };
-  if (data.date !== undefined) properties['日付'] = { date: { start: data.date } };
-  if (data.body !== undefined) properties['本文'] = { rich_text: [{ text: { content: data.body } }] };
-  if (data.thumbnailUrl !== undefined) properties['サムネイルURL'] = { url: data.thumbnailUrl || null };
-
-  await notion.pages.update({ page_id: id, properties });
-}
-
-export async function deleteNewsItem(id: string): Promise<void> {
-  await notion.pages.update({ page_id: id, in_trash: true });
-}
-
-// ─────────────────────────────────────────────
-// Gallery
-// Notion DB 列名: 作品タイトル(title) / ステータス(select) / 作家名(rich_text) / 公開(checkbox) / 画像URL(url)
-// ─────────────────────────────────────────────
-
+// --- Gallery ---
 function galleryPageToItem(page: PageObjectResponse): AdminGalleryItem {
   const props = page.properties;
   return {
@@ -226,43 +126,7 @@ export async function getGalleryItems(): Promise<AdminGalleryItem[]> {
   return safeQuery(async () => {
     const dbId = cleanId(process.env.NOTION_GALLERY_DB_ID);
     if (!dbId) return [];
-    const res = await notion.request<{ results: PageObjectResponse[] }>({
-      path: `databases/${dbId}/query`,
-      method: 'post',
-      body: {},
-    });
-    return res.results
-      .filter((p) => p.object === 'page')
-      .map(galleryPageToItem);
+    const res = await notion.databases.query({ database_id: dbId });
+    return res.results.filter((p): p is PageObjectResponse => 'properties' in p).map(galleryPageToItem);
   });
-}
-
-export async function createGalleryItem(data: Omit<AdminGalleryItem, 'id'>): Promise<AdminGalleryItem> {
-  const dbId = cleanId(process.env.NOTION_GALLERY_DB_ID);
-  const page = await notion.pages.create({
-    parent: { database_id: dbId },
-    properties: {
-      '作品タイトル': { title: [{ text: { content: data.title } }] },
-      '作家名': { rich_text: [{ text: { content: data.artist } }] },
-      '画像URL': { url: data.imageUrl || null },
-      'ステータス': { select: { name: data.status } },
-      '公開': { checkbox: true },
-    },
-  } as Parameters<typeof notion.pages.create>[0]) as PageObjectResponse;
-  return galleryPageToItem(page);
-}
-
-export async function updateGalleryItem(id: string, data: Partial<Omit<AdminGalleryItem, 'id'>>): Promise<void> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const properties: any = {};
-  if (data.title !== undefined) properties['作品タイトル'] = { title: [{ text: { content: data.title } }] };
-  if (data.artist !== undefined) properties['作家名'] = { rich_text: [{ text: { content: data.artist } }] };
-  if (data.imageUrl !== undefined) properties['画像URL'] = { url: data.imageUrl || null };
-  if (data.status !== undefined) properties['ステータス'] = { select: { name: data.status } };
-
-  await notion.pages.update({ page_id: id, properties });
-}
-
-export async function deleteGalleryItem(id: string): Promise<void> {
-  await notion.pages.update({ page_id: id, in_trash: true });
 }
