@@ -11,7 +11,7 @@
  */
 export const COLORS = {
   /** ★ メインカラー（赤）  ← globals.css: --color-orange */
-  orange:      '#547443',
+  orange:      '#EF4123',
   /** ★ ホバー時のダーク色  ← globals.css: --color-orange-dark */
   orangeDark:  '#CB371E',
   /** 濃紺                  ← globals.css: --color-navy */

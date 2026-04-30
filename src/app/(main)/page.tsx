@@ -56,7 +56,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 // ─────────────────────────────────────────────
 function HeroSection() {
   return (
-    <section className="bg-orange mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
+    <section className="bg-orange mx-3 lg:mx-5 mb-5 mt-[60px] rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
 
       {/* ════════════════════════════════
           SP レイアウト（lg 未満のみ表示）
@@ -71,10 +71,10 @@ function HeroSection() {
               Gallery Cafe 
             </p>
             <h1 className="font-display leading-[0.88]">
-              <span className="block text-outline text-cream text-[22vw]">
+              <span className="block text-outline text-cream text-[12vw]">
                 Where coffee
               </span>
-              <span className="block text-cream text-[22vw]">
+              <span className="block text-cream text-[12vw] pl-[12vw]">
                 meets art.
               </span>
             </h1>
@@ -117,9 +117,9 @@ function HeroSection() {
             </p>
             <h1 className="font-display leading-[0.9]">
               <span className="block text-outline text-cream text-[9.5vw]">
-                Where coffee 
+                Where coffee
               </span>
-              <span className="block text-cream text-[9.5vw]">
+              <span className="block text-cream text-[9.5vw] pl-[5vw]">
                 meets art.
               </span>
             </h1>
