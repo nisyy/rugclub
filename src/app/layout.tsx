@@ -23,7 +23,7 @@ const siteDescription =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "CAFE RUG CLUB | ギャラリーカフェ 東大阪",
+    default: "CAFE RUG CLUB | ギャラリーカフェ",
     template: "%s | CAFE RUG CLUB",
   },
   description: siteDescription,
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     locale: "ja_JP",
     url: siteUrl,
     siteName: "CAFE RUG CLUB",
-    title: "CAFE RUG CLUB | ギャラリーカフェ 東大阪",
+    title: "CAFE RUG CLUB | ギャラリーカフェ",
     description: siteDescription,
     images: [{ url: "/og-logo.png", width: 1080, height: 1080, alt: "CAFE RUG CLUB ロゴ" }],
   },
