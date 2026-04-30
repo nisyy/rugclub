@@ -141,14 +141,12 @@ function GallerySection({ items }: { items: AdminGalleryItem[] }) {
           /* Masonry 配置: 列数を指定し、中の要素の break-inside-avoid を使う */
           <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
             {display.map((item, i) => (
-              <FadeIn key={item.id} delay={i * 50}>
-                <div className="break-inside-avoid mb-4 group relative overflow-hidden rounded-xl bg-navy/5">
+              <FadeIn key={item.id} delay={i * 50} className="break-inside-avoid mb-4">
+                <div className="group relative overflow-hidden rounded-xl bg-navy/5">
                   <img
                     src={item.imageUrl || GALLERY_FALLBACK}
                     alt={item.title}
-                    /* アスペクト比を維持して表示 */
-                    className="w-full h-auto object-contain transition-transform duration-700 group-hover:scale-[1.03]"
-                    loading="lazy"
+                    className="w-full h-auto transition-transform duration-700 group-hover:scale-[1.03]"
                   />
                   <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                     <p className="text-cream text-xs font-bold leading-tight">{item.title}</p>

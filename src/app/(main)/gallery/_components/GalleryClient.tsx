@@ -79,16 +79,15 @@ function ArtworkGrid({ items }: { items: AdminGalleryItem[] }) {
           /* 不規則配置: columns-1 (スマホ), columns-2 (タブレット), columns-3 (PC) */
           <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
             {items.map((art, i) => (
-              <FadeIn key={art.id} delay={(i % 3) * 80}>
-                {/* break-inside-avoid: 列の途中でカードが切れるのを防ぐ */}
-                <article className="break-inside-avoid mb-6 group cursor-pointer">
+              <FadeIn key={art.id} delay={(i % 3) * 80} className="break-inside-avoid mb-6">
+                {/* break-inside-avoid はcolumnsの直接の子(FadeIn)に付与 */}
+                <article className="group cursor-pointer">
                   <div className="relative overflow-hidden bg-navy/5">
                     {/* imgタグでアス比を維持 (w-full h-auto) */}
                     <img
                       src={art.imageUrl || FALLBACK}
                       alt={art.title}
-                      className="w-full h-auto object-contain group-hover:scale-[1.03] transition-transform duration-700"
-                      loading="lazy"
+                      className="w-full h-auto group-hover:scale-[1.03] transition-transform duration-700"
                     />
                     
                     {/* 売約済バッジ */}
