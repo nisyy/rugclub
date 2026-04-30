@@ -4,21 +4,17 @@ import Image from 'next/image';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 const photos = [
-  {
-    src: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1400',
-    alt: 'RUG CLUB カフェ店内',
+{
+    src: '/home_1.jpg',
+    alt: 'RUG CLUB メインビジュアル',
   },
   {
-    src: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1400',
-    alt: 'スペシャルティコーヒー',
+    src: '/home_2.jpg',
+    alt: 'RUG CLUB メインビジュアル',
   },
   {
-    src: 'https://images.unsplash.com/photo-1579703822948-63bbcd4e5a07?w=1400',
-    alt: 'カフェラテ アート',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?w=1400',
-    alt: 'ギャラリースペース',
+    src: '/home_3.jpg',
+    alt: 'RUG CLUB メインビジュアル',
   },
 ];
 
