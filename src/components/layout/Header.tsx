@@ -3,9 +3,8 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
 
-// ナビリンク（英語ラベル + 日本語サブタイトル）
+// ナビリンク（英語ラベル + 日本語サブタイトル）※ HOME は除く（ロゴがその役割を担う）
 const navLinks = [
-  { label: 'HOME',         sub: 'ホーム',              href: '/' },
   { label: 'ABOUT',        sub: 'RUG CLUBについて',    href: '/about' },
   { label: 'FOOD',         sub: 'フード・ドリンク',     href: '/menu' },
   { label: 'GALLERY',      sub: 'ギャラリー',          href: '/gallery' },
@@ -153,19 +152,30 @@ export default function Header() {
         }}
         className="fixed inset-0 z-[60] bg-orange overflow-y-auto"
       >
-        <div className="min-h-full px-6 pt-8 pb-10 flex flex-col">
+        {/* ── Sticky ヘッダー（ロゴ + 閉じるボタン）── スクロールしても追従 */}
+        <div className="sticky top-0 z-10 bg-orange flex items-center justify-between px-6 h-16 shrink-0">
+          {/* ロゴ（HOME 代替） */}
+          <Link
+            href="/"
+            onClick={closeMenu}
+            className="font-display text-cream text-xl font-bold tracking-wider"
+          >
+            RUG<span className="text-cream/60"> CLUB</span>
+          </Link>
 
           {/* 閉じるボタン（黒丸×） */}
-          <div className="flex justify-end mb-4">
-            <button
-              onClick={closeMenu}
-              aria-label="メニューを閉じる"
-              className="w-10 h-10 rounded-full bg-navy text-cream flex items-center justify-center
-                text-base font-bold hover:opacity-80 transition-opacity duration-200 shrink-0"
-            >
-              ✕
-            </button>
-          </div>
+          <button
+            onClick={closeMenu}
+            aria-label="メニューを閉じる"
+            className="w-10 h-10 rounded-full bg-navy text-cream flex items-center justify-center
+              text-base font-bold hover:opacity-80 transition-opacity duration-200 shrink-0"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* ── スクロールするコンテンツ ── */}
+        <div className="px-6 pt-6 pb-10 flex flex-col min-h-[calc(100vh-4rem)]">
 
           {/* ── ナビゲーション ── */}
           <nav className="flex-1">
