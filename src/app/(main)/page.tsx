@@ -71,12 +71,10 @@ function HeroSection() {
               Gallery Cafe 
             </p>
             <h1 className="font-display leading-[0.88]">
-              <span className="block text-outline text-cream text-[12vw]">
-                Where coffee
-              </span>
-              <span className="block text-cream text-[12vw] pl-[12vw]">
-                meets art.
-              </span>
+              <span className="block text-outline text-cream text-[12vw]">Where</span>
+              <span className="block text-cream text-[12vw] pl-[6vw]">coffee</span>
+              <span className="block text-outline text-cream text-[12vw] pl-[3vw]">meets</span>
+              <span className="block text-cream text-[12vw] pl-[9vw]">art.</span>
             </h1>
           </FadeIn>
         </div>
