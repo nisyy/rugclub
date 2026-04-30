@@ -54,14 +54,19 @@ function PinIcon() {
 export default function AccessPage() {
   return (
     <>
-      {/* ── ヘッダーカード ── */}
-      <section className="bg-orange mx-3 lg:mx-5 mt-16 mb-4 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
-        <div className="px-8 lg:px-14 py-10 lg:py-14">
+      {/* ── ヘッダー ── */}
+      <section className="relative bg-cream pt-24 pb-8 lg:pt-28 lg:pb-10 overflow-hidden">
+        <div className="absolute inset-0 flex items-start pt-0 pointer-events-none select-none" aria-hidden="true">
+          <span className="font-display leading-none text-navy/[0.07] text-[16vw] lg:text-[12vw] pl-6 lg:pl-10">
+            ACCESS
+          </span>
+        </div>
+        <div className="relative z-10 px-8 lg:px-14">
           <FadeIn>
-            <p className="font-display text-cream/60 text-xs tracking-[0.35em] uppercase mb-4">
+            <p className="font-display text-navy/40 text-[10px] tracking-[0.35em] uppercase mb-3">
               Find Us
             </p>
-            <h1 className="font-display text-cream leading-none text-[18vw] sm:text-[14vw] lg:text-[10vw]">
+            <h1 className="font-display text-navy text-2xl tracking-[0.3em] uppercase paren-label">
               ACCESS
             </h1>
           </FadeIn>

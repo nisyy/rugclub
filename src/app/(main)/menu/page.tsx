@@ -42,19 +42,27 @@ function ItemImage({
 // ─────────────────────────────────────────────
 function PageHeader() {
   return (
-    <section className="bg-orange -mt-16 pt-32 pb-16 lg:pt-36 lg:pb-20">
-      <FadeIn>
-        <div className="max-w-2xl mx-auto px-6 text-center">
-          <h1 className="text-7xl md:text-8xl lg:text-9xl font-bold text-charcoal tracking-tight">
+    <section className="relative bg-cream pt-24 pb-10 lg:pt-28 lg:pb-12 overflow-hidden">
+      {/* 背景大テキスト */}
+      <div className="absolute inset-0 flex items-start pt-0 pointer-events-none select-none" aria-hidden="true">
+        <span className="font-display leading-none text-navy/[0.07] text-[16vw] lg:text-[12vw] pl-6 lg:pl-10">
+          FOOD
+        </span>
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+        <FadeIn>
+          <p className="font-display text-navy/40 text-[10px] tracking-[0.35em] uppercase mb-3">
+            Food &amp; Drinks
+          </p>
+          <h1 className="font-display text-navy text-2xl tracking-[0.3em] uppercase paren-label">
             MENU
           </h1>
-          <div className="w-14 h-px bg-accent mx-auto my-5" />
-          <p className="text-sm text-charcoal/60 leading-relaxed max-w-sm mx-auto">
+          <p className="text-sm text-navy/60 leading-relaxed max-w-sm mt-4">
             淹れたてのコーヒー、職人技が光るパフェ、そして情熱を込めて手作りされた
             季節のスイーツをご用意しております。
           </p>
-        </div>
-      </FadeIn>
+        </FadeIn>
+      </div>
     </section>
   );
 }

@@ -10,11 +10,37 @@ export const metadata: Metadata = {
 };
 
 // ─────────────────────────────────────────────
-// 1. Hero
+// 1. Page Header
+// ─────────────────────────────────────────────
+function PageHeader() {
+  return (
+    <section className="relative bg-cream pt-24 pb-10 lg:pt-28 lg:pb-12 overflow-hidden">
+      {/* 背景大テキスト */}
+      <div className="absolute inset-0 flex items-start pt-0 pointer-events-none select-none" aria-hidden="true">
+        <span className="font-display leading-none text-navy/[0.07] text-[16vw] lg:text-[12vw] pl-6 lg:pl-10">
+          ABOUT
+        </span>
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
+        <FadeIn>
+          <p className="font-display text-navy/40 text-[10px] tracking-[0.35em] uppercase mb-3">
+            Our Story &amp; Concept
+          </p>
+          <h1 className="font-display text-navy text-2xl tracking-[0.3em] uppercase paren-label">
+            ABOUT RUG CLUB
+          </h1>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────
+// 2. Hero Image
 // ─────────────────────────────────────────────
 function HeroSection() {
   return (
-    <section className="relative -mt-16 h-[56vh] min-h-[360px] flex items-end">
+    <section className="relative h-[50vh] min-h-[320px] overflow-hidden">
       <Image
         src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200"
         alt="RUG CLUB カフェ店内"
@@ -22,14 +48,7 @@ function HeroSection() {
         className="object-cover"
         priority
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/30" />
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-10 pb-12">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white tracking-tight leading-none">
-          ABOUT{' '}
-          <span className="text-accent">RUG CLUB</span>
-        </h1>
-        <p className="eyebrow text-white/45 mt-4">Our Story &amp; Concept</p>
-      </div>
+      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
     </section>
   );
 }
@@ -214,6 +233,7 @@ function OwnerCommentSection() {
 export default function AboutPage() {
   return (
     <>
+      <PageHeader />
       <HeroSection />
       <MainConceptSection />
       <ValuesSection />

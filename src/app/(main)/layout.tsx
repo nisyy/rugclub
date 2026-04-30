@@ -8,11 +8,11 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
+    <div className="relative">
       <PageViewTracker />
       <Header />
-      <main className="pt-16">{children}</main>
+      <main>{children}</main>
       <Footer />
-    </>
+    </div>
   );
 }

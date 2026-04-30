@@ -102,7 +102,7 @@ export default function Header() {
   return (
     <>
       {/* ── 固定ヘッダーバー ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-cream">
+      <header className="fixed top-0 inset-x-0 z-50 bg-transparent">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between h-16">
             <Link href="/" className="font-display text-navy text-xl font-bold tracking-wider">

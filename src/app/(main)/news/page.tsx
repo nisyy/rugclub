@@ -13,12 +13,18 @@ export const metadata: Metadata = {
 // ─── ページヘッダー ────────────────────────────
 function PageHeader() {
   return (
-    <section className="bg-orange -mt-16 pt-[7.5rem] pb-12 lg:pt-32 lg:pb-16">
-      <div className="max-w-3xl mx-auto px-6 lg:px-10">
-        <p className="font-display text-cream/60 text-xs tracking-[0.4em] uppercase mb-4">
+    <section className="relative bg-cream pt-24 pb-10 lg:pt-28 lg:pb-12 overflow-hidden">
+      {/* 背景大テキスト */}
+      <div className="absolute inset-0 flex items-start pt-0 pointer-events-none select-none" aria-hidden="true">
+        <span className="font-display leading-none text-navy/[0.07] text-[16vw] lg:text-[12vw] pl-6 lg:pl-10">
+          NEWS
+        </span>
+      </div>
+      <div className="relative z-10 max-w-3xl mx-auto px-6 lg:px-10">
+        <p className="font-display text-navy/40 text-[10px] tracking-[0.4em] uppercase mb-3">
           Latest Updates
         </p>
-        <h1 className="font-display text-cream leading-none text-[18vw] sm:text-[14vw] md:text-[10vw] lg:text-[120px]">
+        <h1 className="font-display text-navy text-2xl tracking-[0.3em] uppercase paren-label">
           NEWS
         </h1>
       </div>

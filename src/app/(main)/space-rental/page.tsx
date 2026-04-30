@@ -96,26 +96,30 @@ const policies = [
 // ─────────────────────────────────────────────
 function PageHeader() {
   return (
-    <section className="bg-orange -mt-16 pt-32 pb-16 lg:pt-36 lg:pb-20">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+    <section className="relative bg-cream pt-24 pb-16 lg:pt-28 lg:pb-20 overflow-hidden">
+      {/* 背景大テキスト */}
+      <div className="absolute inset-0 flex items-start pt-0 pointer-events-none select-none" aria-hidden="true">
+        <span className="font-display leading-none text-navy/[0.07] text-[16vw] lg:text-[12vw] pl-6 lg:pl-10">
+          RENTAL
+        </span>
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* 左：テキストコンテンツ */}
           <FadeIn>
             <div>
               {/* ラベル */}
-              <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.3em] text-accent uppercase mb-5">
-                <span className="text-accent text-base leading-none">●</span>
+              <p className="font-display text-navy/40 text-[10px] tracking-[0.35em] uppercase mb-3">
                 Exhibition Opportunity
               </p>
 
               {/* タイトル */}
-              <h1 className="text-5xl sm:text-6xl md:text-5xl lg:text-6xl font-bold text-charcoal leading-tight mb-6">
-                SPACE{' '}
-                <span className="text-accent italic font-black">RENTAL</span>
+              <h1 className="font-display text-navy text-2xl tracking-[0.3em] uppercase paren-label mb-6">
+                SPACE RENTAL
               </h1>
 
               {/* 説明文 */}
-              <p className="text-sm text-charcoal/60 leading-[2] mb-8 max-w-sm">
+              <p className="text-sm text-navy/60 leading-[2] mb-8 max-w-sm">
                 高い天井と自然光が差し込むギャラリースペースで、展示会、ワークショップ、
                 プライベートイベントを開催しませんか。クリエイティブ地区の中心に位置する
                 Cafe RUG CLUBは、プロフェッショナルなアート展示と居心地の良い社交の場を

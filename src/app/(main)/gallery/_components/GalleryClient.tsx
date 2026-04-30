@@ -31,16 +31,25 @@ function PageHeader({
   onFilterChange: (f: FilterStatus) => void;
 }) {
   return (
-    <section className="bg-cream -mt-16 pt-[7.5rem] pb-10 lg:pt-32 lg:pb-12">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
+    <section className="relative bg-cream pt-24 pb-10 lg:pt-28 lg:pb-12 overflow-hidden">
+      {/* 背景大テキスト */}
+      <div className="absolute inset-0 flex items-start pt-0 pointer-events-none select-none" aria-hidden="true">
+        <span className="font-display leading-none text-navy/[0.07] text-[16vw] lg:text-[12vw] pl-6 lg:pl-10">
+          GALLERY
+        </span>
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           {/* 左：タイトル + 説明文 */}
           <FadeIn>
             <div className="max-w-md">
-              <h1 className="font-serif text-6xl sm:text-7xl md:text-8xl font-bold text-charcoal leading-none tracking-tight">
+              <p className="font-display text-navy/40 text-[10px] tracking-[0.35em] uppercase mb-3">
+                Exhibition
+              </p>
+              <h1 className="font-display text-navy text-2xl tracking-[0.3em] uppercase paren-label mb-4">
                 GALLERY
               </h1>
-              <p className="text-sm text-charcoal/60 mt-4 leading-relaxed">
+              <p className="text-sm text-navy/60 mt-4 leading-relaxed">
                 Cafe RUG CLUBで現在展示中のユニークな作品をご覧ください。すべての作品には
                 物語があり、購入を通じて地元のインディペンデント・アーティストを支援する
                 ことができます。
