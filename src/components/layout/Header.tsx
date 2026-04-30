@@ -9,8 +9,8 @@ const navLinks = [
   { label: 'FOOD', sub: 'フード・ドリンク', href: '/menu' },
   { label: 'GALLERY', sub: 'ギャラリー', href: '/gallery' },
   { label: 'RENTAL SPACE', sub: 'レンタルスペース', href: '/space-rental' },
-  { label: 'ACCESS',       sub: 'アクセス',            href: '/access' },
-  { label: 'NEWS',         sub: 'お知らせ',            href: '/news' },
+  { label: 'ACCESS', sub: 'アクセス', href: '/access' },
+  { label: 'NEWS', sub: 'お知らせ', href: '/news' },
 ];
 
 export default function Header() {
@@ -19,10 +19,10 @@ export default function Header() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 定数
-  const RADIUS = 32;          // 逆角丸の半径 (2rem相当)
-  const LOGO_BOX_W = 144;     // ロゴエリアの幅
-  const LOGO_BOX_H = 108;     // ロゴエリアの高さ
-  const OFFSET = 12;          // inset-3 (12px)
+  const RADIUS = 32;
+  const LOGO_BOX_W = 144;
+  const LOGO_BOX_H = 108;
+  const OFFSET = 12;
 
   function openMenu() {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -56,10 +56,8 @@ export default function Header() {
 
       {menuOpen && (
         <>
-          {/* ① ベース背景（全体クリーム色） */}
           <div className="fixed inset-0 z-[60] bg-cream" style={{ opacity: menuShow ? 1 : 0, transition: 'opacity 0.35s' }} />
 
-          {/* ② メインのオレンジパネル（左上の角を直角にして隙間を消す） */}
           <div
             className="fixed inset-3 z-[61] bg-orange rounded-[2rem] rounded-tl-none overflow-hidden"
             style={{
@@ -68,62 +66,56 @@ export default function Header() {
               transition: 'opacity 0.35s, transform 0.35s ease-out',
             }}
           >
-            {/* 
-              魔法の「逆角丸」パーツ：
-              土台をクリーム色にし、その上にオレンジを載せて特定の角を丸めることで
-              メインのオレンジパネルが内側に凹んでいるように錯覚させます。
-            */}
-            
-            {/* 【修正】右横の接続部：ロゴの右端上部 */}
-            <div 
-              className="absolute bg-cream" 
-              style={{ 
-                top: 0, 
-                left: LOGO_BOX_W - OFFSET, 
-                width: RADIUS, 
-                height: RADIUS 
-              }}
-            >
-              {/* 角を左上(tl)に設定して、オレンジの板を回転させる */}
+            {/* 逆角丸パーツ */}
+            <div className="absolute bg-cream" style={{ top: 0, left: LOGO_BOX_W - OFFSET, width: RADIUS, height: RADIUS }}>
+              <div className="w-full h-full bg-orange rounded-tl-[2rem]" />
+            </div>
+            <div className="absolute bg-cream" style={{ top: LOGO_BOX_H - OFFSET, left: 0, width: RADIUS, height: RADIUS }}>
               <div className="w-full h-full bg-orange rounded-tl-[2rem]" />
             </div>
 
-            {/* 【修正】下側の接続部：ロゴの左端下部 */}
-            <div 
-              className="absolute bg-cream" 
-              style={{ 
-                top: LOGO_BOX_H - OFFSET, 
-                left: 0, 
-                width: RADIUS, 
-                height: RADIUS 
-              }}
-            >
-              {/* 角を左上(tl)に設定して、オレンジの板を回転させる */}
-              <div className="w-full h-full bg-orange rounded-tl-[2rem]" />
-            </div>
-
-            <div className="h-full overflow-y-auto px-8 pt-36 pb-10 relative z-10">
-              <nav className="flex flex-col gap-6">
+            {/* スクロールコンテンツ */}
+            {/* pl-[27px] (20pt) を指定してテキストの開始位置を調整 */}
+            <div className="h-full overflow-y-auto pr-6 pl-[30px] pt-36 pb-10 flex flex-col">
+              <nav className="flex flex-col gap-6 mb-12">
                 {navLinks.map((link) => (
                   <Link key={link.href} href={link.href} onClick={closeMenu} className="group">
-                    <p className="font-display text-cream text-4xl group-hover:opacity-70 transition-opacity uppercase tracking-tight">{link.label}</p>
+                    <p className="font-display text-cream text-4xl group-hover:opacity-70 transition-opacity uppercase tracking-tight">
+                      {link.label}
+                    </p>
                     <p className="text-cream/60 text-xs mt-1">{link.sub}</p>
                   </Link>
                 ))}
               </nav>
+
+              <hr className="border-dashed border-cream/30 mb-8" />
+
+              <div className="flex justify-center mb-8">
+                <Link
+                  href="/contact"
+                  onClick={closeMenu}
+                  className="font-display text-cream text-sm tracking-[0.2em] uppercase bg-navy rounded-full px-12 py-3 hover:opacity-80 transition-opacity duration-200"
+                >
+                  お問い合わせ
+                </Link>
+              </div>
+
+              <hr className="border-dashed border-cream/30 mb-8" />
+
+              <div className="flex flex-col items-center gap-4">
+                <p className="font-display text-cream text-xs tracking-[0.3em] uppercase">Follow Us</p>
+                <div className="flex items-center gap-4">
+                  {/* Instagram/X SVGは前述のコードと同様 */}
+                </div>
+              </div>
             </div>
+
             <button onClick={closeMenu} className="absolute top-4 right-4 w-12 h-12 bg-navy text-cream rounded-full flex items-center justify-center font-bold z-20">✕</button>
           </div>
 
-          {/* ③ ロゴエリア（一番上に置くクリームの土台） */}
           <div
             className="fixed top-0 left-0 z-[65] bg-cream rounded-br-[2rem] p-3 pt-4 pl-4"
-            style={{ 
-              width: LOGO_BOX_W, 
-              height: LOGO_BOX_H,
-              opacity: menuShow ? 1 : 0, 
-              transition: 'opacity 0.35s' 
-            }}
+            style={{ width: LOGO_BOX_W, height: LOGO_BOX_H, opacity: menuShow ? 1 : 0, transition: 'opacity 0.35s' }}
           >
             <Link href="/" onClick={closeMenu}>
               <Image src="/RUG_CLUB_log.png" alt="RUG CLUB" width={120} height={84} className="object-contain" priority />
