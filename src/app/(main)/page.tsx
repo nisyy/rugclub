@@ -74,7 +74,7 @@ function HeroSection() {
               <span className="block text-outline text-cream text-[12vw]">Where</span>
               <span className="block text-cream text-[12vw] pl-[6vw]">coffee</span>
               <span className="block text-outline text-cream text-[12vw] pl-[3vw]">meets</span>
-              <span className="block text-cream text-[12vw] pl-[9vw]">art!!</span>
+              <span className="block text-cream text-[12vw] pl-[9vw]">art.</span>
             </h1>
           </FadeIn>
         </div>
