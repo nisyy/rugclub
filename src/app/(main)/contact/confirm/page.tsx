@@ -48,7 +48,7 @@ function ThanksView() {
         <div className="w-10 h-px bg-navy/20 mx-auto mb-8" />
         <p className="text-sm text-navy/50 leading-[2.2] mb-10">
           お問い合わせを受け付けました。<br />
-          内容を確認のうえ、担当者よりご連絡いたします。
+          内容を確認のうえ、ご連絡いたします。
         </p>
 
         <Link
@@ -81,6 +81,8 @@ export default function ContactConfirmPage() {
   const router = useRouter();
   const [form, setForm] = useState<FormData | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState(false);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('contactForm');
@@ -91,10 +93,24 @@ export default function ContactConfirmPage() {
     setForm(JSON.parse(stored) as FormData);
   }, [router]);
 
-  const handleSubmit = () => {
-    // ここに実際の送信処理（API call）を追加
-    sessionStorage.removeItem('contactForm');
-    setSubmitted(true);
+  const handleSubmit = async () => {
+    if (!form || sending) return;
+    setSending(true);
+    setSendError(false);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) throw new Error('send failed');
+      sessionStorage.removeItem('contactForm');
+      setSubmitted(true);
+    } catch {
+      setSendError(true);
+    } finally {
+      setSending(false);
+    }
   };
 
   if (submitted) return <ThanksView />;
@@ -136,6 +152,15 @@ export default function ContactConfirmPage() {
 
         <hr className="border-navy/10 mb-10" />
 
+        {/* エラーメッセージ */}
+        {sendError && (
+          <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-center">
+            <p className="text-sm text-red-600 font-medium">
+              送信に失敗しました。時間をおいて再度お試しください。
+            </p>
+          </div>
+        )}
+
         {/* ボタンエリア */}
         <div className="flex flex-col-reverse sm:flex-row items-center justify-center gap-6">
 
@@ -164,9 +189,30 @@ export default function ContactConfirmPage() {
           {/* 送信する */}
           <button
             onClick={handleSubmit}
-            className="w-full max-w-xs bg-[#C8552A] text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-[#a84020] transition-colors duration-200"
+            disabled={sending}
+            className="w-full max-w-xs bg-[#C8552A] text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full
+              hover:bg-[#a84020] transition-colors duration-200
+              disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            送信する
+            {sending ? (
+              <>
+                <svg
+                  className="animate-spin"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+                送信中...
+              </>
+            ) : (
+              '送信する'
+            )}
           </button>
 
         </div>

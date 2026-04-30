@@ -1,0 +1,20 @@
+# =====================================================
+# TODO: .env.local に以下の4行を追記してください
+# =====================================================
+
+# ── メール送信（Nodemailer / Gmail SMTP）──────────
+# CONTACT_MAIL_TO     : お問い合わせを受信したいメールアドレス
+# CONTACT_GMAIL_USER  : 送信に使うGmailアドレス
+# CONTACT_GMAIL_PASS  : Gmailアプリパスワード（16桁）
+#   取得方法: Googleアカウント → セキュリティ → 2段階認証をON
+#             → アプリパスワード → 「その他」で名前を付けて生成
+#
+CONTACT_MAIL_TO=
+CONTACT_GMAIL_USER=
+CONTACT_GMAIL_PASS=
+
+# ── Google スプレッドシート（GAS Web App）─────────
+# CONTACT_GAS_URL : docs/gas-contact-script.js を Apps Script にデプロイして
+#                   取得した「ウェブアプリのURL」を貼り付けてください
+#
+CONTACT_GAS_URL=

@@ -109,7 +109,7 @@ export default function ContactForm() {
           type="tel"
           value={form.phone}
           onChange={update('phone')}
-          placeholder="例：09012345678"
+          placeholder="例：090-1234-5678"
           className={inputBase}
         />
       </div>
