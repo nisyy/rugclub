@@ -56,8 +56,10 @@ export default function Header() {
 
       {menuOpen && (
         <>
+          {/* ① 全画面背景 */}
           <div className="fixed inset-0 z-[60] bg-cream" style={{ opacity: menuShow ? 1 : 0, transition: 'opacity 0.35s' }} />
 
+          {/* ② メインパネル */}
           <div
             className="fixed inset-3 z-[61] bg-orange rounded-[2rem] rounded-tl-none overflow-hidden"
             style={{
@@ -75,8 +77,8 @@ export default function Header() {
             </div>
 
             {/* スクロールコンテンツ */}
-            {/* pl-[27px] (20pt) を指定してテキストの開始位置を調整 */}
             <div className="h-full overflow-y-auto pr-6 pl-[30px] pt-36 pb-10 flex flex-col">
+              {/* ナビゲーション */}
               <nav className="flex flex-col gap-6 mb-12">
                 {navLinks.map((link) => (
                   <Link key={link.href} href={link.href} onClick={closeMenu} className="group">
@@ -90,6 +92,7 @@ export default function Header() {
 
               <hr className="border-dashed border-cream/30 mb-8" />
 
+              {/* お問い合わせ */}
               <div className="flex justify-center mb-8">
                 <Link
                   href="/contact"
@@ -102,10 +105,41 @@ export default function Header() {
 
               <hr className="border-dashed border-cream/30 mb-8" />
 
+              {/* Follow Us アイコンセクション */}
               <div className="flex flex-col items-center gap-4">
-                <p className="font-display text-cream text-xs tracking-[0.3em] uppercase">Follow Us</p>
+                <p className="font-display text-cream text-xs tracking-[0.3em] uppercase">
+                  Follow Us
+                </p>
                 <div className="flex items-center gap-4">
-                  {/* Instagram/X SVGは前述のコードと同様 */}
+                  {/* Instagram */}
+                  <a
+                    href="https://www.instagram.com/rug___club?igsh=b2oyNTY4bzBjeGR0"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className="w-12 h-12 rounded-full bg-white flex items-center justify-center hover:opacity-80 transition-opacity duration-200"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+                      viewBox="0 0 24 24" fill="none" stroke="orange"
+                      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                    </svg>
+                  </a>
+                  {/* X (Twitter) */}
+                  <a
+                    href="https://x.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="X (Twitter)"
+                    className="w-12 h-12 rounded-full bg-white flex items-center justify-center hover:opacity-80 transition-opacity duration-200"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                      viewBox="0 0 24 24" fill="orange">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
+                  </a>
                 </div>
               </div>
             </div>
@@ -113,6 +147,7 @@ export default function Header() {
             <button onClick={closeMenu} className="absolute top-4 right-4 w-12 h-12 bg-navy text-cream rounded-full flex items-center justify-center font-bold z-20">✕</button>
           </div>
 
+          {/* ③ ロゴエリア */}
           <div
             className="fixed top-0 left-0 z-[65] bg-cream rounded-br-[2rem] p-3 pt-4 pl-4"
             style={{ width: LOGO_BOX_W, height: LOGO_BOX_H, opacity: menuShow ? 1 : 0, transition: 'opacity 0.35s' }}
