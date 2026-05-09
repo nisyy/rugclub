@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getNewsItems, getGalleryItems } from '@/lib/notion';
@@ -6,6 +5,7 @@ import { DEMO_NEWS, DEMO_GALLERY } from '@/lib/demoData';
 import type { AdminNewsItem, AdminGalleryItem } from '@/types/admin';
 import FadeIn from '@/components/ui/FadeIn';
 import HeroCarousel from './_components/HeroCarousel';
+import MenuCarousel from './_components/MenuCarousel';
 
 export const metadata: Metadata = {
   title: { absolute: 'CAFE RUG CLUB | ギャラリーカフェ 東大阪' },
@@ -108,18 +108,12 @@ function MenuSection() {
   return (
     <section className="bg-white mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
       <div className="py-5 px-6 lg:px-10">
-        <h2 className="font-display text-navy text-2xl md:text-3xl tracking-wide">Menu Highlights</h2>
+        <h2 className="font-display text-navy text-2xl md:text-3xl tracking-wide">Menu</h2>
       </div>
       <hr className="border-navy/15 mx-6 lg:mx-10" />
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 section-pad">
-        <FadeIn>
-          <div className="relative aspect-[16/9] max-w-3xl mx-auto overflow-hidden mb-10">
-            <Image src="https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=800" alt="メニュー" fill className="object-cover" />
-          </div>
-        </FadeIn>
-        <div className="text-center max-w-xl mx-auto">
-          <p className="font-display text-navy text-2xl md:text-3xl mb-4">素材の味を、アートのように。</p>
-          <p className="text-navy/60 text-sm leading-relaxed mb-8">スペシャルティコーヒーから職人技のパフェまで、すべてはあなたの感性を刺激するために。</p>
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8">
+        <MenuCarousel />
+        <div className="text-center mt-2">
           <Link href="/menu" className="btn-outline text-navy border-navy">MENU を見る</Link>
         </div>
       </div>
