@@ -56,10 +56,10 @@ function HeroSection() {
           <FadeIn>
             <p className="font-display text-cream/60 text-xs tracking-[0.35em] uppercase mb-4">Gallery Cafe</p>
             <h1 className="font-display leading-[0.9]">
-              <span className="block text-outline text-cream text-[12vw]">Where</span>
-              <span className="block text-cream text-[12vw] pl-[6vw]">coffee</span>
-              <span className="block text-outline text-cream text-[12vw] pl-[13vw]">meets</span>
-              <span className="block text-cream text-[12vw] pl-[22vw]">art.</span>
+              <span className="block text-outline text-cream text-[10vw]">Where</span>
+              <span className="block text-cream text-[10vw] pl-[18vw]">coffee</span>
+              <span className="block text-outline text-cream text-[10vw] pl-[8vw]">meets</span>
+              <span className="block text-cream text-[10vw] pl-[32vw]">art.</span>
             </h1>
           </FadeIn>
         </div>
@@ -68,9 +68,8 @@ function HeroSection() {
         </div>
         <div className="px-6 py-10">
           <FadeIn>
-            <p className="text-cream/80 text-sm leading-[2] mb-8">
-              RUG CLUBのバリスタ・キュレーターが、日常のひとときを少しだけ特別なものにします。<br />
-              毎日でも通えるように、身近なものから仕入れ、感性を持つすべての方へ丁寧に仕込んでご提供します。
+            <p className="white text-sm leading-[2] mb-8">
+アートを身近に感じ、いつ来ても新鮮な気分を味わってもらえるようこだわり抜いて選んだ什器がある特別な空間の中で、コーヒーと軽食、お酒をご提供します。
             </p>
             <Link href="/about" className="btn-solid">RUG CLUB について</Link>
           </FadeIn>
@@ -90,8 +89,7 @@ function HeroSection() {
           <FadeIn delay={180}>
             <div>
               <p className="text-cream/80 text-sm leading-[2] mb-8">
-                RUG CLUBのバリスタ・キュレーターが、日常のひとときを少しだけ特別なものにします。<br />
-                毎日でも通えるように、身近なものから仕入れ、感性を持つすべての方へ丁寧に仕込んでご提供します。
+アートを身近に感じ、いつ来ても新鮮な気分を味わってもらえるようこだわり抜いて選んだ什器がある特別な空間の中で、コーヒーと軽食、お酒をご提供します。
               </p>
               <Link href="/about" className="btn-solid">RUG CLUB について</Link>
             </div>
