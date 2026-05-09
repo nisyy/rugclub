@@ -81,7 +81,73 @@ export default function AccessPage() {
             {/* ── 左: 3 枚のカード ── */}
             <div className="flex flex-col gap-4">
 
-              {/* ① OPEN TIME */}
+               {/* ① ADDRESS */}
+              <FadeIn delay={160}>
+                <div className="bg-[#E8EAF4] rounded-2xl p-6">
+                  {/* 他カードと同じヘッダー構造：アイコン + font-display */}
+                  <div className="flex items-center gap-2.5 mb-5 text-navy">
+                    <span className="text-navy/60"><PinIcon /></span>
+                    <h2 className="font-display tracking-[0.2em] text-sm text-navy">
+                      ADDRESS
+                    </h2>
+                  </div>
+                  <address className="not-italic text-sm text-navy leading-[2] mb-5">
+                    〒577-0058<br />
+                    大阪府東大阪市足代北2-15-22
+                  </address>
+                  <a
+                    href="tel:06-0000-0000"
+                    className="flex items-center gap-2 text-sm text-navy hover:text-orange transition-colors duration-200 mb-5"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.09 6.09l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                    06-0000-0000
+                  </a>
+                  <a
+                    href={MAPS_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full bg-orange text-cream
+                               font-display text-[11px] tracking-[0.25em] uppercase
+                               py-3 rounded-lg hover:bg-orange-dark transition-colors duration-200"
+                  >
+                    <PinIcon />
+                    OPEN IN MAPS
+                  </a>
+                </div>
+              </FadeIn>
+
+              {/* ② ACCESS INFO */}
+              <FadeIn delay={80}>
+                <div className="bg-white border-2 border-orange rounded-2xl p-6">
+                  <div className="flex items-center gap-2.5 mb-5 text-navy">
+                    <span className="text-orange"><TrainIcon /></span>
+                    <h2 className="font-display tracking-[0.2em] text-sm text-navy">
+                      ACCESS INFO
+                    </h2>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-[11px] font-bold tracking-wide text-orange mb-1">
+                        近鉄大阪線・奈良線
+                      </p>
+                      <p className="text-sm text-navy">「布施駅」徒歩約6分</p>
+                    </div>
+                    <div>
+                      <p className="text-[11px] font-bold tracking-wide text-orange mb-1">
+                        Osaka Metro 千日前線
+                      </p>
+                      <p className="text-sm text-navy">「新深江駅」徒歩約10分</p>
+                    </div>
+                  </div>
+                </div>
+              </FadeIn>
+
+              {/* ③ OPEN TIME */}
               <FadeIn>
                 <div className="bg-orange rounded-2xl p-6">
                   <div className="flex items-center gap-2.5 mb-5 text-cream">
@@ -124,72 +190,6 @@ export default function AccessPage() {
                   <p className="text-[10px] font-bold text-cream/45 mt-3 leading-relaxed">
                     ※ フードのラストオーダーは閉店30分前です。
                   </p>
-                </div>
-              </FadeIn>
-
-              {/* ② ACCESS INFO */}
-              <FadeIn delay={80}>
-                <div className="bg-white border-2 border-orange rounded-2xl p-6">
-                  <div className="flex items-center gap-2.5 mb-5 text-navy">
-                    <span className="text-orange"><TrainIcon /></span>
-                    <h2 className="font-display tracking-[0.2em] text-sm text-navy">
-                      ACCESS INFO
-                    </h2>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-[11px] font-bold tracking-wide text-orange mb-1">
-                        近鉄大阪線・奈良線
-                      </p>
-                      <p className="text-sm text-navy">「布施駅」徒歩約6分</p>
-                    </div>
-                    <div>
-                      <p className="text-[11px] font-bold tracking-wide text-orange mb-1">
-                        Osaka Metro 千日前線
-                      </p>
-                      <p className="text-sm text-navy">「新深江駅」徒歩約10分</p>
-                    </div>
-                  </div>
-                </div>
-              </FadeIn>
-
-              {/* ③ ADDRESS */}
-              <FadeIn delay={160}>
-                <div className="bg-[#E8EAF4] rounded-2xl p-6">
-                  {/* 他カードと同じヘッダー構造：アイコン + font-display */}
-                  <div className="flex items-center gap-2.5 mb-5 text-navy">
-                    <span className="text-navy/60"><PinIcon /></span>
-                    <h2 className="font-display tracking-[0.2em] text-sm text-navy">
-                      ADDRESS
-                    </h2>
-                  </div>
-                  <address className="not-italic text-sm text-navy leading-[2] mb-5">
-                    〒577-0058<br />
-                    大阪府東大阪市足代北2-15-22
-                  </address>
-                  <a
-                    href="tel:06-0000-0000"
-                    className="flex items-center gap-2 text-sm text-navy hover:text-orange transition-colors duration-200 mb-5"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.09 6.09l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-                    </svg>
-                    06-0000-0000
-                  </a>
-                  <a
-                    href={MAPS_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full bg-orange text-cream
-                               font-display text-[11px] tracking-[0.25em] uppercase
-                               py-3 rounded-lg hover:bg-orange-dark transition-colors duration-200"
-                  >
-                    <PinIcon />
-                    OPEN IN MAPS
-                  </a>
                 </div>
               </FadeIn>
 
