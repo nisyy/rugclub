@@ -6,9 +6,8 @@ import { useState, useEffect, useRef } from 'react';
 
 const navLinks = [
   { label: 'ABOUT', sub: 'RUG CLUBについて', href: '/about' },
-  { label: 'FOOD', sub: 'フード・ドリンク', href: '/menu' },
   { label: 'GALLERY', sub: 'ギャラリー', href: '/gallery' },
-  { label: 'RENTAL SPACE', sub: 'レンタルスペース', href: '/space-rental' },
+  // { label: 'RENTAL SPACE', sub: 'レンタルスペース', href: '/space-rental' }, // 準備中
   { label: 'ACCESS', sub: 'アクセス', href: '/access' },
   { label: 'NEWS', sub: 'お知らせ', href: '/news' },
 ];
@@ -80,7 +79,26 @@ export default function Header() {
             <div className="h-full overflow-y-auto pr-6 pl-[30px] pt-36 pb-10 flex flex-col">
               {/* ナビゲーション */}
               <nav className="flex flex-col gap-6 mb-12">
-                {navLinks.map((link) => (
+                {/* ABOUT */}
+                <Link href="/about" onClick={closeMenu} className="group">
+                  <p className="font-display text-cream text-4xl group-hover:opacity-70 transition-opacity uppercase tracking-tight">ABOUT</p>
+                  <p className="text-cream/60 text-xs mt-1">RUG CLUBについて</p>
+                </Link>
+
+                {/* MENU — PDFを新規タブで開く */}
+                <a
+                  href="/menu.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={closeMenu}
+                  className="group"
+                >
+                  <p className="font-display text-cream text-4xl group-hover:opacity-70 transition-opacity uppercase tracking-tight">MENU</p>
+                  <p className="text-cream/60 text-xs mt-1">フード・ドリンク</p>
+                </a>
+
+                {/* その他のリンク（ABOUT を除く） */}
+                {navLinks.filter((l) => l.href !== '/about').map((link) => (
                   <Link key={link.href} href={link.href} onClick={closeMenu} className="group">
                     <p className="font-display text-cream text-4xl group-hover:opacity-70 transition-opacity uppercase tracking-tight">
                       {link.label}

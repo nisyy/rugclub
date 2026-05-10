@@ -187,12 +187,14 @@ export async function deleteNewsItem(id: string): Promise<void> {
 
 function galleryPageToItem(page: PageObjectResponse): AdminGalleryItem {
   const props = page.properties;
+  const instagramUrl = getText(props['インスタグラムURL']);
   return {
     id: page.id,
     title: getText(props['作品タイトル']),
     artist: getText(props['作家名']),
     imageUrl: getText(props['画像URL']),
     status: getText(props['ステータス']) as AdminGalleryItem['status'],
+    instagramUrl: instagramUrl || undefined,
   };
 }
 
@@ -214,10 +216,11 @@ export async function createGalleryItem(data: Omit<AdminGalleryItem, 'id'>): Pro
   const page = await notion.pages.create({
     parent: { database_id: dbId },
     properties: {
-      '作品タイトル': { title: [{ text: { content: data.title } }] },
-      '作家名':       { rich_text: [{ text: { content: data.artist } }] },
-      '画像URL':      { url: data.imageUrl || null },
-      'ステータス':   { select: { name: data.status } },
+      '作品タイトル':      { title: [{ text: { content: data.title } }] },
+      '作家名':            { rich_text: [{ text: { content: data.artist } }] },
+      '画像URL':           { url: data.imageUrl || null },
+      'ステータス':        { select: { name: data.status } },
+      'インスタグラムURL': { url: data.instagramUrl || null },
     },
   } as Parameters<typeof notion.pages.create>[0]) as PageObjectResponse;
   return galleryPageToItem(page);
@@ -226,10 +229,11 @@ export async function createGalleryItem(data: Omit<AdminGalleryItem, 'id'>): Pro
 export async function updateGalleryItem(id: string, data: Partial<Omit<AdminGalleryItem, 'id'>>): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const properties: any = {};
-  if (data.title    !== undefined) properties['作品タイトル'] = { title: [{ text: { content: data.title } }] };
-  if (data.artist   !== undefined) properties['作家名']       = { rich_text: [{ text: { content: data.artist } }] };
-  if (data.imageUrl !== undefined) properties['画像URL']      = { url: data.imageUrl || null };
-  if (data.status   !== undefined) properties['ステータス']   = { select: { name: data.status } };
+  if (data.title        !== undefined) properties['作品タイトル']      = { title: [{ text: { content: data.title } }] };
+  if (data.artist       !== undefined) properties['作家名']             = { rich_text: [{ text: { content: data.artist } }] };
+  if (data.imageUrl     !== undefined) properties['画像URL']            = { url: data.imageUrl || null };
+  if (data.status       !== undefined) properties['ステータス']         = { select: { name: data.status } };
+  if (data.instagramUrl !== undefined) properties['インスタグラムURL']  = { url: data.instagramUrl || null };
   await notion.pages.update({ page_id: id, properties });
 }
 

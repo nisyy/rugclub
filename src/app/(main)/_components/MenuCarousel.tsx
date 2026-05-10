@@ -4,10 +4,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 // public/menu/ に配置した jpg
 const SLIDES = [
-  '/menu/menu_1.jpg',
-  '/menu/menu_2.jpg',
-  '/menu/menu_3.jpg',
-  '/menu/menu_4.jpg',
+  '/menu/menu1.jpg',
+  '/menu/menu2.jpg',
+  '/menu/menu3.jpg',
 ];
 
 /** カード i が current から何枚ずれているか（-n/2 < offset <= n/2） */
@@ -18,8 +17,8 @@ function getOffset(i: number, current: number, n: number): number {
   return d;
 }
 
-const CARD_W   = 150;  // カード幅 px（高さ:幅 = 3:1 → 高さ = 450px）
-const SLIDE_GAP = 165; // カード中心間の距離 px
+const CARD_W   = 185;  // カード幅 px（707×2000 比率 → 高さ ≈ 523px）
+const SLIDE_GAP = 205; // カード中心間の距離 px
 
 export default function MenuCarousel() {
   const [active, setActive]   = useState(0);
@@ -60,7 +59,7 @@ export default function MenuCarousel() {
     <>
       {/* カルーセル本体 */}
       <div
-        className="relative h-[470px] sm:h-[520px] overflow-hidden select-none mb-4"
+        className="relative h-[550px] sm:h-[600px] overflow-hidden select-none mb-4"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -86,8 +85,8 @@ export default function MenuCarousel() {
                 pointerEvents: visible ? 'auto' : 'none',
               }}
             >
-              {/* aspect-[1/3] = width:height = 1:3 → 高さが幅の3倍 */}
-              <div className="overflow-hidden rounded-2xl shadow-xl aspect-[1/3]">
+              {/* 実寸 707×2000 px に合わせたアスペクト比 */}
+              <div className="overflow-hidden rounded-2xl shadow-xl aspect-[707/2000]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}

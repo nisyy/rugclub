@@ -111,10 +111,24 @@ function MenuSection() {
         <h2 className="font-display text-navy text-2xl md:text-3xl tracking-wide">Menu</h2>
       </div>
       <hr className="border-navy/15 mx-6 lg:mx-10" />
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-8">
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-2 pb-8">
         <MenuCarousel />
-        <div className="text-center mt-2">
-          <Link href="/menu" className="btn-outline text-navy border-navy">MENU を見る</Link>
+        <div className="grid grid-cols-3 items-center mt-2">
+          <div />
+          <div className="flex justify-center">
+            {/* PDF を新規タブで開く（/menu への画面遷移は廃止） */}
+            <a
+              href="/menu.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-outline text-navy border-navy whitespace-nowrap !px-4"
+            >
+              MENU を見る
+            </a>
+          </div>
+          <div className="flex items-center pl-4">
+            <p className="text-[9px] text-navy/50 tracking-wide">※全て税込価格となります</p>
+          </div>
         </div>
       </div>
     </section>

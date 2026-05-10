@@ -10,6 +10,7 @@ const EMPTY: Omit<AdminGalleryItem, 'id'> = {
   artist: '',
   imageUrl: '',
   status: 'available',
+  instagramUrl: '',
 };
 
 export default function AdminGalleryPage() {
@@ -41,7 +42,7 @@ export default function AdminGalleryPage() {
 
   function openEdit(item: AdminGalleryItem) {
     setEditing(item);
-    setForm({ title: item.title, artist: item.artist, imageUrl: item.imageUrl, status: item.status });
+    setForm({ title: item.title, artist: item.artist, imageUrl: item.imageUrl, status: item.status, instagramUrl: item.instagramUrl ?? '' });
     setSaveError('');
     setModalOpen(true);
   }
@@ -198,6 +199,16 @@ export default function AdminGalleryPage() {
                   </select>
                 </Field>
               </div>
+
+              <Field label="Instagram URL（任意）">
+                <input
+                  className={inputCls}
+                  type="url"
+                  value={form.instagramUrl ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, instagramUrl: e.target.value }))}
+                  placeholder="https://www.instagram.com/username"
+                />
+              </Field>
 
               <ImageUploadField
                 label="画像"

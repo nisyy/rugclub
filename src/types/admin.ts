@@ -24,4 +24,5 @@ export interface AdminGalleryItem {
   artist: string;
   imageUrl: string;
   status: 'available' | 'sold';
+  instagramUrl?: string;  // 任意：登録時のみ表示
 }
