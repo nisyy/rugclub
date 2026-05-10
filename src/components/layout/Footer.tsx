@@ -72,16 +72,10 @@ export default function Footer() {
         {/* ── ポリシーリンク ── */}
         <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
           <Link
-            href="/about"
+            href="/privacy"
             className="text-xs text-cream/70 hover:text-cream transition-colors duration-200"
           >
             プライバシーポリシー
-          </Link>
-          <Link
-            href="/about"
-            className="text-xs text-cream/70 hover:text-cream transition-colors duration-200"
-          >
-            特定商取引法に基づく表記
           </Link>
           <Link
             href="/contact"

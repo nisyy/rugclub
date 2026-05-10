@@ -213,15 +213,20 @@ export async function getGalleryItems(): Promise<AdminGalleryItem[]> {
 
 export async function createGalleryItem(data: Omit<AdminGalleryItem, 'id'>): Promise<AdminGalleryItem> {
   const dbId = cleanId(process.env.NOTION_GALLERY_DB_ID);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const properties: any = {
+    '作品タイトル': { title: [{ text: { content: data.title } }] },
+    '作家名':       { rich_text: [{ text: { content: data.artist } }] },
+    '画像URL':      { url: data.imageUrl || null },
+    'ステータス':   { select: { name: data.status } },
+  };
+  // インスタグラムURL列が存在する場合のみ追加（列未作成時のエラーを防ぐ）
+  if (data.instagramUrl) {
+    properties['インスタグラムURL'] = { url: data.instagramUrl };
+  }
   const page = await notion.pages.create({
     parent: { database_id: dbId },
-    properties: {
-      '作品タイトル':      { title: [{ text: { content: data.title } }] },
-      '作家名':            { rich_text: [{ text: { content: data.artist } }] },
-      '画像URL':           { url: data.imageUrl || null },
-      'ステータス':        { select: { name: data.status } },
-      'インスタグラムURL': { url: data.instagramUrl || null },
-    },
+    properties,
   } as Parameters<typeof notion.pages.create>[0]) as PageObjectResponse;
   return galleryPageToItem(page);
 }
@@ -229,11 +234,12 @@ export async function createGalleryItem(data: Omit<AdminGalleryItem, 'id'>): Pro
 export async function updateGalleryItem(id: string, data: Partial<Omit<AdminGalleryItem, 'id'>>): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const properties: any = {};
-  if (data.title        !== undefined) properties['作品タイトル']      = { title: [{ text: { content: data.title } }] };
-  if (data.artist       !== undefined) properties['作家名']             = { rich_text: [{ text: { content: data.artist } }] };
-  if (data.imageUrl     !== undefined) properties['画像URL']            = { url: data.imageUrl || null };
-  if (data.status       !== undefined) properties['ステータス']         = { select: { name: data.status } };
-  if (data.instagramUrl !== undefined) properties['インスタグラムURL']  = { url: data.instagramUrl || null };
+  if (data.title    !== undefined) properties['作品タイトル'] = { title: [{ text: { content: data.title } }] };
+  if (data.artist   !== undefined) properties['作家名']       = { rich_text: [{ text: { content: data.artist } }] };
+  if (data.imageUrl !== undefined) properties['画像URL']      = { url: data.imageUrl || null };
+  if (data.status   !== undefined) properties['ステータス']   = { select: { name: data.status } };
+  // instagramUrl が truthy な場合のみ送信（列未作成時のエラーを防ぐ）
+  if (data.instagramUrl) properties['インスタグラムURL'] = { url: data.instagramUrl };
   await notion.pages.update({ page_id: id, properties });
 }
 
