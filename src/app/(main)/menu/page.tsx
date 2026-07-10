@@ -11,15 +11,22 @@ export const metadata: Metadata = {
   description: 'RUG CLUBのメニュー。淹れたてコーヒー、職人技のパフェ、季節のスイーツ。',
 };
 
-// カテゴリごとの表示ラベル（英語）と配色
-// 「サンド」「デザート」「ドリンク」を含むかで判定するため、
+// カテゴリごとの表示ラベル（英語）と配色（見出し・価格バッジ用）
+// 「サンド」「デザート」「ドリンク」「モーニング」を含むかで判定するため、
 // 過去の表記ゆれ（サンドイッチ / サンドウィッチ 等）があっても正しく一致する
 const CATEGORY_KEYWORDS: { match: string; label: string; color: string }[] = [
-  { match: 'サンド',   label: 'SANDWICH', color: '#1D4ED8' },
-  { match: 'デザート', label: 'DESSERTS', color: '#06B6D4' },
-  { match: 'ドリンク', label: 'DRINKS',   color: '#547443' },
+  { match: 'サンド',     label: 'SANDWICH', color: '#1D4ED8' },
+  { match: 'デザート',   label: 'DESSERTS', color: '#06B6D4' },
+  { match: 'モーニング', label: 'MORNING',  color: '#A85C32' },
+  { match: 'ドリンク',   label: 'DRINKS',   color: '#547443' },
 ];
 const FALLBACK_PALETTE = ['#1A2535', '#EF4123', '#A85C32', '#6B5B3A'];
+
+// カテゴリごとの画像背景色（サンドウィッチ・デザートのみ指定色、他は指定なし＝ニュートラル）
+const IMAGE_BG_COLOR: Record<string, string> = {
+  SANDWICH: '#65C294',
+  DESSERTS: '#65BBE9',
+};
 
 interface CategoryGroup {
   category: string;
@@ -74,63 +81,105 @@ function nameFontClass(name: string): string {
   return 'text-[11px]';
 }
 
+function CategoryHeading({ group }: { group: CategoryGroup }) {
+  return (
+    <div className="flex items-center gap-2 sm:gap-4 mb-2">
+      <span className="flex-1 min-w-6 border-t-2 border-dotted" style={{ borderColor: group.color }} />
+      <h2
+        className="font-display text-base sm:text-3xl tracking-wide uppercase whitespace-nowrap shrink-0"
+        style={{ color: group.color }}
+      >
+        {group.label} MENU
+      </h2>
+      <span className="flex-1 min-w-6 border-t-2 border-dotted" style={{ borderColor: group.color }} />
+    </div>
+  );
+}
+
+// サンドウィッチ・デザート：画像＋商品名＋価格バッジのグリッド
+function ProductGrid({ group }: { group: CategoryGroup }) {
+  const imageBg = IMAGE_BG_COLOR[group.label];
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 border-t border-dotted" style={{ borderColor: `${group.color}55` }}>
+      {group.items.map((item, i) => (
+        <div
+          key={item.id}
+          className="px-4 py-6 border-dotted"
+          style={{
+            borderColor: `${group.color}55`,
+            borderRightWidth: (i + 1) % 4 === 0 ? 0 : 1,
+            borderBottomWidth: 1,
+          }}
+        >
+          <div
+            className="relative aspect-square overflow-hidden rounded-md mb-3"
+            style={{ backgroundColor: imageBg ?? 'rgba(26,37,53,0.05)' }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <p className={`${nameFontClass(item.name)} font-bold text-charcoal leading-snug flex-1 min-w-0 line-clamp-2`}>
+              {item.name}
+            </p>
+
+            {/* 価格バッジ */}
+            {item.price && (
+              <div
+                className="self-end sm:self-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center text-white shrink-0 shadow-md"
+                style={{ backgroundColor: group.color }}
+              >
+                <span className="text-[11px] sm:text-xs font-bold leading-none">{item.price}</span>
+                <span className="text-[7px] sm:text-[8px] leading-none mt-0.5 opacity-80">（税込）</span>
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ドリンク：画像2枚を横並びで表示（商品名・価格なし）
+function DrinksRow({ group }: { group: CategoryGroup }) {
+  return (
+    <div className="grid grid-cols-2 gap-4 pt-2">
+      {group.items.slice(0, 2).map((item) => (
+        <div key={item.id} className="aspect-square overflow-hidden rounded-md bg-navy/5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={item.imageUrl} alt={item.name || 'ドリンク'} className="w-full h-full object-contain" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// モーニング：画像1枚のみ表示（商品名・価格なし）
+function MorningSingle({ group }: { group: CategoryGroup }) {
+  const item = group.items[0];
+  if (!item) return null;
+  return (
+    <div className="pt-2">
+      <div className="overflow-hidden rounded-md bg-navy/5">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={item.imageUrl} alt={item.name || 'モーニング'} className="w-full h-auto object-contain" />
+      </div>
+    </div>
+  );
+}
+
 function CategorySection({ group, delay }: { group: CategoryGroup; delay: number }) {
   return (
     <FadeIn delay={delay}>
       <section className="mb-16 last:mb-0">
-        {/* カテゴリヘッダー：点線 + カテゴリ名 + 点線 */}
-        <div className="flex items-center gap-2 sm:gap-4 mb-2">
-          <span
-            className="flex-1 min-w-6 border-t-2 border-dotted"
-            style={{ borderColor: group.color }}
-          />
-          <h2
-            className="font-display text-base sm:text-3xl tracking-wide uppercase whitespace-nowrap shrink-0"
-            style={{ color: group.color }}
-          >
-            {group.label} MENU
-          </h2>
-          <span
-            className="flex-1 min-w-6 border-t-2 border-dotted"
-            style={{ borderColor: group.color }}
-          />
-        </div>
-
-        {/* 商品グリッド */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 border-t border-dotted" style={{ borderColor: `${group.color}55` }}>
-          {group.items.map((item, i) => (
-            <div
-              key={item.id}
-              className="px-4 py-6 border-dotted"
-              style={{
-                borderColor: `${group.color}55`,
-                borderRightWidth: (i + 1) % 4 === 0 ? 0 : 1,
-                borderBottomWidth: 1,
-              }}
-            >
-              <div className="relative aspect-square overflow-hidden rounded-xl mb-3 bg-navy/5">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
-              </div>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <p className={`${nameFontClass(item.name)} font-bold text-charcoal leading-snug flex-1 min-w-0 line-clamp-2`}>
-                  {item.name}
-                </p>
-
-                {/* 価格バッジ */}
-                {item.price && (
-                  <div
-                    className="self-end sm:self-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center text-white shrink-0 shadow-md"
-                    style={{ backgroundColor: group.color }}
-                  >
-                    <span className="text-[11px] sm:text-xs font-bold leading-none">{item.price}</span>
-                    <span className="text-[7px] sm:text-[8px] leading-none mt-0.5 opacity-80">（税込）</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <CategoryHeading group={group} />
+        {group.label === 'DRINKS' ? (
+          <DrinksRow group={group} />
+        ) : group.label === 'MORNING' ? (
+          <MorningSingle group={group} />
+        ) : (
+          <ProductGrid group={group} />
+        )}
       </section>
     </FadeIn>
   );

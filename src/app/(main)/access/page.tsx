@@ -4,10 +4,10 @@ import FadeIn from '@/components/ui/FadeIn';
 export const metadata: Metadata = {
   title: 'ACCESS',
   description:
-    'RUG CLUBカフェへのアクセス情報。住所・交通アクセス・営業時間。大阪府東大阪市足代北2-15-22',
+    'RUG CLUBカフェへのアクセス情報。住所・交通アクセス・営業時間。大阪府東大阪市足代北2丁目15-22',
 };
 
-const MAPS_URL = 'https://maps.google.com/?q=大阪府東大阪市足代北2-15-22';
+const MAPS_URL = 'https://maps.google.com/?q=大阪府東大阪市足代北2丁目15-22';
 
 // ─────────────────────────────────────────────
 // Icons
@@ -93,7 +93,7 @@ export default function AccessPage() {
                   </div>
                   <address className="not-italic text-sm text-navy leading-[2] mb-5">
                     〒577-0058<br />
-                    大阪府東大阪市足代北2-15-22
+                    大阪府東大阪市足代北2丁目15-22
                   </address>
                   <a
                     href="tel:06-6224-4030"
@@ -199,7 +199,7 @@ export default function AccessPage() {
             <FadeIn delay={60}>
               <div className="rounded-2xl overflow-hidden h-full min-h-[420px] lg:min-h-0">
                 <iframe
-                  src="https://maps.google.com/maps?q=大阪府東大阪市足代北2-15-22&t=&z=17&ie=UTF8&iwloc=&output=embed"
+                  src="https://maps.google.com/maps?q=大阪府東大阪市足代北2丁目15-22&t=&z=17&ie=UTF8&iwloc=&output=embed"
                   width="100%"
                   height="100%"
                   style={{ border: 0, display: 'block', minHeight: '420px' }}

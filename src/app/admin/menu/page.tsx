@@ -5,7 +5,10 @@ import AdminHeader from '../_components/AdminHeader';
 import ImageUploadField from '../_components/ImageUploadField';
 import type { AdminMenuItem } from '@/types/admin';
 
-const CATEGORIES = ['サンドウィッチ', 'デザート', 'ドリンク'] as const;
+const CATEGORIES = ['サンドウィッチ', 'デザート', 'ドリンク', 'モーニング'] as const;
+
+// 画像のみ必須（商品名・価格の入力欄を隠す）カテゴリ
+const IMAGE_ONLY_CATEGORIES = ['ドリンク', 'モーニング'];
 
 const EMPTY: Omit<AdminMenuItem, 'id' | 'order'> = {
   name: '',
@@ -64,18 +67,25 @@ export default function AdminMenuPage() {
     setModalOpen(true);
   }
 
+  const isImageOnly = IMAGE_ONLY_CATEGORIES.includes(form.category);
+
   async function handleSave() {
-    if (!form.name || !form.category || !form.imageUrl) {
-      setSaveError('商品名・カテゴリ・画像は必須です');
+    if (!form.category || !form.imageUrl || (!isImageOnly && !form.name)) {
+      setSaveError('カテゴリ・画像は必須です');
       return;
     }
     setSaving(true);
     setSaveError('');
     const method = editing ? 'PUT' : 'POST';
     const maxOrder = items.reduce((max, i) => Math.max(max, i.order), 0);
+    const order = editing ? editing.order : maxOrder + 1;
+    // 画像のみのカテゴリは商品名・価格を自動生成（Notionのタイトル列に必要なため）
+    const data = isImageOnly
+      ? { ...form, name: form.name || `${form.category}画像 ${order}`, price: '' }
+      : form;
     const body = editing
-      ? { id: editing.id, ...form, order: editing.order }
-      : { ...form, order: maxOrder + 1 };
+      ? { id: editing.id, ...data, order }
+      : { ...data, order };
     const res = await fetch('/admin/api/menu', {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -231,34 +241,40 @@ export default function AdminMenuPage() {
             </h3>
 
             <div className="space-y-4">
-              <Field label="商品名 *">
-                <input
+              <Field label="カテゴリ *">
+                <select
                   className={inputCls}
-                  value={form.name}
-                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="BLTサンド"
-                />
+                  value={form.category}
+                  onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                >
+                  {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
               </Field>
 
-              <div className="grid grid-cols-2 gap-4">
-                <Field label="カテゴリ *">
-                  <select
-                    className={inputCls}
-                    value={form.category}
-                    onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                  >
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </Field>
-                <Field label="価格">
-                  <input
-                    className={inputCls}
-                    value={form.price}
-                    onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-                    placeholder="¥990"
-                  />
-                </Field>
-              </div>
+              {isImageOnly ? (
+                <p className="text-xs text-gray-500">
+                  このカテゴリは画像のみで登録できます（商品名・価格は不要です）。
+                </p>
+              ) : (
+                <>
+                  <Field label="商品名 *">
+                    <input
+                      className={inputCls}
+                      value={form.name}
+                      onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                      placeholder="BLTサンド"
+                    />
+                  </Field>
+                  <Field label="価格">
+                    <input
+                      className={inputCls}
+                      value={form.price}
+                      onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+                      placeholder="¥990"
+                    />
+                  </Field>
+                </>
+              )}
 
               <ImageUploadField
                 label="画像 *"
@@ -282,7 +298,7 @@ export default function AdminMenuPage() {
               </button>
               <button
                 onClick={handleSave}
-                disabled={saving || !form.name || !form.category || !form.imageUrl}
+                disabled={saving || !form.category || !form.imageUrl || (!isImageOnly && !form.name)}
                 className="bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors"
               >
                 {saving ? '保存中...' : '保存'}
