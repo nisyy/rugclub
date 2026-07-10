@@ -5,9 +5,11 @@ import AdminHeader from '../_components/AdminHeader';
 import ImageUploadField from '../_components/ImageUploadField';
 import type { AdminMenuItem } from '@/types/admin';
 
+const CATEGORIES = ['サンドウィッチ', 'デザート', 'ドリンク'] as const;
+
 const EMPTY: Omit<AdminMenuItem, 'id' | 'order'> = {
   name: '',
-  category: '',
+  category: CATEGORIES[0],
   price: '',
   imageUrl: '',
 };
@@ -47,11 +49,6 @@ export default function AdminMenuPage() {
     }
     return order.map((cat) => ({ category: cat, items: map.get(cat)! }));
   }, [items]);
-
-  const existingCategories = useMemo(
-    () => Array.from(new Set(items.map((i) => i.category).filter(Boolean))),
-    [items],
-  );
 
   function openNew() {
     setEditing(null);
@@ -245,16 +242,13 @@ export default function AdminMenuPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <Field label="カテゴリ *">
-                  <input
+                  <select
                     className={inputCls}
                     value={form.category}
                     onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                    placeholder="SANDWICH"
-                    list="category-suggestions"
-                  />
-                  <datalist id="category-suggestions">
-                    {existingCategories.map((c) => <option key={c} value={c} />)}
-                  </datalist>
+                  >
+                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
                 </Field>
                 <Field label="価格">
                   <input

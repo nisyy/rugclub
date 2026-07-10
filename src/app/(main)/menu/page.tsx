@@ -11,18 +11,17 @@ export const metadata: Metadata = {
   description: 'RUG CLUBのメニュー。淹れたてコーヒー、職人技のパフェ、季節のスイーツ。',
 };
 
-// カテゴリごとに割り当てる配色（サイトのブランドカラーを基調にしたローテーション）
-const CATEGORY_PALETTE = [
-  '#1A2535', // navy
-  '#EF4123', // orange
-  '#547443', // teal / forest
-  '#3F5B77', // slate blue
-  '#A85C32', // rust
-  '#6B5B3A', // olive brown
-];
+// カテゴリごとの表示ラベル（英語）と配色
+const CATEGORY_STYLE: Record<string, { label: string; color: string }> = {
+  'サンドウィッチ': { label: 'SANDWICH', color: '#1D4ED8' },
+  'デザート':       { label: 'DESSERTS', color: '#06B6D4' },
+  'ドリンク':       { label: 'DRINKS',   color: '#547443' },
+};
+const FALLBACK_PALETTE = ['#1A2535', '#EF4123', '#A85C32', '#6B5B3A'];
 
 interface CategoryGroup {
   category: string;
+  label: string;
   color: string;
   items: AdminMenuItem[];
 }
@@ -38,11 +37,16 @@ function groupByCategory(items: AdminMenuItem[]): CategoryGroup[] {
     }
     map.get(cat)!.push(item);
   }
-  return order.map((category, i) => ({
-    category,
-    color: CATEGORY_PALETTE[i % CATEGORY_PALETTE.length],
-    items: map.get(category)!,
-  }));
+  let fallbackIndex = 0;
+  return order.map((category) => {
+    const style = CATEGORY_STYLE[category];
+    return {
+      category,
+      label: style?.label ?? category,
+      color: style?.color ?? FALLBACK_PALETTE[fallbackIndex++ % FALLBACK_PALETTE.length],
+      items: map.get(category)!,
+    };
+  });
 }
 
 function CategorySection({ group, delay }: { group: CategoryGroup; delay: number }) {
@@ -50,19 +54,19 @@ function CategorySection({ group, delay }: { group: CategoryGroup; delay: number
     <FadeIn delay={delay}>
       <section className="mb-16 last:mb-0">
         {/* カテゴリヘッダー：点線 + カテゴリ名 + 点線 */}
-        <div className="flex items-center gap-4 mb-2">
+        <div className="flex items-center gap-2 sm:gap-4 mb-2">
           <span
-            className="flex-1 border-t-2 border-dotted"
+            className="flex-1 min-w-6 border-t-2 border-dotted"
             style={{ borderColor: group.color }}
           />
           <h2
-            className="font-display text-2xl sm:text-3xl tracking-wide uppercase whitespace-nowrap"
+            className="font-display text-base sm:text-3xl tracking-wide uppercase whitespace-nowrap shrink-0"
             style={{ color: group.color }}
           >
-            {group.category} MENU
+            {group.label} MENU
           </h2>
           <span
-            className="flex-1 border-t-2 border-dotted"
+            className="flex-1 min-w-6 border-t-2 border-dotted"
             style={{ borderColor: group.color }}
           />
         </div>
@@ -72,31 +76,33 @@ function CategorySection({ group, delay }: { group: CategoryGroup; delay: number
           {group.items.map((item, i) => (
             <div
               key={item.id}
-              className="relative px-4 py-6 border-dotted"
+              className="px-4 py-6 border-dotted"
               style={{
                 borderColor: `${group.color}55`,
                 borderRightWidth: (i + 1) % 4 === 0 ? 0 : 1,
                 borderBottomWidth: 1,
               }}
             >
-              <div className="relative aspect-square overflow-hidden rounded-full mx-auto w-[80%] mb-3 bg-navy/5">
+              <div className="relative aspect-square overflow-hidden rounded-xl mb-3 bg-navy/5">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
               </div>
-              <p className="text-center text-sm font-bold text-charcoal leading-snug px-1">
-                {item.name}
-              </p>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <p className="text-sm font-bold text-charcoal leading-snug flex-1 min-w-0">
+                  {item.name}
+                </p>
 
-              {/* 価格バッジ */}
-              {item.price && (
-                <div
-                  className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center text-white shrink-0 shadow-md"
-                  style={{ backgroundColor: group.color }}
-                >
-                  <span className="text-[11px] sm:text-xs font-bold leading-none">{item.price}</span>
-                  <span className="text-[7px] sm:text-[8px] leading-none mt-0.5 opacity-80">（税込）</span>
-                </div>
-              )}
+                {/* 価格バッジ */}
+                {item.price && (
+                  <div
+                    className="self-end sm:self-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center text-white shrink-0 shadow-md"
+                    style={{ backgroundColor: group.color }}
+                  >
+                    <span className="text-[11px] sm:text-xs font-bold leading-none">{item.price}</span>
+                    <span className="text-[7px] sm:text-[8px] leading-none mt-0.5 opacity-80">（税込）</span>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>

@@ -8,7 +8,7 @@ export const DEMO_MENU: AdminMenuItem[] = [
   {
     id: 'demo-m1',
     name: 'BLTサンド',
-    category: 'SANDWICH',
+    category: 'サンドウィッチ',
     price: '¥990',
     imageUrl: 'https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=600',
     order: 1,
@@ -16,7 +16,7 @@ export const DEMO_MENU: AdminMenuItem[] = [
   {
     id: 'demo-m2',
     name: 'エビマヨトースト',
-    category: 'SANDWICH',
+    category: 'サンドウィッチ',
     price: '¥770',
     imageUrl: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600',
     order: 2,
@@ -24,7 +24,7 @@ export const DEMO_MENU: AdminMenuItem[] = [
   {
     id: 'demo-m3',
     name: 'ハンバーガー',
-    category: 'SANDWICH',
+    category: 'サンドウィッチ',
     price: '¥990',
     imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600',
     order: 3,
@@ -32,7 +32,7 @@ export const DEMO_MENU: AdminMenuItem[] = [
   {
     id: 'demo-m4',
     name: 'バニラアイス',
-    category: 'DESSERTS',
+    category: 'デザート',
     price: '¥450',
     imageUrl: 'https://images.unsplash.com/photo-1560008581-09826d1de69e?w=600',
     order: 4,
@@ -40,7 +40,7 @@ export const DEMO_MENU: AdminMenuItem[] = [
   {
     id: 'demo-m5',
     name: 'バスクチーズケーキ',
-    category: 'DESSERTS',
+    category: 'デザート',
     price: '¥600',
     imageUrl: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600',
     order: 5,
@@ -48,7 +48,7 @@ export const DEMO_MENU: AdminMenuItem[] = [
   {
     id: 'demo-m6',
     name: 'シグネチャー・ラテ',
-    category: 'COFFEE',
+    category: 'ドリンク',
     price: '¥606',
     imageUrl: 'https://images.unsplash.com/photo-1561882468-9110e03e0f78?w=600',
     order: 6,
