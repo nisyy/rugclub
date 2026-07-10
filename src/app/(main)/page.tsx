@@ -116,15 +116,12 @@ function MenuSection() {
         <div className="grid grid-cols-3 items-center mt-2">
           <div />
           <div className="flex justify-center">
-            {/* PDF を新規タブで開く（/menu への画面遷移は廃止） */}
-            <a
-              href="/menu.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/menu"
               className="btn-outline text-navy border-navy whitespace-nowrap !px-4"
             >
               MENU を見る
-            </a>
+            </Link>
           </div>
           <div className="flex items-center pl-4">
             <p className="text-[9px] text-navy/50 tracking-wide">※全て税込価格となります</p>

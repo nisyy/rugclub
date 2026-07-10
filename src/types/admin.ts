@@ -1,10 +1,7 @@
 export interface AdminMenuItem {
   id: string;
-  name: string;
-  category: 'Coffee' | 'Parfait' | 'Sweets' | 'Lunch';
-  price: string;
-  description: string;
   imageUrl: string;
+  order: number;
 }
 
 export interface AdminNewsItem {

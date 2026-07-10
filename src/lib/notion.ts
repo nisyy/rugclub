@@ -44,26 +44,12 @@ function getText(prop: any): string {
 // Menu
 // ─────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatPrice(prop: any): string {
-  const num = prop?.number;
-  if (num == null) return '';
-  return `¥${Number(num).toLocaleString('ja-JP')}`;
-}
-
-function parsePrice(str: string): number {
-  return parseInt(str.replace(/[¥,]/g, ''), 10) || 0;
-}
-
 function menuPageToItem(page: PageObjectResponse): AdminMenuItem {
   const props = page.properties;
   return {
     id: page.id,
-    name: getText(props['商品名']),
-    category: getText(props['カテゴリ']) as AdminMenuItem['category'],
-    price: formatPrice(props['価格']),
-    description: getText(props['説明文']),
     imageUrl: getText(props['画像URL']),
+    order: (props['順番'] as { type: 'number'; number: number | null })?.number ?? 999,
   };
 }
 
@@ -74,7 +60,7 @@ export async function getMenuItems(): Promise<AdminMenuItem[]> {
     const res = await notion.request<{ results: PageObjectResponse[] }>({
       path: `databases/${dbId}/query`,
       method: 'post',
-      body: {},
+      body: { sorts: [{ property: '順番', direction: 'ascending' }] },
     });
     return res.results.filter((p) => p.object === 'page').map(menuPageToItem);
   });
@@ -85,11 +71,9 @@ export async function createMenuItem(data: Omit<AdminMenuItem, 'id'>): Promise<A
   const page = await notion.pages.create({
     parent: { database_id: dbId },
     properties: {
-      '商品名':   { title: [{ text: { content: data.name } }] },
-      'カテゴリ': { select: { name: data.category } },
-      '価格':     { number: parsePrice(data.price) },
-      '説明文':   { rich_text: [{ text: { content: data.description } }] },
-      '画像URL':  { url: data.imageUrl || null },
+      '商品名': { title: [{ text: { content: `メニュー画像 ${data.order}` } }] },
+      '画像URL': { url: data.imageUrl || null },
+      '順番':    { number: data.order },
     },
   } as Parameters<typeof notion.pages.create>[0]) as PageObjectResponse;
   return menuPageToItem(page);
@@ -98,11 +82,8 @@ export async function createMenuItem(data: Omit<AdminMenuItem, 'id'>): Promise<A
 export async function updateMenuItem(id: string, data: Partial<Omit<AdminMenuItem, 'id'>>): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const properties: any = {};
-  if (data.name        !== undefined) properties['商品名']   = { title: [{ text: { content: data.name } }] };
-  if (data.category    !== undefined) properties['カテゴリ'] = { select: { name: data.category } };
-  if (data.price       !== undefined) properties['価格']     = { number: parsePrice(data.price) };
-  if (data.description !== undefined) properties['説明文']   = { rich_text: [{ text: { content: data.description } }] };
-  if (data.imageUrl    !== undefined) properties['画像URL']  = { url: data.imageUrl || null };
+  if (data.imageUrl !== undefined) properties['画像URL'] = { url: data.imageUrl || null };
+  if (data.order    !== undefined) properties['順番']    = { number: data.order };
   await notion.pages.update({ page_id: id, properties });
 }
 

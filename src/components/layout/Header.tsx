@@ -85,17 +85,11 @@ export default function Header() {
                   <p className="text-cream/60 text-xs mt-1">RUG CLUBについて</p>
                 </Link>
 
-                {/* MENU — PDFを新規タブで開く */}
-                <a
-                  href="/menu.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={closeMenu}
-                  className="group"
-                >
+                {/* MENU */}
+                <Link href="/menu" onClick={closeMenu} className="group">
                   <p className="font-display text-cream text-4xl group-hover:opacity-70 transition-opacity uppercase tracking-tight">MENU</p>
                   <p className="text-cream/60 text-xs mt-1">フード・ドリンク</p>
-                </a>
+                </Link>
 
                 {/* その他のリンク（ABOUT を除く） */}
                 {navLinks.filter((l) => l.href !== '/about').map((link) => (

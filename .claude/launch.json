@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "rugclub-dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "/Users/nishimurayasushiakira/.nvm/versions/node/v22.20.0/bin/node",
+      "runtimeArgs": ["/Users/nishimurayasushiakira/.nvm/versions/node/v22.20.0/bin/npm", "run", "dev"],
       "port": 3000
     }
   ]
