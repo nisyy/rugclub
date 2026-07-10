@@ -10,7 +10,7 @@ function getOffset(i: number, current: number, n: number): number {
   return d;
 }
 
-const CARD_W   = 185;  // カード幅 px（707×2000 比率 → 高さ ≈ 523px）
+const CARD_H   = 500;  // カードの高さ px（幅は画像の元アスペクト比のまま自動）
 const SLIDE_GAP = 205; // カード中心間の距離 px
 
 export default function MenuCarousel({ slides }: { slides: string[] }) {
@@ -72,8 +72,7 @@ export default function MenuCarousel({ slides }: { slides: string[] }) {
               aria-label={`メニュー画像 ${i + 1}`}
               className="absolute top-1/2 left-1/2 focus:outline-none"
               style={{
-                width: `${CARD_W}px`,
-                /* 高さ:幅 = 3:1 → aspect-ratio: 1/3 */
+                height: `${CARD_H}px`,
                 transform: `translateX(calc(-50% + ${offset * SLIDE_GAP}px)) translateY(-50%) scale(${isCenter ? 1 : 0.78})`,
                 opacity:   visible ? (isCenter ? 1 : 0.5) : 0,
                 transition: 'transform 0.55s cubic-bezier(0.4,0,0.2,1), opacity 0.55s ease',
@@ -81,13 +80,13 @@ export default function MenuCarousel({ slides }: { slides: string[] }) {
                 pointerEvents: visible ? 'auto' : 'none',
               }}
             >
-              {/* 実寸 707×2000 px に合わせたアスペクト比 */}
-              <div className="overflow-hidden rounded-2xl shadow-xl aspect-[707/2000]">
+              {/* 高さ固定・幅は画像本来のアスペクト比のまま（切り抜きなし） */}
+              <div className="h-full overflow-hidden rounded-2xl shadow-xl">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={src}
                   alt=""
-                  className="w-full h-full object-cover"
+                  className="h-full w-auto max-w-none object-contain"
                   draggable={false}
                 />
               </div>

@@ -3,6 +3,7 @@ import { getMenuItems } from '@/lib/notion';
 import { DEMO_MENU } from '@/lib/demoData';
 import type { AdminMenuItem } from '@/types/admin';
 import FadeIn from '@/components/ui/FadeIn';
+import DrinksLightbox from './_components/DrinksLightbox';
 
 export const revalidate = 60;
 
@@ -117,37 +118,34 @@ function ProductGrid({ group }: { group: CategoryGroup }) {
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
+
+            {/* 価格バッジ（スマホ：画像右下に半分重ねて表示） */}
+            {item.price && (
+              <div
+                className="sm:hidden absolute -bottom-3 -right-2 z-10 w-14 h-14 rounded-full flex flex-col items-center justify-center text-white shrink-0 shadow-md"
+                style={{ backgroundColor: group.color }}
+              >
+                <span className="text-[11px] font-bold leading-none">{item.price}</span>
+                <span className="text-[7px] leading-none mt-0.5 opacity-80">（税込）</span>
+              </div>
+            )}
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div className="flex sm:items-center sm:justify-between gap-2">
             <p className={`${nameFontClass(item.name)} font-bold text-charcoal leading-snug flex-1 min-w-0 line-clamp-2`}>
               {item.name}
             </p>
 
-            {/* 価格バッジ */}
+            {/* 価格バッジ（PC：商品名の右に表示） */}
             {item.price && (
               <div
-                className="self-end sm:self-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center text-white shrink-0 shadow-md"
+                className="hidden sm:flex w-16 h-16 rounded-full flex-col items-center justify-center text-white shrink-0 shadow-md"
                 style={{ backgroundColor: group.color }}
               >
-                <span className="text-[11px] sm:text-xs font-bold leading-none">{item.price}</span>
-                <span className="text-[7px] sm:text-[8px] leading-none mt-0.5 opacity-80">（税込）</span>
+                <span className="text-xs font-bold leading-none">{item.price}</span>
+                <span className="text-[8px] leading-none mt-0.5 opacity-80">（税込）</span>
               </div>
             )}
           </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ドリンク：画像2枚を横並びで表示（商品名・価格なし）
-function DrinksRow({ group }: { group: CategoryGroup }) {
-  return (
-    <div className="grid grid-cols-2 gap-4 pt-2">
-      {group.items.slice(0, 2).map((item) => (
-        <div key={item.id} className="aspect-square overflow-hidden rounded-md bg-navy/5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={item.imageUrl} alt={item.name || 'ドリンク'} className="w-full h-full object-contain" />
         </div>
       ))}
     </div>
@@ -173,8 +171,11 @@ function CategorySection({ group, delay }: { group: CategoryGroup; delay: number
     <FadeIn delay={delay}>
       <section className="mb-16 last:mb-0">
         <CategoryHeading group={group} />
+        {group.label === 'MORNING' && (
+          <p className="text-center text-sm text-navy/50 tracking-wide mb-3">9:00 〜 11:00</p>
+        )}
         {group.label === 'DRINKS' ? (
-          <DrinksRow group={group} />
+          <DrinksLightbox items={group.items} />
         ) : group.label === 'MORNING' ? (
           <MorningSingle group={group} />
         ) : (

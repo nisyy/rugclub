@@ -136,38 +136,6 @@ function ArtworkGrid({ items }: { items: AdminGalleryItem[] }) {
   );
 }
 
-// 3. FeaturedArtist (変更なし)
-function FeaturedArtist() {
-  return (
-    <section className="bg-white py-16 lg:py-20 border-y border-navy/5">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <FadeIn>
-          <div className="bg-cream rounded-2xl px-8 sm:px-12 py-12 flex flex-col md:flex-row gap-12 items-center">
-            <div className="flex-1">
-              <SectionHeader eyebrow="今月のアーティスト" heading="坂本 将" className="mb-6" />
-              <p className="text-sm text-charcoal/60 leading-[2.2] max-w-sm mb-8">
-                ポートランドを拠点に活動する坂本の作品は、朝の儀式と感情の風景が交差する地点を探求しています。コーヒーで染めたような質感と、鮮やかな厚塗りの油彩は、RUG CLUBコレクションの代名詞となっています。
-              </p>
-              <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-[11px] font-bold tracking-[0.2em] text-charcoal hover:text-orange transition-colors uppercase">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" /></svg>
-                Follow on Instagram
-              </a>
-            </div>
-            <div className="flex gap-4 w-full md:w-auto shrink-0 justify-center">
-              <div className="relative w-40 h-56 sm:w-48 sm:h-64 overflow-hidden rounded-lg group">
-                <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600" alt="制作中" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              </div>
-              <div className="relative w-40 h-56 sm:w-48 sm:h-64 overflow-hidden rounded-lg group">
-                <img src="https://images.unsplash.com/photo-1560421683-6856ea585c78?w=600" alt="道具" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              </div>
-            </div>
-          </div>
-        </FadeIn>
-      </div>
-    </section>
-  );
-}
-
 // 4. SubmissionCTA (変更なし)
 function SubmissionCTA() {
   return (
@@ -199,7 +167,6 @@ export default function GalleryClient({ items }: { items: AdminGalleryItem[] }) 
     <main className="bg-cream min-h-screen">
       <PageHeader activeFilter={activeFilter} onFilterChange={setActiveFilter} />
       <ArtworkGrid items={filteredItems} />
-      <FeaturedArtist />
       <SubmissionCTA />
     </main>
   );
