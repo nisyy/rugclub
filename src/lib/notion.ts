@@ -1,6 +1,6 @@
 import { Client } from '@notionhq/client';
 import type { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import type { AdminMenuItem, AdminNewsItem, AdminGalleryItem } from '@/types/admin';
+import type { AdminMenuItem, AdminNewsItem, AdminGalleryItem, AdminHomeSlide } from '@/types/admin';
 
 async function safeQuery<T>(fn: () => Promise<T[]>): Promise<T[]> {
   if (!process.env.NOTION_TOKEN) return [];
@@ -41,13 +41,27 @@ function getText(prop: any): string {
 }
 
 // ─────────────────────────────────────────────
-// Menu
+// Menu（/menu ページ用：カテゴリ・商品名・価格・画像）
 // ─────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function formatPrice(prop: any): string {
+  const num = prop?.number;
+  if (num == null) return '';
+  return `¥${Number(num).toLocaleString('ja-JP')}`;
+}
+
+function parsePrice(str: string): number {
+  return parseInt(str.replace(/[¥,]/g, ''), 10) || 0;
+}
 
 function menuPageToItem(page: PageObjectResponse): AdminMenuItem {
   const props = page.properties;
   return {
     id: page.id,
+    name: getText(props['商品名']),
+    category: getText(props['カテゴリ']),
+    price: formatPrice(props['価格']),
     imageUrl: getText(props['画像URL']),
     order: (props['順番'] as { type: 'number'; number: number | null })?.number ?? 999,
   };
@@ -71,9 +85,11 @@ export async function createMenuItem(data: Omit<AdminMenuItem, 'id'>): Promise<A
   const page = await notion.pages.create({
     parent: { database_id: dbId },
     properties: {
-      '商品名': { title: [{ text: { content: `メニュー画像 ${data.order}` } }] },
-      '画像URL': { url: data.imageUrl || null },
-      '順番':    { number: data.order },
+      '商品名':   { title: [{ text: { content: data.name } }] },
+      'カテゴリ': { select: { name: data.category } },
+      '価格':     { number: parsePrice(data.price) },
+      '画像URL':  { url: data.imageUrl || null },
+      '順番':     { number: data.order },
     },
   } as Parameters<typeof notion.pages.create>[0]) as PageObjectResponse;
   return menuPageToItem(page);
@@ -82,12 +98,66 @@ export async function createMenuItem(data: Omit<AdminMenuItem, 'id'>): Promise<A
 export async function updateMenuItem(id: string, data: Partial<Omit<AdminMenuItem, 'id'>>): Promise<void> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const properties: any = {};
+  if (data.name     !== undefined) properties['商品名']   = { title: [{ text: { content: data.name } }] };
+  if (data.category !== undefined) properties['カテゴリ'] = { select: { name: data.category } };
+  if (data.price    !== undefined) properties['価格']     = { number: parsePrice(data.price) };
+  if (data.imageUrl !== undefined) properties['画像URL']  = { url: data.imageUrl || null };
+  if (data.order    !== undefined) properties['順番']     = { number: data.order };
+  await notion.pages.update({ page_id: id, properties });
+}
+
+export async function deleteMenuItem(id: string): Promise<void> {
+  await notion.pages.update({ page_id: id, in_trash: true });
+}
+
+// ─────────────────────────────────────────────
+// Home Slide（TOPページのカルーセル用：画像のみ）
+// ─────────────────────────────────────────────
+
+function homeSlidePageToItem(page: PageObjectResponse): AdminHomeSlide {
+  const props = page.properties;
+  return {
+    id: page.id,
+    imageUrl: getText(props['画像URL']),
+    order: (props['順番'] as { type: 'number'; number: number | null })?.number ?? 999,
+  };
+}
+
+export async function getHomeSlides(): Promise<AdminHomeSlide[]> {
+  return safeQuery(async () => {
+    const dbId = cleanId(process.env.NOTION_HOME_MENU_DB_ID);
+    if (!dbId) return [];
+    const res = await notion.request<{ results: PageObjectResponse[] }>({
+      path: `databases/${dbId}/query`,
+      method: 'post',
+      body: { sorts: [{ property: '順番', direction: 'ascending' }] },
+    });
+    return res.results.filter((p) => p.object === 'page').map(homeSlidePageToItem);
+  });
+}
+
+export async function createHomeSlide(data: Omit<AdminHomeSlide, 'id'>): Promise<AdminHomeSlide> {
+  const dbId = cleanId(process.env.NOTION_HOME_MENU_DB_ID);
+  const page = await notion.pages.create({
+    parent: { database_id: dbId },
+    properties: {
+      '名前':    { title: [{ text: { content: `TOP画像 ${data.order}` } }] },
+      '画像URL': { url: data.imageUrl || null },
+      '順番':    { number: data.order },
+    },
+  } as Parameters<typeof notion.pages.create>[0]) as PageObjectResponse;
+  return homeSlidePageToItem(page);
+}
+
+export async function updateHomeSlide(id: string, data: Partial<Omit<AdminHomeSlide, 'id'>>): Promise<void> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const properties: any = {};
   if (data.imageUrl !== undefined) properties['画像URL'] = { url: data.imageUrl || null };
   if (data.order    !== undefined) properties['順番']    = { number: data.order };
   await notion.pages.update({ page_id: id, properties });
 }
 
-export async function deleteMenuItem(id: string): Promise<void> {
+export async function deleteHomeSlide(id: string): Promise<void> {
   await notion.pages.update({ page_id: id, in_trash: true });
 }
 

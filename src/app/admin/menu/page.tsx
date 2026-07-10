@@ -1,16 +1,23 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import AdminHeader from '../_components/AdminHeader';
 import ImageUploadField from '../_components/ImageUploadField';
 import type { AdminMenuItem } from '@/types/admin';
+
+const EMPTY: Omit<AdminMenuItem, 'id' | 'order'> = {
+  name: '',
+  category: '',
+  price: '',
+  imageUrl: '',
+};
 
 export default function AdminMenuPage() {
   const [items, setItems] = useState<AdminMenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<AdminMenuItem | null>(null);
-  const [imageUrl, setImageUrl] = useState('');
+  const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -26,28 +33,52 @@ export default function AdminMenuPage() {
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 
+  // カテゴリごとにグルーピング（順番昇順を保った状態で最初に出現した順にカテゴリを並べる）
+  const categories = useMemo(() => {
+    const order: string[] = [];
+    const map = new Map<string, AdminMenuItem[]>();
+    for (const item of items) {
+      const cat = item.category || '未分類';
+      if (!map.has(cat)) {
+        map.set(cat, []);
+        order.push(cat);
+      }
+      map.get(cat)!.push(item);
+    }
+    return order.map((cat) => ({ category: cat, items: map.get(cat)! }));
+  }, [items]);
+
+  const existingCategories = useMemo(
+    () => Array.from(new Set(items.map((i) => i.category).filter(Boolean))),
+    [items],
+  );
+
   function openNew() {
     setEditing(null);
-    setImageUrl('');
+    setForm(EMPTY);
     setSaveError('');
     setModalOpen(true);
   }
 
   function openEdit(item: AdminMenuItem) {
     setEditing(item);
-    setImageUrl(item.imageUrl);
+    setForm({ name: item.name, category: item.category, price: item.price, imageUrl: item.imageUrl });
     setSaveError('');
     setModalOpen(true);
   }
 
   async function handleSave() {
-    if (!imageUrl) { setSaveError('画像を選択してください'); return; }
+    if (!form.name || !form.category || !form.imageUrl) {
+      setSaveError('商品名・カテゴリ・画像は必須です');
+      return;
+    }
     setSaving(true);
     setSaveError('');
     const method = editing ? 'PUT' : 'POST';
+    const maxOrder = items.reduce((max, i) => Math.max(max, i.order), 0);
     const body = editing
-      ? { id: editing.id, imageUrl, order: editing.order }
-      : { imageUrl, order: items.length + 1 };
+      ? { id: editing.id, ...form, order: editing.order }
+      : { ...form, order: maxOrder + 1 };
     const res = await fetch('/admin/api/menu', {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -76,28 +107,31 @@ export default function AdminMenuPage() {
     setDeleteId(null);
   }
 
-  async function handleMove(index: number, direction: 'up' | 'down') {
+  // カテゴリ内でのみ並び替え（他カテゴリの順番には影響しない）
+  async function handleMove(categoryItems: AdminMenuItem[], index: number, direction: 'up' | 'down') {
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= items.length) return;
+    if (targetIndex < 0 || targetIndex >= categoryItems.length) return;
 
     setReordering(true);
-    const newItems = [...items];
-    [newItems[index], newItems[targetIndex]] = [newItems[targetIndex], newItems[index]];
+    const a = categoryItems[index];
+    const b = categoryItems[targetIndex];
 
-    // 楽観的更新
-    setItems(newItems.map((item, i) => ({ ...item, order: i + 1 })));
+    setItems((prev) => prev.map((it) => {
+      if (it.id === a.id) return { ...it, order: b.order };
+      if (it.id === b.id) return { ...it, order: a.order };
+      return it;
+    }));
 
-    // Notionに順番を保存
     await Promise.all([
       fetch('/admin/api/menu', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: newItems[index].id, order: index + 1 }),
+        body: JSON.stringify({ id: a.id, order: b.order }),
       }),
       fetch('/admin/api/menu', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: newItems[targetIndex].id, order: targetIndex + 1 }),
+        body: JSON.stringify({ id: b.id, order: a.order }),
       }),
     ]);
     setReordering(false);
@@ -111,13 +145,13 @@ export default function AdminMenuPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-xl font-bold text-white">メニュー管理</h2>
-            <p className="text-xs text-gray-500 mt-1">{items.length} 件 · 上下ボタンで順番を変更できます</p>
+            <p className="text-xs text-gray-500 mt-1">{items.length} 件 · カテゴリ内で上下ボタンにより順番を変更できます</p>
           </div>
           <button
             onClick={openNew}
             className="bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors"
           >
-            ＋ 画像を追加
+            ＋ 新規追加
           </button>
         </div>
 
@@ -132,56 +166,58 @@ export default function AdminMenuPage() {
         {loading ? (
           <div className="text-center py-20 text-gray-500 text-sm">読み込み中...</div>
         ) : items.length === 0 ? (
-          <div className="text-center py-20 text-gray-600 text-sm">画像がありません。「＋ 画像を追加」から登録してください。</div>
+          <div className="text-center py-20 text-gray-600 text-sm">メニューがありません。「＋ 新規追加」から登録してください。</div>
         ) : (
-          <div className="space-y-3">
-            {items.map((item, i) => (
-              <div key={item.id} className="bg-gray-900 border border-gray-800 rounded-xl flex items-center gap-4 p-3">
-                {/* サムネイル */}
-                <div className="w-20 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-800">
-                  {item.imageUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={item.imageUrl} alt={`メニュー ${i + 1}`} className="w-full h-full object-cover" />
-                  )}
-                </div>
+          <div className="space-y-8">
+            {categories.map(({ category, items: categoryItems }) => (
+              <div key={category}>
+                <h3 className="text-sm font-bold text-amber-500 tracking-wide mb-3">{category}</h3>
+                <div className="space-y-3">
+                  {categoryItems.map((item, i) => (
+                    <div key={item.id} className="bg-gray-900 border border-gray-800 rounded-xl flex items-center gap-4 p-3">
+                      <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-800">
+                        {item.imageUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                        )}
+                      </div>
 
-                {/* 順番 */}
-                <div className="text-gray-400 text-sm font-semibold w-8 text-center shrink-0">
-                  {i + 1}
-                </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-white font-medium truncate">{item.name}</p>
+                        <p className="text-gray-400 text-xs mt-0.5">{item.price}</p>
+                      </div>
 
-                {/* 並び替えボタン */}
-                <div className="flex flex-col gap-1 shrink-0">
-                  <button
-                    onClick={() => handleMove(i, 'up')}
-                    disabled={i === 0 || reordering}
-                    className="w-7 h-7 flex items-center justify-center bg-gray-700 hover:bg-gray-600 disabled:opacity-30 rounded text-white text-xs transition-colors"
-                    aria-label="上へ"
-                  >
-                    ▲
-                  </button>
-                  <button
-                    onClick={() => handleMove(i, 'down')}
-                    disabled={i === items.length - 1 || reordering}
-                    className="w-7 h-7 flex items-center justify-center bg-gray-700 hover:bg-gray-600 disabled:opacity-30 rounded text-white text-xs transition-colors"
-                    aria-label="下へ"
-                  >
-                    ▼
-                  </button>
-                </div>
+                      <div className="flex flex-col gap-1 shrink-0">
+                        <button
+                          onClick={() => handleMove(categoryItems, i, 'up')}
+                          disabled={i === 0 || reordering}
+                          className="w-7 h-7 flex items-center justify-center bg-gray-700 hover:bg-gray-600 disabled:opacity-30 rounded text-white text-xs transition-colors"
+                          aria-label="上へ"
+                        >
+                          ▲
+                        </button>
+                        <button
+                          onClick={() => handleMove(categoryItems, i, 'down')}
+                          disabled={i === categoryItems.length - 1 || reordering}
+                          className="w-7 h-7 flex items-center justify-center bg-gray-700 hover:bg-gray-600 disabled:opacity-30 rounded text-white text-xs transition-colors"
+                          aria-label="下へ"
+                        >
+                          ▼
+                        </button>
+                      </div>
 
-                {/* 操作ボタン */}
-                <div className="ml-auto flex gap-3 shrink-0">
-                  <button onClick={() => openEdit(item)} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
-                    画像変更
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    disabled={deleteId === item.id}
-                    className="text-xs text-red-500 hover:text-red-400 disabled:opacity-50 transition-colors"
-                  >
-                    {deleteId === item.id ? '削除中' : '削除'}
-                  </button>
+                      <div className="flex gap-3 shrink-0">
+                        <button onClick={() => openEdit(item)} className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">編集</button>
+                        <button
+                          onClick={() => handleDelete(item.id)}
+                          disabled={deleteId === item.id}
+                          className="text-xs text-red-500 hover:text-red-400 disabled:opacity-50 transition-colors"
+                        >
+                          {deleteId === item.id ? '削除中' : '削除'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
@@ -192,18 +228,52 @@ export default function AdminMenuPage() {
       {/* モーダル */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => setModalOpen(false)}>
-          <div className="bg-gray-900 rounded-xl border border-gray-700 w-full max-w-md p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-gray-900 rounded-xl border border-gray-700 w-full max-w-lg p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-white mb-6">
-              {editing ? '画像を変更' : '画像を追加'}
+              {editing ? 'メニューを編集' : 'メニューを追加'}
             </h3>
 
-            <ImageUploadField
-              label="メニュー画像 *"
-              value={imageUrl}
-              onChange={setImageUrl}
-              folder="menu"
-              previewSize="md"
-            />
+            <div className="space-y-4">
+              <Field label="商品名 *">
+                <input
+                  className={inputCls}
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="BLTサンド"
+                />
+              </Field>
+
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="カテゴリ *">
+                  <input
+                    className={inputCls}
+                    value={form.category}
+                    onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+                    placeholder="SANDWICH"
+                    list="category-suggestions"
+                  />
+                  <datalist id="category-suggestions">
+                    {existingCategories.map((c) => <option key={c} value={c} />)}
+                  </datalist>
+                </Field>
+                <Field label="価格">
+                  <input
+                    className={inputCls}
+                    value={form.price}
+                    onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
+                    placeholder="¥990"
+                  />
+                </Field>
+              </div>
+
+              <ImageUploadField
+                label="画像 *"
+                value={form.imageUrl}
+                onChange={(url) => setForm((f) => ({ ...f, imageUrl: url }))}
+                folder="menu"
+                previewSize="sm"
+              />
+            </div>
 
             {saveError && (
               <div className="mt-5 flex items-start gap-2 bg-red-950/60 border border-red-800 text-red-300 text-xs px-4 py-3 rounded-lg">
@@ -218,7 +288,7 @@ export default function AdminMenuPage() {
               </button>
               <button
                 onClick={handleSave}
-                disabled={saving || !imageUrl}
+                disabled={saving || !form.name || !form.category || !form.imageUrl}
                 className="bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors"
               >
                 {saving ? '保存中...' : '保存'}
@@ -230,3 +300,14 @@ export default function AdminMenuPage() {
     </div>
   );
 }
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-xs text-gray-400 mb-1.5 tracking-wide">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const inputCls = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition';

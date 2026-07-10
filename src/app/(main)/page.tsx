@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getNewsItems, getGalleryItems } from '@/lib/notion';
+import { getNewsItems, getGalleryItems, getHomeSlides } from '@/lib/notion';
 import { DEMO_NEWS, DEMO_GALLERY } from '@/lib/demoData';
 import type { AdminNewsItem, AdminGalleryItem } from '@/types/admin';
 import FadeIn from '@/components/ui/FadeIn';
@@ -104,7 +104,7 @@ function HeroSection() {
 }
 
 // --- 2. Menu ---
-function MenuSection() {
+function MenuSection({ slides }: { slides: string[] }) {
   return (
     <section className="bg-white mx-3 lg:mx-5 mb-5 rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden">
       <div className="py-5 px-6 lg:px-10">
@@ -112,7 +112,7 @@ function MenuSection() {
       </div>
       <hr className="border-navy/15 mx-6 lg:mx-10" />
       <div className="max-w-7xl mx-auto px-6 lg:px-10 pt-2 pb-8">
-        <MenuCarousel />
+        <MenuCarousel slides={slides} />
         <div className="grid grid-cols-3 items-center mt-2">
           <div />
           <div className="flex justify-center">
@@ -208,17 +208,19 @@ function NewsSection({ items }: { items: AdminNewsItem[] }) {
 }
 
 export default async function HomePage() {
-  const [notionNews, notionGallery] = await Promise.all([
+  const [notionNews, notionGallery, notionHomeSlides] = await Promise.all([
     getNewsItems(),
     getGalleryItems(),
+    getHomeSlides(),
   ]);
   const newsItems = notionNews.length > 0 ? notionNews : DEMO_NEWS;
   const galleryItems = notionGallery.length > 0 ? notionGallery : DEMO_GALLERY;
+  const menuSlides = notionHomeSlides.map((item) => item.imageUrl);
 
   return (
     <main className="bg-cream min-h-screen pb-10">
       <HeroSection />
-      <MenuSection />
+      <MenuSection slides={menuSlides} />
       <GallerySection items={galleryItems} />
       <NewsSection items={newsItems} />
     </main>

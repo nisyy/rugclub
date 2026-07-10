@@ -1,5 +1,14 @@
 export interface AdminMenuItem {
   id: string;
+  name: string;
+  category: string;
+  price: string;
+  imageUrl: string;
+  order: number;
+}
+
+export interface AdminHomeSlide {
+  id: string;
   imageUrl: string;
   order: number;
 }

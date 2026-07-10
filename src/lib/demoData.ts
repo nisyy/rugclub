@@ -4,7 +4,56 @@
  */
 import type { AdminMenuItem, AdminNewsItem, AdminGalleryItem } from '@/types/admin';
 
-export const DEMO_MENU: AdminMenuItem[] = [];
+export const DEMO_MENU: AdminMenuItem[] = [
+  {
+    id: 'demo-m1',
+    name: 'BLTサンド',
+    category: 'SANDWICH',
+    price: '¥990',
+    imageUrl: 'https://images.unsplash.com/photo-1567234669003-dce7a7a88821?w=600',
+    order: 1,
+  },
+  {
+    id: 'demo-m2',
+    name: 'エビマヨトースト',
+    category: 'SANDWICH',
+    price: '¥770',
+    imageUrl: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600',
+    order: 2,
+  },
+  {
+    id: 'demo-m3',
+    name: 'ハンバーガー',
+    category: 'SANDWICH',
+    price: '¥990',
+    imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600',
+    order: 3,
+  },
+  {
+    id: 'demo-m4',
+    name: 'バニラアイス',
+    category: 'DESSERTS',
+    price: '¥450',
+    imageUrl: 'https://images.unsplash.com/photo-1560008581-09826d1de69e?w=600',
+    order: 4,
+  },
+  {
+    id: 'demo-m5',
+    name: 'バスクチーズケーキ',
+    category: 'DESSERTS',
+    price: '¥600',
+    imageUrl: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600',
+    order: 5,
+  },
+  {
+    id: 'demo-m6',
+    name: 'シグネチャー・ラテ',
+    category: 'COFFEE',
+    price: '¥606',
+    imageUrl: 'https://images.unsplash.com/photo-1561882468-9110e03e0f78?w=600',
+    order: 6,
+  },
+];
 
 export const DEMO_GALLERY: AdminGalleryItem[] = [
   {

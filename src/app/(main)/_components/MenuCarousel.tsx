@@ -2,13 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
-// public/menu/ に配置した jpg
-const SLIDES = [
-  '/menu/menu1.jpg',
-  '/menu/menu2.jpg',
-  '/menu/menu3.jpg',
-];
-
 /** カード i が current から何枚ずれているか（-n/2 < offset <= n/2） */
 function getOffset(i: number, current: number, n: number): number {
   let d = i - current;
@@ -20,11 +13,14 @@ function getOffset(i: number, current: number, n: number): number {
 const CARD_W   = 185;  // カード幅 px（707×2000 比率 → 高さ ≈ 523px）
 const SLIDE_GAP = 205; // カード中心間の距離 px
 
-export default function MenuCarousel() {
+export default function MenuCarousel({ slides }: { slides: string[] }) {
+  const SLIDES = slides;
   const [active, setActive]   = useState(0);
   const [lightbox, setLightbox] = useState<string | null>(null);
   const touchStartX = useRef<number>(0);
   const n = SLIDES.length;
+
+  if (n === 0) return null;
 
   // 自動スクロール（5秒間隔）
   const next = useCallback(() => setActive((p) => (p + 1) % n), [n]);

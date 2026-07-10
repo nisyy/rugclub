@@ -20,6 +20,13 @@ export default async function AdminDashboard() {
       icon: '🍽️',
     },
     {
+      label: 'TOP Images',
+      labelJa: 'TOPメニュー画像管理',
+      href: '/admin/home-menu',
+      color: 'from-sky-600 to-cyan-600',
+      icon: '🖼️',
+    },
+    {
       label: 'News',
       labelJa: 'ニュース管理',
       href: '/admin/news',
@@ -63,7 +70,7 @@ export default async function AdminDashboard() {
         </div>
 
         {/* カードグリッド */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {cards.map((card) => (
             <Link
               key={card.label}

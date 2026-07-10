@@ -10,7 +10,7 @@ import { storage } from './firebase';
  */
 export async function uploadImage(
   file: File,
-  folder: 'menu' | 'news' | 'gallery' = 'menu',
+  folder: 'menu' | 'news' | 'gallery' | 'home-menu' = 'menu',
   onProgress?: (progress: number) => void,
 ): Promise<string> {
   const timestamp = Date.now();
