@@ -12,11 +12,13 @@ export const metadata: Metadata = {
 };
 
 // カテゴリごとの表示ラベル（英語）と配色
-const CATEGORY_STYLE: Record<string, { label: string; color: string }> = {
-  'サンドウィッチ': { label: 'SANDWICH', color: '#1D4ED8' },
-  'デザート':       { label: 'DESSERTS', color: '#06B6D4' },
-  'ドリンク':       { label: 'DRINKS',   color: '#547443' },
-};
+// 「サンド」「デザート」「ドリンク」を含むかで判定するため、
+// 過去の表記ゆれ（サンドイッチ / サンドウィッチ 等）があっても正しく一致する
+const CATEGORY_KEYWORDS: { match: string; label: string; color: string }[] = [
+  { match: 'サンド',   label: 'SANDWICH', color: '#1D4ED8' },
+  { match: 'デザート', label: 'DESSERTS', color: '#06B6D4' },
+  { match: 'ドリンク', label: 'DRINKS',   color: '#547443' },
+];
 const FALLBACK_PALETTE = ['#1A2535', '#EF4123', '#A85C32', '#6B5B3A'];
 
 interface CategoryGroup {
@@ -26,27 +28,50 @@ interface CategoryGroup {
   items: AdminMenuItem[];
 }
 
+function resolveCategoryStyle(category: string): { label: string; color: string } | null {
+  const trimmed = category.trim();
+  const found = CATEGORY_KEYWORDS.find((k) => trimmed.includes(k.match));
+  return found ? { label: found.label, color: found.color } : null;
+}
+
 function groupByCategory(items: AdminMenuItem[]): CategoryGroup[] {
   const order: string[] = [];
-  const map = new Map<string, AdminMenuItem[]>();
-  for (const item of items) {
-    const cat = item.category || '未分類';
-    if (!map.has(cat)) {
-      map.set(cat, []);
-      order.push(cat);
-    }
-    map.get(cat)!.push(item);
-  }
+  const map = new Map<string, { category: string; items: AdminMenuItem[] }>();
   let fallbackIndex = 0;
-  return order.map((category) => {
-    const style = CATEGORY_STYLE[category];
+  const fallbackColors = new Map<string, string>();
+
+  for (const item of items) {
+    const rawCategory = item.category || '未分類';
+    const style = resolveCategoryStyle(rawCategory);
+    // 表記ゆれ（サンドイッチ / サンドウィッチ 等）が同じグループにまとまるよう、
+    // 判定できた場合はラベル単位でグルーピングする
+    const groupKey = style?.label ?? rawCategory;
+
+    if (!map.has(groupKey)) {
+      map.set(groupKey, { category: rawCategory, items: [] });
+      order.push(groupKey);
+      if (!style) fallbackColors.set(groupKey, FALLBACK_PALETTE[fallbackIndex++ % FALLBACK_PALETTE.length]);
+    }
+    map.get(groupKey)!.items.push(item);
+  }
+
+  return order.map((groupKey) => {
+    const { category, items: groupItems } = map.get(groupKey)!;
+    const style = resolveCategoryStyle(category);
     return {
       category,
       label: style?.label ?? category,
-      color: style?.color ?? FALLBACK_PALETTE[fallbackIndex++ % FALLBACK_PALETTE.length],
-      items: map.get(category)!,
+      color: style?.color ?? fallbackColors.get(groupKey)!,
+      items: groupItems,
     };
   });
+}
+
+// 商品名の長さに応じてフォントサイズを自動で縮小し、2行に収まりやすくする
+function nameFontClass(name: string): string {
+  if (name.length <= 9) return 'text-sm';
+  if (name.length <= 14) return 'text-xs';
+  return 'text-[11px]';
 }
 
 function CategorySection({ group, delay }: { group: CategoryGroup; delay: number }) {
@@ -88,7 +113,7 @@ function CategorySection({ group, delay }: { group: CategoryGroup; delay: number
                 <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <p className="text-sm font-bold text-charcoal leading-snug flex-1 min-w-0">
+                <p className={`${nameFontClass(item.name)} font-bold text-charcoal leading-snug flex-1 min-w-0 line-clamp-2`}>
                   {item.name}
                 </p>
 
