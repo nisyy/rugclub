@@ -19,7 +19,7 @@ const delaGothic = Dela_Gothic_One({
 
 const siteUrl = "https://ragclubprod.vercel.app";
 const siteDescription =
-  "身近にアートを感じられるカフェ。大阪・東大阪にあるギャラリーカフェ。コーヒー・パフェ・焼き菓子・アート作品の展示販売・レンタルスペース。";
+  "身近にアートを感じられるカフェ。大阪・東大阪（布施）にあるギャラリーカフェ。コーヒー・サンドウィッチ・焼き菓子・アート作品の展示販売・レンタルスペース。";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
