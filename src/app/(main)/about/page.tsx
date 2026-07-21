@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import FadeIn from '@/components/ui/FadeIn';
-import ConceptSection from './_components/ConceptSection';
+import StorySection from './_components/StorySection';
 import AtmosphereSection from './_components/AtmosphereSection';
-import StrengthSection from './_components/StrengthSection';
+import ConceptSection from './_components/ConceptSection';
+import GallerySection from './_components/GallerySection';
 
 export const metadata: Metadata = {
   title: 'ABOUT',
@@ -39,9 +40,10 @@ export default function AboutPage() {
   return (
     <>
       <PageHeader />
-      <ConceptSection />
+      <StorySection />
       <AtmosphereSection />
-      <StrengthSection />
+      <ConceptSection />
+      <GallerySection />
     </>
   );
 }
