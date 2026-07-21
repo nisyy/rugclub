@@ -50,11 +50,12 @@ export default function ConceptSection() {
           <FadeIn delay={220}>
             <div className="flex items-center gap-4">
               <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-accent/25 shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200"
+                <Image
+                  src="/about/owner.jpg"
                   alt="坂本 将"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="56px"
+                  className="object-cover"
                 />
               </div>
               <div>

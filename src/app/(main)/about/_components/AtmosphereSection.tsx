@@ -20,7 +20,7 @@ export default function AtmosphereSection() {
             </div>
 
             {/* 装飾（マスキングテープ） */}
-            <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-48 h-20 -rotate-3 pointer-events-none select-none">
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-20 -rotate-3 pointer-events-none select-none">
               <Image src="/about/deco-tape.png" alt="" fill className="object-contain" />
             </div>
           </div>
