@@ -16,11 +16,21 @@ export default function AtmosphereSection() {
           木の温もり。
         </MaskRevealHeading>
 
+        {/* 有機的な切り抜き形状を定義（写真プレースホルダー・将来の実写真の両方に使用） */}
+        <svg width="0" height="0" aria-hidden="true">
+          <defs>
+            <clipPath id="atmosphere-blob-clip" clipPathUnits="objectBoundingBox">
+              <path d="M0.045,0.19 C0.02,0.09 0.12,0.02 0.27,0.02 C0.42,0.02 0.58,-0.02 0.74,0.01 C0.9,0.03 0.98,0.11 0.97,0.24 C0.96,0.36 0.99,0.48 0.98,0.62 C0.97,0.78 0.97,0.9 0.83,0.96 C0.68,1.02 0.5,0.97 0.34,0.99 C0.2,1.0 0.06,0.98 0.03,0.84 C0.01,0.72 0.04,0.58 0.02,0.44 C0.005,0.33 0.06,0.27 0.045,0.19 Z" />
+            </clipPath>
+          </defs>
+        </svg>
+
         <div
-          className="relative h-[240px] md:h-[360px] rounded-xl border border-dashed border-cream/40 overflow-hidden flex items-center justify-center"
+          className="relative h-[260px] md:h-[380px] flex items-center justify-center"
           style={{
+            clipPath: 'url(#atmosphere-blob-clip)',
             background:
-              'linear-gradient(120deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04), rgba(255,255,255,0.18))',
+              'linear-gradient(120deg, rgba(255,255,255,0.20), rgba(255,255,255,0.05), rgba(255,255,255,0.20))',
             backgroundSize: '200% 100%',
             animation: 'photoPlaceholderShimmer 3s ease-in-out infinite',
           }}
