@@ -1,7 +1,6 @@
 import FadeIn from '@/components/ui/FadeIn';
 import MaskRevealHeading from './MaskRevealHeading';
 import SquiggleUnderline from './SquiggleUnderline';
-import PillArrowLink from './PillArrowLink';
 import DecorationPlaceholder from './DecorationPlaceholder';
 
 export default function StorySection() {
@@ -22,14 +21,10 @@ export default function StorySection() {
           <SquiggleUnderline className="text-accent mb-8" />
 
           <FadeIn>
-            <p className="text-sm text-navy/70 leading-[2.1] mb-10 max-w-md">
+            <p className="text-sm text-navy/70 leading-[2.1] max-w-md">
               「将来カフェなんかできたらいいよなぁ」。中学のラグビー部の仲間と交わした、なにげないひとことが原点です。RUG
               CLUBという名前には、その頃の記憶が込められています。
             </p>
-          </FadeIn>
-
-          <FadeIn delay={120}>
-            <PillArrowLink scrollTo="atmosphere">もっと見る</PillArrowLink>
           </FadeIn>
         </div>
 

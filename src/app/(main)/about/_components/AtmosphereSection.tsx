@@ -1,11 +1,10 @@
 import FadeIn from '@/components/ui/FadeIn';
 import MaskRevealHeading from './MaskRevealHeading';
-import PillArrowLink from './PillArrowLink';
 import DecorationPlaceholder from './DecorationPlaceholder';
 
 export default function AtmosphereSection() {
   return (
-    <section id="atmosphere" className="relative bg-accent section-pad overflow-hidden">
+    <section className="relative bg-accent section-pad overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
         {/* 左：写真（少し傾けたカード） */}
         <FadeIn>
@@ -45,13 +44,9 @@ export default function AtmosphereSection() {
           <div className="w-10 h-px bg-cream/40 mb-6" />
 
           <FadeIn delay={80}>
-            <p className="text-sm text-cream/80 leading-[2.1] mb-10 max-w-md">
+            <p className="text-sm text-cream/80 leading-[2.1] max-w-md">
               ふらりと立ち寄った古本屋で見つけた一冊の画集や、色褪せた雑誌の表紙。そんな些細な出会いが、今でも心を動かしてくれます。
             </p>
-          </FadeIn>
-
-          <FadeIn delay={160}>
-            <PillArrowLink href="/gallery">店内の雰囲気を見る</PillArrowLink>
           </FadeIn>
         </div>
       </div>
