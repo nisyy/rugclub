@@ -1,9 +1,11 @@
 import FadeIn from '@/components/ui/FadeIn';
 import MaskRevealHeading from './MaskRevealHeading';
+import VerticalLabel from './VerticalLabel';
 
 export default function ConceptSection() {
   return (
-    <section className="bg-cream section-pad">
+    <section className="relative bg-cream section-pad overflow-hidden">
+      <VerticalLabel className="text-navy/10">01 — Story</VerticalLabel>
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
         <MaskRevealHeading
           as="h2"

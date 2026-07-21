@@ -1,9 +1,11 @@
 import MaskRevealHeading from './MaskRevealHeading';
+import VerticalLabel from './VerticalLabel';
 
 // 雰囲気セクション：文章は入れず、将来写真を差し込む前提のプレースホルダー枠のみ
 export default function AtmosphereSection() {
   return (
-    <section className="bg-accent section-pad">
+    <section className="relative bg-accent section-pad overflow-hidden">
+      <VerticalLabel className="text-cream/20">02 — Atmosphere</VerticalLabel>
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
         <MaskRevealHeading
           as="h2"
