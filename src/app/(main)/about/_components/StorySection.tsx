@@ -1,7 +1,7 @@
+import Image from 'next/image';
 import FadeIn from '@/components/ui/FadeIn';
 import MaskRevealHeading from './MaskRevealHeading';
 import SquiggleUnderline from './SquiggleUnderline';
-import DecorationPlaceholder from './DecorationPlaceholder';
 
 export default function StorySection() {
   return (
@@ -43,17 +43,23 @@ export default function StorySection() {
               className="relative h-[340px] md:h-[440px] overflow-hidden"
               style={{ clipPath: 'url(#hero-blob-clip)' }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200"
+              <Image
+                src="/about/hero.jpg"
                 alt="RUG CLUB 店内"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover"
+                priority
               />
             </div>
 
-            {/* 装飾プレースホルダー（後日、透過PNGに差し替え） */}
-            <DecorationPlaceholder label="画像1（ブラシストローク）" className="absolute -top-4 left-8 w-28 h-12 -rotate-6" />
-            <DecorationPlaceholder label="画像2（インクのシミ）" className="absolute -bottom-6 -right-4 w-24 h-24 rounded-full" />
+            {/* 装飾（ブラシストローク） */}
+            <div className="absolute -top-16 -left-24 w-[384px] h-[168px] -rotate-6 pointer-events-none select-none">
+              <Image src="/about/deco-brush1.png" alt="" fill className="object-contain" />
+            </div>
+            <div className="absolute -bottom-24 -right-20 w-[336px] h-[192px] rotate-3 pointer-events-none select-none">
+              <Image src="/about/deco-brush3.png" alt="" fill className="object-contain" />
+            </div>
           </div>
         </FadeIn>
       </div>

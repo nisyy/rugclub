@@ -1,6 +1,6 @@
+import Image from 'next/image';
 import FadeIn from '@/components/ui/FadeIn';
 import MaskRevealHeading from './MaskRevealHeading';
-import DecorationPlaceholder from './DecorationPlaceholder';
 
 export default function AtmosphereSection() {
   return (
@@ -10,17 +10,19 @@ export default function AtmosphereSection() {
         <FadeIn>
           <div className="relative max-w-sm mx-auto lg:mx-0">
             <div className="relative h-[300px] md:h-[360px] rounded-2xl overflow-hidden shadow-xl -rotate-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800"
-                alt="RUG CLUBのコーヒー"
-                className="w-full h-full object-cover"
+              <Image
+                src="/about/atmosphere.jpg"
+                alt="RUG CLUB 店内のテーブルと椅子"
+                fill
+                sizes="(min-width: 768px) 384px, 100vw"
+                className="object-cover"
               />
             </div>
 
-            {/* 装飾プレースホルダー（後日、透過PNGに差し替え） */}
-            <DecorationPlaceholder label="画像3（マスキングテープ）" className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-8 rotate-3" />
-            <DecorationPlaceholder label="画像4（手描きスクリブル）" className="absolute -bottom-5 -left-5 w-16 h-16" />
+            {/* 装飾（マスキングテープ） */}
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-48 h-20 -rotate-3 pointer-events-none select-none">
+              <Image src="/about/deco-tape.png" alt="" fill className="object-contain" />
+            </div>
           </div>
         </FadeIn>
 

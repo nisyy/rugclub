@@ -1,7 +1,7 @@
+import Image from 'next/image';
 import FadeIn from '@/components/ui/FadeIn';
 import MaskRevealHeading from './MaskRevealHeading';
 import SquiggleUnderline from './SquiggleUnderline';
-import DecorationPlaceholder from './DecorationPlaceholder';
 
 export default function ConceptSection() {
   return (
@@ -36,13 +36,14 @@ export default function ConceptSection() {
           </FadeIn>
 
           <FadeIn delay={160}>
-            <div className="relative border border-accent/30 rounded-xl px-6 py-5 mb-8 max-w-md">
-              <DecorationPlaceholder label="画像5（ブラシストローク）" className="absolute -left-4 -bottom-4 w-24 h-8 -rotate-3" />
+            {/* 吹き出し */}
+            <div className="relative bg-cream border border-accent/30 rounded-2xl px-6 py-5 mb-10 max-w-md">
               <p className="relative text-sm md:text-base font-bold italic text-accent leading-[1.9]">
                 「素敵な空間だった、また来たい」
                 <br />
                 ——そう思っていただけることが、なによりの喜びです。
               </p>
+              <div className="absolute -bottom-[9px] left-10 w-4 h-4 bg-cream border-b border-r border-accent/30 rotate-45" />
             </div>
           </FadeIn>
 
@@ -60,7 +61,6 @@ export default function ConceptSection() {
                 <p className="text-sm font-bold text-navy tracking-widest">坂本 将</p>
                 <p className="text-[11px] text-navy/40 tracking-[0.15em] uppercase mt-0.5">Founder &amp; Creative Director</p>
               </div>
-              <DecorationPlaceholder label="画像6（サイン）" className="w-24 h-8 ml-2" />
             </div>
           </FadeIn>
         </div>
@@ -68,29 +68,38 @@ export default function ConceptSection() {
         {/* 右：写真コラージュ（大1枚＋小2枚） */}
         <FadeIn delay={100}>
           <div className="grid grid-cols-2 gap-4 h-[420px] md:h-[520px]">
-            <div className="relative rounded-xl overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://images.unsplash.com/photo-1531243269054-5ebf6f34081e?w=1200"
-                alt="店内に飾られたアート作品"
-                className="w-full h-full object-cover"
-              />
+            <div className="relative">
+              <div className="relative w-full h-full rounded-xl overflow-hidden">
+                <Image
+                  src="/about/concept-large.jpg"
+                  alt="暖色の照明と彫刻"
+                  fill
+                  sizes="(min-width: 1024px) 25vw, 50vw"
+                  className="object-cover"
+                />
+              </div>
+              {/* 装飾（ブラシストローク） */}
+              <div className="absolute -bottom-12 -left-12 w-48 h-24 -rotate-6 pointer-events-none select-none">
+                <Image src="/about/deco-brush2.png" alt="" fill className="object-contain" />
+              </div>
             </div>
             <div className="grid grid-rows-2 gap-4">
               <div className="relative rounded-xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=800"
-                  alt="店内に置かれた本"
-                  className="w-full h-full object-cover"
+                <Image
+                  src="/about/concept-small1.jpg"
+                  alt="サンドウィッチ"
+                  fill
+                  sizes="(min-width: 1024px) 25vw, 50vw"
+                  className="object-cover"
                 />
               </div>
               <div className="relative rounded-xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1567016432779-094069958ea5?w=800"
-                  alt="店内の椅子と観葉植物"
-                  className="w-full h-full object-cover"
+                <Image
+                  src="/about/concept-small2.jpg"
+                  alt="窓辺に並ぶフィギュア"
+                  fill
+                  sizes="(min-width: 1024px) 25vw, 50vw"
+                  className="object-cover"
                 />
               </div>
             </div>
