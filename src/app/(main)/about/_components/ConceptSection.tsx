@@ -5,7 +5,7 @@ import VerticalLabel from './VerticalLabel';
 export default function ConceptSection() {
   return (
     <section className="relative bg-cream section-pad overflow-hidden">
-      <VerticalLabel className="text-navy/10">01 — Story</VerticalLabel>
+      <VerticalLabel className="text-navy/10">Story</VerticalLabel>
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
         <MaskRevealHeading
           as="h2"

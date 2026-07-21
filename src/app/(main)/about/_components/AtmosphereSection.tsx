@@ -5,7 +5,7 @@ import VerticalLabel from './VerticalLabel';
 export default function AtmosphereSection() {
   return (
     <section className="relative bg-accent section-pad overflow-hidden">
-      <VerticalLabel orientation="horizontal" className="text-cream/20">02 — Atmosphere</VerticalLabel>
+      <VerticalLabel orientation="horizontal" align="center" className="text-cream/20">Atmosphere</VerticalLabel>
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
         <MaskRevealHeading
           as="h2"
