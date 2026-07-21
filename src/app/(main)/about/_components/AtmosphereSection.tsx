@@ -5,7 +5,6 @@ import VerticalLabel from './VerticalLabel';
 export default function AtmosphereSection() {
   return (
     <section className="relative bg-accent section-pad overflow-hidden">
-      <VerticalLabel orientation="horizontal" align="center" className="text-cream/20">Atmosphere</VerticalLabel>
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
         <MaskRevealHeading
           as="h2"
@@ -25,19 +24,26 @@ export default function AtmosphereSection() {
           </defs>
         </svg>
 
-        <div
-          className="relative h-[260px] md:h-[380px] flex items-center justify-center"
-          style={{
-            clipPath: 'url(#atmosphere-blob-clip)',
-            background:
-              'linear-gradient(120deg, rgba(255,255,255,0.20), rgba(255,255,255,0.05), rgba(255,255,255,0.20))',
-            backgroundSize: '200% 100%',
-            animation: 'photoPlaceholderShimmer 3s ease-in-out infinite',
-          }}
-        >
-          <span className="text-cream/60 text-[11px] tracking-[0.2em] uppercase">
-            Photo Area（準備中）
-          </span>
+        {/* 写真プレースホルダー枠 + 背後の装飾テキスト */}
+        <div className="relative">
+          <VerticalLabel orientation="horizontal" align="center" className="text-cream/20 z-0">
+            Atmosphere
+          </VerticalLabel>
+
+          <div
+            className="relative z-10 h-[260px] md:h-[380px] flex items-center justify-center"
+            style={{
+              clipPath: 'url(#atmosphere-blob-clip)',
+              background:
+                'linear-gradient(120deg, rgba(255,255,255,0.20), rgba(255,255,255,0.05), rgba(255,255,255,0.20))',
+              backgroundSize: '200% 100%',
+              animation: 'photoPlaceholderShimmer 3s ease-in-out infinite',
+            }}
+          >
+            <span className="text-cream/60 text-[11px] tracking-[0.2em] uppercase">
+              Photo Area（準備中）
+            </span>
+          </div>
         </div>
       </div>
 
