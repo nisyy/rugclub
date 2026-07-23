@@ -145,8 +145,8 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
                       className="block group py-5"
                     >
                       {/* 上段：カテゴリ + 日付 + サムネイル + 矢印 */}
-                      <div className="flex items-center justify-between mb-2.5">
-                        <div className="flex items-center gap-3">
+                      <div className="flex items-start justify-between mb-1.5">
+                        <div className="flex items-center gap-3 pt-1">
                           <span className="text-[10px] font-bold tracking-[0.08em] text-navy/55 whitespace-nowrap">
                             （{displayCat(item.category)}）
                           </span>
@@ -156,12 +156,12 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
                           {item.thumbnailUrl && (
-                            <div className="relative w-12 h-12 rounded-md overflow-hidden bg-navy/5 shrink-0">
+                            <div className="relative w-[72px] h-[72px] rounded-md overflow-hidden bg-navy/5 shrink-0">
                               <Image
                                 src={item.thumbnailUrl}
                                 alt=""
                                 fill
-                                sizes="48px"
+                                sizes="72px"
                                 className="object-cover"
                               />
                             </div>
