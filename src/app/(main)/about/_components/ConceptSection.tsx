@@ -1,21 +1,21 @@
 import Image from 'next/image';
 import FadeIn from '@/components/ui/FadeIn';
-import MaskRevealHeading from './MaskRevealHeading';
 import SquiggleUnderline from './SquiggleUnderline';
 
 export default function ConceptSection() {
   return (
-    <section className="relative bg-cream section-pad overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
+    <section className="relative bg-cream section-pad">
+      {/* 背景の大きな薄い文字 */}
+      <span
+        aria-hidden="true"
+        className="absolute top-0 right-0 font-display leading-none text-navy/[0.06] text-[18vw] lg:text-[13vw] uppercase pointer-events-none select-none whitespace-nowrap"
+      >
+        Concept
+      </span>
+
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-start">
         {/* 左：テキスト */}
         <div>
-          <MaskRevealHeading
-            as="h2"
-            className="font-display text-navy text-3xl md:text-5xl leading-[1.2] mb-3"
-          >
-            Concept
-          </MaskRevealHeading>
-
           <p className="font-display text-navy text-lg md:text-2xl leading-[1.4] mb-2">
             常に、
             <br />

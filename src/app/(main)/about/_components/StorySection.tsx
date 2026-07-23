@@ -2,6 +2,7 @@ import Image from 'next/image';
 import FadeIn from '@/components/ui/FadeIn';
 import MaskRevealHeading from './MaskRevealHeading';
 import SquiggleUnderline from './SquiggleUnderline';
+import BrushRevealImage from './BrushRevealImage';
 
 export default function StorySection() {
   return (
@@ -43,12 +44,11 @@ export default function StorySection() {
               className="relative h-[340px] md:h-[440px] overflow-hidden"
               style={{ clipPath: 'url(#hero-blob-clip)' }}
             >
-              <Image
+              <BrushRevealImage
                 src="/about/hero.jpg"
                 alt="RUG CLUB 店内"
-                fill
+                className="absolute inset-0"
                 sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
                 priority
               />
             </div>
