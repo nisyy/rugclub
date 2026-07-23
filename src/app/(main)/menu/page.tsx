@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { getMenuItems } from '@/lib/notion';
 import { DEMO_MENU } from '@/lib/demoData';
 import type { AdminMenuItem } from '@/types/admin';
@@ -116,8 +117,13 @@ function ProductGrid({ group }: { group: CategoryGroup }) {
             className="relative aspect-square overflow-hidden rounded-md mb-3"
             style={{ backgroundColor: imageBg ?? 'rgba(26,37,53,0.05)' }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.imageUrl} alt={item.name} className="w-full h-full object-contain" />
+            <Image
+              src={item.imageUrl}
+              alt={item.name}
+              fill
+              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+              className="object-contain"
+            />
 
             {/* 価格バッジ（スマホ：画像右下に半分重ねて表示） */}
             {item.price && (

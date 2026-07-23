@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import FadeIn from '@/components/ui/FadeIn';
 import MaskRevealHeading from './MaskRevealHeading';
 import PillArrowLink from './PillArrowLink';
@@ -29,8 +30,13 @@ export default async function GallerySection() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {items.map((item) => (
               <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.imageUrl || FALLBACK} alt={item.title} className="w-full h-full object-cover" />
+                <Image
+                  src={item.imageUrl || FALLBACK}
+                  alt={item.title}
+                  fill
+                  sizes="(min-width: 768px) 25vw, 50vw"
+                  className="object-cover"
+                />
               </div>
             ))}
           </div>

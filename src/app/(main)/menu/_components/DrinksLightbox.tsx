@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { createPortal } from 'react-dom';
 import type { AdminMenuItem } from '@/types/admin';
 
@@ -15,10 +16,15 @@ export default function DrinksLightbox({ items }: { items: AdminMenuItem[] }) {
           <button
             key={item.id}
             onClick={() => setLightbox(item.imageUrl)}
-            className="aspect-square overflow-hidden rounded-md bg-navy/5"
+            className="relative aspect-square overflow-hidden rounded-md bg-navy/5"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.imageUrl} alt={item.name || 'ドリンク'} className="w-full h-full object-contain" />
+            <Image
+              src={item.imageUrl}
+              alt={item.name || 'ドリンク'}
+              fill
+              sizes="(min-width: 640px) 25vw, 50vw"
+              className="object-contain"
+            />
           </button>
         ))}
       </div>
