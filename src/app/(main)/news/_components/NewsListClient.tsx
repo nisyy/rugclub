@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useMemo } from 'react';
 import type { AdminNewsItem } from '@/types/admin';
 
@@ -143,7 +144,7 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
                       href={`/news/${item.id}`}
                       className="block group py-5"
                     >
-                      {/* 上段：カテゴリ + 日付 + 矢印 */}
+                      {/* 上段：カテゴリ + 日付 + サムネイル + 矢印 */}
                       <div className="flex items-center justify-between mb-2.5">
                         <div className="flex items-center gap-3">
                           <span className="text-[10px] font-bold tracking-[0.08em] text-navy/55 whitespace-nowrap">
@@ -153,7 +154,20 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
                             {formatDate(item.date)}
                           </span>
                         </div>
-                        <ArrowCircle />
+                        <div className="flex items-center gap-3 shrink-0">
+                          {item.thumbnailUrl && (
+                            <div className="relative w-12 h-12 rounded-md overflow-hidden bg-navy/5 shrink-0">
+                              <Image
+                                src={item.thumbnailUrl}
+                                alt=""
+                                fill
+                                sizes="48px"
+                                className="object-cover"
+                              />
+                            </div>
+                          )}
+                          <ArrowCircle />
+                        </div>
                       </div>
 
                       {/* 下段：タイトル */}
