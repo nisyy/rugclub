@@ -144,15 +144,20 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
                       href={`/news/${item.id}`}
                       className="block group py-5"
                     >
-                      {/* 上段：カテゴリ + 日付 + サムネイル + 矢印 */}
-                      <div className="flex items-start justify-between mb-1.5">
-                        <div className="flex items-center gap-3 pt-1">
-                          <span className="text-[10px] font-bold tracking-[0.08em] text-navy/55 whitespace-nowrap">
-                            （{displayCat(item.category)}）
-                          </span>
-                          <span className="text-[10px] font-semibold tracking-[0.15em] text-navy/40 tabular-nums">
-                            {formatDate(item.date)}
-                          </span>
+                      {/* 左：カテゴリ + 日付 + タイトル／右：サムネイル + 矢印 */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="pt-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-1.5">
+                            <span className="text-[10px] font-bold tracking-[0.08em] text-navy/55 whitespace-nowrap">
+                              （{displayCat(item.category)}）
+                            </span>
+                            <span className="text-[10px] font-semibold tracking-[0.15em] text-navy/40 tabular-nums">
+                              {formatDate(item.date)}
+                            </span>
+                          </div>
+                          <h2 className="text-sm font-bold text-navy leading-snug group-hover:text-orange transition-colors duration-200">
+                            {item.title}
+                          </h2>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
                           {item.thumbnailUrl && (
@@ -169,11 +174,6 @@ export default function NewsListClient({ items }: { items: AdminNewsItem[] }) {
                           <ArrowCircle />
                         </div>
                       </div>
-
-                      {/* 下段：タイトル */}
-                      <h2 className="text-sm font-bold text-navy leading-snug group-hover:text-orange transition-colors duration-200">
-                        {item.title}
-                      </h2>
                     </Link>
 
                     {/* 区切りライン */}
