@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import ScrollLink from './ScrollLink';
 
 // ─── 見出しラベル（unimocc等の展示案内ページを参考にした、帯タイプの小見出し）───
@@ -58,6 +59,14 @@ export default function ExhibitionInfo() {
       <InfoSection label="会場概要">
         <p>
           当ギャラリーはカフェ店内の壁面を利用した展示スペースです。コーヒーや食事と同じ空間での展示となりますので、飲食によるお客様との近距離での接触や、通常のギャラリーより人の出入りが多いことについて、あらかじめご了承ください。
+        </p>
+        <p className="mt-3">
+          <Link
+            href="/access"
+            className="text-orange underline underline-offset-2 hover:text-orange/80 transition-colors"
+          >
+            アクセスはこちら
+          </Link>
         </p>
       </InfoSection>
 
