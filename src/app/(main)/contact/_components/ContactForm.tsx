@@ -46,6 +46,7 @@ export default function ContactForm() {
   const [images, setImages] = useState<AttachedImage[]>([]);
   const [imageError, setImageError] = useState('');
   const [compressing, setCompressing] = useState(false);
+  const [showValidationAlert, setShowValidationAlert] = useState(false);
 
   const validate = (): boolean => {
     const next: Partial<FormData> = {};
@@ -63,7 +64,11 @@ export default function ContactForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      setShowValidationAlert(true);
+      return;
+    }
+    setShowValidationAlert(false);
     sessionStorage.setItem('contactForm', JSON.stringify({ ...form, images }));
     router.push('/contact/confirm');
   };
@@ -111,7 +116,43 @@ export default function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} noValidate className="space-y-8">
+    <>
+      {/* 入力不備アラート（画面最前面に固定表示） */}
+      {showValidationAlert && (
+        <div className="fixed top-0 inset-x-0 z-50 bg-red-600 shadow-lg">
+          <div className="max-w-2xl mx-auto px-6 lg:px-8 py-3.5 flex items-center gap-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="shrink-0"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <p className="text-sm text-white font-medium flex-1">
+              入力内容に不備があります。必須項目をご確認ください。
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowValidationAlert(false)}
+              aria-label="閉じる"
+              className="shrink-0 text-white/80 hover:text-white text-lg leading-none px-1"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} noValidate className="space-y-8">
 
       {/* お名前 */}
       <div>
@@ -301,5 +342,6 @@ export default function ContactForm() {
       </div>
 
     </form>
+    </>
   );
 }
