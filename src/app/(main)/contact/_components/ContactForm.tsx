@@ -21,9 +21,9 @@ interface AttachedImage {
 const MAX_IMAGES = 4;
 
 const SUBJECT_OPTIONS = [
+  '作品展示について',
   '部分レンタル',
   '個展やグループ展レンタル',
-  '作品展示について',
   'その他',
 ];
 
