@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const photos = [
   { src: '/contact/exhibit-1.jpg', alt: 'ギャラリー展示風景' },
@@ -14,17 +14,60 @@ const photos = [
 
 const INTERVAL = 3500;
 
-// 出展案内用のスライドショー。操作ボタンは持たず、自動でクロスフェード切り替えのみ行う。
+function PrevIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+  );
+}
+function NextIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  );
+}
+function PauseIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+      <rect x="6" y="4" width="4" height="16" rx="1" />
+      <rect x="14" y="4" width="4" height="16" rx="1" />
+    </svg>
+  );
+}
+function PlayIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M7 4.5v15l13-7.5-13-7.5z" />
+    </svg>
+  );
+}
+
+// 出展案内用のスライドショー。自動でクロスフェード切り替えしつつ、
+// 前へ／次へ／一時停止ボタンでユーザーも操作できる。
 export default function ExhibitionSlideshow() {
   const [current, setCurrent] = useState(0);
+  const [playing, setPlaying] = useState(true);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    const timer = setInterval(
+  const restartTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (!playing) return;
+    timerRef.current = setInterval(
       () => setCurrent((c) => (c + 1) % photos.length),
       INTERVAL,
     );
-    return () => clearInterval(timer);
-  }, []);
+  }, [playing]);
+
+  useEffect(() => {
+    restartTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [restartTimer]);
+
+  const goTo = (index: number) => {
+    setCurrent((index + photos.length) % photos.length);
+  };
 
   return (
     <div className="relative w-full h-[42vh] min-h-[280px] max-h-[480px] overflow-hidden rounded-2xl">
@@ -51,6 +94,34 @@ export default function ExhibitionSlideshow() {
         <p className="font-display text-cream text-xl lg:text-3xl tracking-[0.2em] uppercase">
           Gallery Exhibition
         </p>
+      </div>
+
+      {/* 操作ボタン（前へ・一時停止／再生・次へ） */}
+      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
+        <button
+          type="button"
+          onClick={() => goTo(current - 1)}
+          aria-label="前の画像"
+          className="w-11 h-11 rounded-full bg-white text-navy flex items-center justify-center shadow-md hover:bg-cream transition-colors duration-200"
+        >
+          <PrevIcon />
+        </button>
+        <button
+          type="button"
+          onClick={() => setPlaying((p) => !p)}
+          aria-label={playing ? 'スライドを一時停止' : 'スライドを再生'}
+          className="w-11 h-11 rounded-full bg-white text-navy flex items-center justify-center shadow-md hover:bg-cream transition-colors duration-200"
+        >
+          {playing ? <PauseIcon /> : <PlayIcon />}
+        </button>
+        <button
+          type="button"
+          onClick={() => goTo(current + 1)}
+          aria-label="次の画像"
+          className="w-11 h-11 rounded-full bg-white text-navy flex items-center justify-center shadow-md hover:bg-cream transition-colors duration-200"
+        >
+          <NextIcon />
+        </button>
       </div>
     </div>
   );
