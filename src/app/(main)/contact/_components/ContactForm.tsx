@@ -87,17 +87,21 @@ export default function ContactForm() {
     }
 
     setCompressing(true);
-    try {
-      const next: AttachedImage[] = [];
-      for (const file of files.slice(0, remaining)) {
+    const failedNames: string[] = [];
+    for (const file of files.slice(0, remaining)) {
+      try {
         const dataUrl = await compressImageToDataUrl(file);
-        next.push({ name: file.name, dataUrl });
+        setImages((prev) => [...prev, { name: file.name, dataUrl }]);
+      } catch {
+        failedNames.push(file.name);
       }
-      setImages((prev) => [...prev, ...next]);
-    } catch {
-      setImageError('画像の読み込みに失敗しました。');
-    } finally {
-      setCompressing(false);
+    }
+    setCompressing(false);
+
+    if (failedNames.length > 0) {
+      setImageError(
+        `${failedNames.join('、')} は読み込めませんでした。HEIC形式などお使いの端末の写真形式が原因の場合があります。JPEGやPNGに変換してお試しください。`,
+      );
     }
   };
 
