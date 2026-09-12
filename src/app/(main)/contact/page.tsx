@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import ContactForm from './_components/ContactForm';
+import ExhibitionSlideshow from './_components/ExhibitionSlideshow';
+import ExhibitionInfo from './_components/ExhibitionInfo';
 
 export const metadata: Metadata = {
   title: 'CONTACT',
@@ -18,7 +20,7 @@ function PageHeader() {
         CONTACT
       </h1>
       <p className="text-sm text-navy/50">
-        お問い合わせ内容をご入力ください。
+        カフェ・スペースレンタル・作品展示についてのお問い合わせはこちらから。
       </p>
     </div>
   );
@@ -36,6 +38,15 @@ export default function ContactPage() {
       </div>
       <div className="relative z-10 max-w-2xl mx-auto px-6 lg:px-8">
         <PageHeader />
+
+        <ExhibitionSlideshow />
+        <ExhibitionInfo />
+
+        <hr className="border-navy/10 my-14" />
+
+        <p className="text-sm text-navy/50 mb-8">
+          お問い合わせ内容をご入力ください。
+        </p>
         <ContactForm />
       </div>
     </section>
