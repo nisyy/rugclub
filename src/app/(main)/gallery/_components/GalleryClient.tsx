@@ -151,7 +151,7 @@ function SubmissionCTA() {
           />
           <CTAButton href="/contact" variant="outline">応募する</CTAButton>
           <p className="mt-4 text-xs text-charcoal/50 leading-relaxed">
-            応募される方は、事前に
+            ※応募される方は、事前に
             <a
               href="/gallery-terms.pdf"
               target="_blank"
