@@ -150,6 +150,18 @@ function SubmissionCTA() {
             className="mb-10"
           />
           <CTAButton href="/contact" variant="outline">応募する</CTAButton>
+          <p className="mt-4 text-xs text-charcoal/50 leading-relaxed">
+            応募される方は、事前に
+            <a
+              href="/gallery-terms.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-orange underline underline-offset-2 hover:text-orange/80 transition-colors"
+            >
+              ギャラリー利用規約
+            </a>
+            をご確認ください。
+          </p>
         </div>
       </FadeIn>
     </section>
