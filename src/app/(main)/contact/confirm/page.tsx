@@ -4,20 +4,28 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
+interface AttachedImage {
+  name: string;
+  dataUrl: string;
+}
+
 interface FormData {
   name: string;
   email: string;
   phone: string;
   subject: string;
+  portfolioUrl: string;
   message: string;
+  images: AttachedImage[];
 }
 
-const FIELD_LABELS: { key: keyof FormData; label: string }[] = [
-  { key: 'name',    label: 'お名前' },
-  { key: 'email',   label: 'メールアドレス' },
-  { key: 'phone',   label: '電話番号' },
-  { key: 'subject', label: 'お問い合わせ件名' },
-  { key: 'message', label: 'お問い合わせ内容' },
+const FIELD_LABELS: { key: Exclude<keyof FormData, 'images'>; label: string }[] = [
+  { key: 'name',         label: 'お名前 or 作家名' },
+  { key: 'email',        label: 'メールアドレス' },
+  { key: 'phone',        label: '電話番号' },
+  { key: 'subject',      label: 'お問い合わせ件名' },
+  { key: 'portfolioUrl', label: 'WEB・SNS・ポートフォリオ' },
+  { key: 'message',      label: 'お問い合わせ内容' },
 ];
 
 // ─── 送信完了画面 ──────────────────────────────
@@ -149,6 +157,26 @@ export default function ContactConfirmPage() {
             </div>
           ))}
         </div>
+
+        {/* 添付画像プレビュー */}
+        {form.images && form.images.length > 0 && (
+          <div className="mb-12">
+            <span className="block text-[11px] font-semibold tracking-[0.2em] text-navy/40 uppercase mb-3">
+              添付画像
+            </span>
+            <div className="grid grid-cols-4 gap-3">
+              {form.images.map((img, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={i}
+                  src={img.dataUrl}
+                  alt={img.name}
+                  className="aspect-square w-full object-cover rounded-lg border border-navy/15"
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         <hr className="border-navy/10 mb-10" />
 

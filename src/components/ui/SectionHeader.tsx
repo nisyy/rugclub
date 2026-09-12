@@ -52,7 +52,7 @@ export default function SectionHeader({
       </h2>
       {body && (
         <p
-          className={`mt-3 text-sm leading-relaxed ${
+          className={`mt-3 text-sm leading-relaxed whitespace-pre-line ${
             isDark ? 'text-white/60' : 'text-charcoal/60'
           }`}
         >

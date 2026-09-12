@@ -2,18 +2,27 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { compressImageToDataUrl } from '@/lib/compressImageToDataUrl';
 
 interface FormData {
   name: string;
   email: string;
   phone: string;
   subject: string;
+  portfolioUrl: string;
   message: string;
 }
 
+interface AttachedImage {
+  name: string;
+  dataUrl: string;
+}
+
+const MAX_IMAGES = 4;
+
 const SUBJECT_OPTIONS = [
-  'カフェについて',
-  'レンタルスペースについて',
+  '部分レンタル',
+  '個展やグループ展レンタル',
   '作品展示について',
   'その他',
 ];
@@ -29,10 +38,14 @@ export default function ContactForm() {
     email: '',
     phone: '',
     subject: '',
+    portfolioUrl: '',
     message: '',
   });
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [images, setImages] = useState<AttachedImage[]>([]);
+  const [imageError, setImageError] = useState('');
+  const [compressing, setCompressing] = useState(false);
 
   const validate = (): boolean => {
     const next: Partial<FormData> = {};
@@ -51,7 +64,7 @@ export default function ContactForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    sessionStorage.setItem('contactForm', JSON.stringify(form));
+    sessionStorage.setItem('contactForm', JSON.stringify({ ...form, images }));
     router.push('/contact/confirm');
   };
 
@@ -61,13 +74,45 @@ export default function ContactForm() {
       if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
     };
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = '';
+    if (files.length === 0) return;
+
+    const remaining = MAX_IMAGES - images.length;
+    if (files.length > remaining) {
+      setImageError(`画像は最大${MAX_IMAGES}枚までです。`);
+    } else {
+      setImageError('');
+    }
+
+    setCompressing(true);
+    try {
+      const next: AttachedImage[] = [];
+      for (const file of files.slice(0, remaining)) {
+        const dataUrl = await compressImageToDataUrl(file);
+        next.push({ name: file.name, dataUrl });
+      }
+      setImages((prev) => [...prev, ...next]);
+    } catch {
+      setImageError('画像の読み込みに失敗しました。');
+    } finally {
+      setCompressing(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImageError('');
+  };
+
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-8">
 
       {/* お名前 */}
       <div>
         <label className="block text-sm font-medium text-navy mb-2">
-          お名前
+          お名前 or 作家名
           <span className="ml-1 text-orange text-xs">（必須）</span>
         </label>
         <input
@@ -150,6 +195,73 @@ export default function ContactForm() {
         </div>
         {errors.subject && (
           <p className="mt-1.5 text-xs text-orange">{errors.subject}</p>
+        )}
+      </div>
+
+      {/* WEB・SNS・ポートフォリオ */}
+      <div>
+        <label className="block text-sm font-medium text-navy mb-1">
+          WEB・SNS・ポートフォリオ等作品を拝見できるものをご記載ください
+        </label>
+        <p className="text-xs text-navy/40 mb-2">
+          （画像を添付される場合は下部よりお願いいたします）
+        </p>
+        <input
+          type="url"
+          value={form.portfolioUrl}
+          onChange={update('portfolioUrl')}
+          placeholder="URL"
+          className={inputBase}
+        />
+      </div>
+
+      {/* 作品画像添付 */}
+      <div>
+        <label className="block text-sm font-medium text-navy mb-2">
+          画像を添付する
+          <span className="ml-1 text-navy/40 text-xs">（任意・最大{MAX_IMAGES}枚）</span>
+        </label>
+
+        {images.length > 0 && (
+          <div className="grid grid-cols-4 gap-3 mb-3">
+            {images.map((img, i) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <div key={i} className="relative aspect-square rounded-lg overflow-hidden border border-navy/15 bg-navy/5">
+                <img src={img.dataUrl} alt={img.name} className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeImage(i)}
+                  className="absolute top-1 right-1 w-5 h-5 bg-navy/70 hover:bg-navy text-white rounded-full flex items-center justify-center text-[10px] leading-none transition-colors"
+                  aria-label="画像を削除"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {images.length < MAX_IMAGES && (
+          <label
+            className={`flex items-center justify-center gap-2 w-full border border-dashed rounded-lg px-4 py-6 text-sm cursor-pointer transition-colors duration-200 ${
+              compressing
+                ? 'border-navy/15 text-navy/30 cursor-not-allowed'
+                : 'border-navy/25 text-navy/40 hover:border-orange hover:text-orange'
+            }`}
+          >
+            {compressing ? '処理中...' : '画像を添付する'}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              disabled={compressing}
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+          </label>
+        )}
+        {imageError && (
+          <p className="mt-1.5 text-xs text-orange">{imageError}</p>
         )}
       </div>
 

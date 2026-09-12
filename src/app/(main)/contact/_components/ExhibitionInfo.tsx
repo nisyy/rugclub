@@ -1,3 +1,5 @@
+import ScrollLink from './ScrollLink';
+
 // ─── 見出しラベル（unimocc等の展示案内ページを参考にした、帯タイプの小見出し）───
 function InfoLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -47,7 +49,7 @@ export default function ExhibitionInfo() {
             アート作品（絵画・写真・立体作品等）の展示および販売、関連イベントを目的とした利用に限ります。公序良俗に反する内容や、当施設の趣旨にそぐわないと判断した場合は利用をお断りすることがあります。
           </li>
           <li>
-            利用希望の方は、下記フォームより事前にお申し込みください。当ギャラリーの承認をもって予約成立となります。
+            利用希望の方は、<ScrollLink targetId="contact-form">下記フォーム</ScrollLink>より事前にお申し込みください。当ギャラリーの承認をもって予約成立となります。
           </li>
         </ul>
       </InfoSection>

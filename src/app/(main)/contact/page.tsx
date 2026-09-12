@@ -44,10 +44,12 @@ export default function ContactPage() {
 
         <hr className="border-navy/10 my-14" />
 
-        <p className="text-sm text-navy/50 mb-8">
-          お問い合わせ内容をご入力ください。
-        </p>
-        <ContactForm />
+        <div id="contact-form" className="scroll-mt-24 lg:scroll-mt-28">
+          <p className="text-sm text-navy/50 mb-8">
+            お問い合わせ内容をご入力ください。
+          </p>
+          <ContactForm />
+        </div>
       </div>
     </section>
   );

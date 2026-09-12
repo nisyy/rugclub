@@ -5,12 +5,19 @@ import { COLORS } from '@/lib/colors';
 // ─────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────
+interface AttachedImage {
+  name: string;
+  dataUrl: string;
+}
+
 interface ContactPayload {
   name: string;
   email: string;
   phone?: string;
   subject: string;
+  portfolioUrl?: string;
   message: string;
+  images?: AttachedImage[];
 }
 
 // ─────────────────────────────────────────────
@@ -49,6 +56,13 @@ function buildHtml(data: ContactPayload): string {
       </th>
       <td style="padding:10px;border-bottom:1px solid #eee;">${data.subject}</td>
     </tr>
+    ${data.portfolioUrl ? `
+    <tr>
+      <th style="text-align:left;padding:10px;background:#f5f0e8;font-size:12px;color:#666;">
+        WEB・SNS・ポートフォリオ
+      </th>
+      <td style="padding:10px;border-bottom:1px solid #eee;"><a href="${data.portfolioUrl}">${data.portfolioUrl}</a></td>
+    </tr>` : ''}
   </table>
   <h3 style="color:#333;font-size:14px;">お問い合わせ内容</h3>
   <div style="background:#f9f6f0;padding:16px;border-left:3px solid ${COLORS.orange};white-space:pre-wrap;">
@@ -73,6 +87,7 @@ function buildText(data: ContactPayload): string {
     `メールアドレス：${data.email}`,
     `電話番号：${data.phone || '未入力'}`,
     `件名：${data.subject}`,
+    ...(data.portfolioUrl ? [`WEB・SNS・ポートフォリオ：${data.portfolioUrl}`] : []),
     '━━━━━━━━━━━━━━━━━━━━',
     '',
     '【お問い合わせ内容】',
@@ -122,6 +137,14 @@ export async function POST(req: NextRequest) {
         subject: `【お問い合わせ】${body.subject} ― ${body.name} 様`,
         text: buildText(body),
         html: buildHtml(body),
+        attachments: (body.images ?? []).map((img, i) => {
+          const [, base64] = img.dataUrl.split(',');
+          return {
+            filename: img.name || `attachment-${i + 1}.jpg`,
+            content: base64,
+            encoding: 'base64' as const,
+          };
+        }),
       });
     } catch (err) {
       console.error('[Contact] メール送信失敗:', err);
@@ -146,7 +169,9 @@ export async function POST(req: NextRequest) {
           email: body.email,
           phone: body.phone ?? '',
           subject: body.subject,
+          portfolioUrl: body.portfolioUrl ?? '',
           message: body.message,
+          imageCount: body.images?.length ?? 0,
         }),
       });
 
