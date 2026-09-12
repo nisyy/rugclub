@@ -125,7 +125,43 @@ export default function ContactConfirmPage() {
   if (!form) return null;
 
   return (
-    <section className="bg-cream min-h-screen py-16 lg:py-20">
+    <>
+      {/* エラーアラート（画面最前面に固定表示） */}
+      {sendError && (
+        <div className="fixed top-0 inset-x-0 z-50 bg-red-600 shadow-lg">
+          <div className="max-w-2xl mx-auto px-6 lg:px-8 py-3.5 flex items-center gap-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="shrink-0"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <p className="text-sm text-white font-medium flex-1">
+              送信に失敗しました。時間をおいて再度お試しください。
+            </p>
+            <button
+              type="button"
+              onClick={() => setSendError(false)}
+              aria-label="閉じる"
+              className="shrink-0 text-white/80 hover:text-white text-lg leading-none px-1"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      <section className="bg-cream min-h-screen py-16 lg:py-20">
       <div className="max-w-2xl mx-auto px-6 lg:px-8">
 
         {/* ページヘッダー */}
@@ -179,15 +215,6 @@ export default function ContactConfirmPage() {
         )}
 
         <hr className="border-navy/10 mb-10" />
-
-        {/* エラーメッセージ */}
-        {sendError && (
-          <div className="mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-center">
-            <p className="text-sm text-red-600 font-medium">
-              送信に失敗しました。時間をおいて再度お試しください。
-            </p>
-          </div>
-        )}
 
         {/* ボタンエリア */}
         <div className="flex flex-col-reverse sm:flex-row items-center justify-center gap-6">
@@ -245,6 +272,7 @@ export default function ContactConfirmPage() {
 
         </div>
       </div>
-    </section>
+      </section>
+    </>
   );
 }
