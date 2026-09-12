@@ -91,7 +91,7 @@ export default function ExhibitionSlideshow() {
       ))}
       <div className="absolute inset-0 bg-navy/25" />
       <div className="absolute inset-0 flex items-end px-6 pt-6 pb-20 lg:px-10 lg:pt-10 lg:pb-24">
-        <p className="font-display text-cream text-xl lg:text-3xl tracking-[0.2em] uppercase">
+        <p className="font-display text-cream text-base lg:text-2xl tracking-[0.2em] uppercase">
           Gallery Exhibition
         </p>
       </div>
