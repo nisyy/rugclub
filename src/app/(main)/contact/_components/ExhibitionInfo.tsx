@@ -70,7 +70,8 @@ export default function ExhibitionInfo() {
           <li className="pl-[1.1em]">展示＋物販は割引 −1,000円〜（販売量によって変化）</li>
         </ul>
         <p className="mt-3 text-xs text-navy/50">
-          ※企画内容、展示面積により料金が変動する場合があります。
+          ※企画内容、展示面積により料金が変動する場合があります。<br />
+          ※販売手数料はいただきません。販売に関するトラブルについては当ギャラリーは関与いたしかねます。
         </p>
       </InfoSection>
 
@@ -101,7 +102,6 @@ export default function ExhibitionInfo() {
       <InfoSection label="その他">
         <ul className="space-y-1.5">
           <li>・搬入・搬出：水曜日 9:00〜12:00（応相談）</li>
-          <li>・販売：販売手数料はいただきません。販売に関するトラブルについては当ギャラリーは関与いたしかねます。</li>
           <li>・飲食：ワンドリンク制です。飲食物のお持ち込みはご遠慮ください。</li>
           <li>・在廊：任意です。</li>
           <li>・撮影・SNS投稿：作家様のご判断にお任せしています。</li>
