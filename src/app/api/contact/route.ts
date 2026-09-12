@@ -111,6 +111,10 @@ export async function POST(req: NextRequest) {
 
   const failedServices: string[] = [];
 
+  // メール送信とスプレッドシート書き込みは互いに依存しないため並列実行し、
+  // 直列実行による待ち時間の合算（送信が遅く感じられる主な原因）を避ける。
+  const tasks: Promise<void>[] = [];
+
   // ── 1. メール送信（Nodemailer / Gmail SMTP）────────────────
   // TODO: .env.local に以下を設定してください
   //   CONTACT_GMAIL_USER=送信用Gmailアドレス
@@ -121,35 +125,37 @@ export async function POST(req: NextRequest) {
     process.env.CONTACT_GMAIL_PASS &&
     process.env.CONTACT_MAIL_TO
   ) {
-    try {
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.CONTACT_GMAIL_USER,
-          pass: process.env.CONTACT_GMAIL_PASS,
-        },
-      });
+    tasks.push((async () => {
+      try {
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            user: process.env.CONTACT_GMAIL_USER,
+            pass: process.env.CONTACT_GMAIL_PASS,
+          },
+        });
 
-      await transporter.sendMail({
-        from: `"RUG CLUB Website" <${process.env.CONTACT_GMAIL_USER}>`,
-        to: process.env.CONTACT_MAIL_TO,
-        replyTo: body.email,
-        subject: `【お問い合わせ】${body.subject} ― ${body.name} 様`,
-        text: buildText(body),
-        html: buildHtml(body),
-        attachments: (body.images ?? []).map((img, i) => {
-          const [, base64] = img.dataUrl.split(',');
-          return {
-            filename: img.name || `attachment-${i + 1}.jpg`,
-            content: base64,
-            encoding: 'base64' as const,
-          };
-        }),
-      });
-    } catch (err) {
-      console.error('[Contact] メール送信失敗:', err);
-      failedServices.push('email');
-    }
+        await transporter.sendMail({
+          from: `"RUG CLUB Website" <${process.env.CONTACT_GMAIL_USER}>`,
+          to: process.env.CONTACT_MAIL_TO,
+          replyTo: body.email,
+          subject: `【お問い合わせ】${body.subject} ― ${body.name} 様`,
+          text: buildText(body),
+          html: buildHtml(body),
+          attachments: (body.images ?? []).map((img, i) => {
+            const [, base64] = img.dataUrl.split(',');
+            return {
+              filename: img.name || `attachment-${i + 1}.jpg`,
+              content: base64,
+              encoding: 'base64' as const,
+            };
+          }),
+        });
+      } catch (err) {
+        console.error('[Contact] メール送信失敗:', err);
+        failedServices.push('email');
+      }
+    })());
   } else {
     // TODO: 環境変数が未設定のため、メール送信をスキップしています
     console.warn('[Contact] メール送信の環境変数が未設定です（CONTACT_GMAIL_USER / CONTACT_GMAIL_PASS / CONTACT_MAIL_TO）');
@@ -159,33 +165,37 @@ export async function POST(req: NextRequest) {
   // TODO: .env.local に以下を設定してください
   //   CONTACT_GAS_URL=Google Apps Script Web App の URL
   if (process.env.CONTACT_GAS_URL) {
-    try {
-      const gasRes = await fetch(process.env.CONTACT_GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
-          name: body.name,
-          email: body.email,
-          phone: body.phone ?? '',
-          subject: body.subject,
-          portfolioUrl: body.portfolioUrl ?? '',
-          message: body.message,
-          imageCount: body.images?.length ?? 0,
-        }),
-      });
+    tasks.push((async () => {
+      try {
+        const gasRes = await fetch(process.env.CONTACT_GAS_URL!, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            timestamp: new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' }),
+            name: body.name,
+            email: body.email,
+            phone: body.phone ?? '',
+            subject: body.subject,
+            portfolioUrl: body.portfolioUrl ?? '',
+            message: body.message,
+            imageCount: body.images?.length ?? 0,
+          }),
+        });
 
-      if (!gasRes.ok) {
-        throw new Error(`GAS responded with status ${gasRes.status}`);
+        if (!gasRes.ok) {
+          throw new Error(`GAS responded with status ${gasRes.status}`);
+        }
+      } catch (err) {
+        console.error('[Contact] スプレッドシート書き込み失敗:', err);
+        failedServices.push('spreadsheet');
       }
-    } catch (err) {
-      console.error('[Contact] スプレッドシート書き込み失敗:', err);
-      failedServices.push('spreadsheet');
-    }
+    })());
   } else {
     // TODO: 環境変数が未設定のため、スプレッドシート書き込みをスキップしています
     console.warn('[Contact] CONTACT_GAS_URL が未設定です');
   }
+
+  await Promise.all(tasks);
 
   // どちらかが成功していれば ok: true を返す
   // 両方失敗した場合のみ 500 を返す

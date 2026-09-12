@@ -1,5 +1,5 @@
-const MAX_DIMENSION = 1400;
-const JPEG_QUALITY = 0.72;
+const MAX_DIMENSION = 1000;
+const JPEG_QUALITY = 0.6;
 
 // お問い合わせフォームの添付画像用。メール添付として送るため、
 // Firebase Storageへはアップロードせずブラウザ側でリサイズ・圧縮してBase64化する。
