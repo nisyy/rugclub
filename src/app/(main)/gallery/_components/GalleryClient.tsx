@@ -145,23 +145,11 @@ function SubmissionCTA() {
           <SectionHeader
             eyebrow="Open Call"
             heading="あなたの作品を展示しませんか？"
-            body="私たちは、常に新しい視点を持つ作品を募集しています。応募は四半期ごとに行っています。"
+            body="現在、たくさんのお問い合わせをいただいておりますので、順次、ご対応をさせていただいております。まだ何も考えていないけれど、どんな感じなのか少しだけ気になる...といった場合でも、お気軽にお問い合わせください！"
             align="center"
             className="mb-10"
           />
-          <CTAButton href="/contact" variant="outline">応募する</CTAButton>
-          <p className="mt-4 text-xs text-charcoal/50 leading-relaxed">
-            ※応募される方は、事前に
-            <a
-              href="/gallery-terms.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-orange underline underline-offset-2 hover:text-orange/80 transition-colors"
-            >
-              ギャラリー利用規約
-            </a>
-            をご確認ください。
-          </p>
+          <CTAButton href="/contact" variant="outline">出展概要・お申込みフォームに関して</CTAButton>
         </div>
       </FadeIn>
     </section>
