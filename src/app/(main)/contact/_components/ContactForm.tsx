@@ -119,7 +119,7 @@ export default function ContactForm() {
     <>
       {/* 入力不備アラート（画面最前面に固定表示） */}
       {showValidationAlert && Object.keys(errors).length > 0 && (
-        <div className="fixed top-0 inset-x-0 z-50 bg-red-600 shadow-lg">
+        <div className="fixed bottom-0 inset-x-0 z-50 bg-red-600 shadow-lg">
           <div className="max-w-2xl mx-auto px-6 lg:px-8 py-3.5 flex items-start gap-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"

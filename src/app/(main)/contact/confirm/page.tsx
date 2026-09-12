@@ -128,7 +128,7 @@ export default function ContactConfirmPage() {
     <>
       {/* エラーアラート（画面最前面に固定表示） */}
       {sendError && (
-        <div className="fixed top-0 inset-x-0 z-50 bg-red-600 shadow-lg">
+        <div className="fixed bottom-0 inset-x-0 z-50 bg-red-600 shadow-lg">
           <div className="max-w-2xl mx-auto px-6 lg:px-8 py-3.5 flex items-center gap-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
