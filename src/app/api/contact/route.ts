@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { COLORS } from '@/lib/colors';
 
+// 本番環境（Vercelなど）のサーバーレス関数はデフォルトの実行時間制限が短く、
+// 画像添付ありのGmail送信がそれを超えて途中で打ち切られることがあるため明示的に延長する。
+export const runtime = 'nodejs';
+export const maxDuration = 60;
+
 // ─────────────────────────────────────────────
 // Types
 // ─────────────────────────────────────────────
