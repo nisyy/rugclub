@@ -36,11 +36,35 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<CustomerErrors>({});
   const [step, setStep] = useState<'input' | 'confirm'>('input');
   const [submitError, setSubmitError] = useState('');
+  const [zipStatus, setZipStatus] = useState<'idle' | 'loading' | 'found' | 'notfound' | 'failed'>('idle');
+  const zipReq = useRef(0);
 
   const set = (k: keyof Customer) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setCustomer((p) => ({ ...p, [k]: e.target.value }));
     if (errors[k]) setErrors((p) => ({ ...p, [k]: undefined }));
   };
+
+  // 郵便番号が7桁そろったら住所を検索し、都道府県と市区町村・町名を自動入力する
+  async function lookupZip(value: string) {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length !== 7) { setZipStatus('idle'); return; }
+    const id = ++zipReq.current;
+    setZipStatus('loading');
+    try {
+      const res = await fetch(`/api/shop/postal?zip=${digits}`);
+      const data = (await res.json()) as { ok: boolean; prefecture?: string; city?: string; error?: string };
+      if (id !== zipReq.current) return;
+      if (data.ok && data.prefecture) {
+        setCustomer((p) => ({ ...p, prefecture: data.prefecture!, city: data.city ?? '' }));
+        setErrors((p) => ({ ...p, prefecture: undefined, city: undefined }));
+        setZipStatus('found');
+      } else {
+        setZipStatus(data.error === 'not_found' ? 'notfound' : 'failed');
+      }
+    } catch {
+      if (id === zipReq.current) setZipStatus('failed');
+    }
+  }
 
   function toConfirm(e: React.FormEvent) {
     e.preventDefault();
@@ -124,7 +148,15 @@ export default function CheckoutPage() {
             <h2 className="text-sm font-bold text-navy">お届け先</h2>
             <Field label="お名前" required error={errors.name}><input className={inputBase} value={customer.name} onChange={set('name')} autoComplete="name" /></Field>
             <Field label="メールアドレス" required error={errors.email}><input type="email" className={inputBase} value={customer.email} onChange={set('email')} autoComplete="email" /></Field>
-            <Field label="郵便番号" required error={errors.postalCode}><input className={inputBase} value={customer.postalCode} onChange={set('postalCode')} placeholder="123-4567" inputMode="numeric" autoComplete="postal-code" /></Field>
+            <Field label="郵便番号" required error={errors.postalCode}><input className={inputBase} value={customer.postalCode} onChange={(e) => { set('postalCode')(e); lookupZip(e.target.value); }} placeholder="123-4567" inputMode="numeric" autoComplete="postal-code" />
+              <p className="mt-1.5 text-xs text-navy/50" aria-live="polite">
+                {zipStatus === 'loading' && '住所を検索しています...'}
+                {zipStatus === 'found' && '都道府県・市区町村を自動入力しました。番地などを続けてご入力ください。'}
+                {zipStatus === 'notfound' && '該当する住所が見つかりませんでした。手入力してください。'}
+                {zipStatus === 'failed' && '住所を検索できませんでした。手入力してください。'}
+                {zipStatus === 'idle' && '7桁を入力すると住所が自動入力されます。'}
+              </p>
+            </Field>
             <Field label="都道府県" required error={errors.prefecture}>
               <select className={inputBase} value={customer.prefecture} onChange={set('prefecture')} autoComplete="address-level1">
                 <option value="">選択してください</option>
