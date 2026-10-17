@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
         router.push('/admin');
         router.refresh();
       } else {
-        setError('パスワードが正しくありません。');
+        setError(res.status === 429 ? '試行回数が多すぎます。しばらく時間をおいてからお試しください。' : 'パスワードが正しくありません。');
       }
     } catch {
       setError('接続エラーが発生しました。');

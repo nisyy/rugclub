@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { ADMIN_COOKIE, verifySessionToken } from '@/lib/adminSession';
 import LogoutButton from './_components/LogoutButton';
 
 export default async function AdminDashboard() {
   const cookieStore = await cookies();
-  const session = cookieStore.get('admin_session');
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!session || !expected || session.value !== expected) {
+  if (!(await verifySessionToken(cookieStore.get(ADMIN_COOKIE)?.value))) {
     redirect('/admin/login');
   }
 
