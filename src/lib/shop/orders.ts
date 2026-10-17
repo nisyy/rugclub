@@ -1,6 +1,6 @@
 import { createHash, randomInt } from 'crypto';
 import { getAdminDb } from '@/lib/firebaseAdmin';
-import { PRODUCTS_COLLECTION } from './products';
+import { listAllProducts, PRODUCTS_COLLECTION } from './products';
 import type { Customer, OrderRecord, OrderStatus, PricedCart } from './types';
 
 const COLLECTION = 'shop_orders';
@@ -60,7 +60,7 @@ export async function createOrder(
       status: 'received',
       testMode: cart.testMode,
       customer,
-      lines: cart.lines.map((l) => ({ id: l.id, name: l.name, unitPriceYen: l.unitPriceYen, qty: l.qty, lineTotalYen: l.lineTotalYen })),
+      lines: cart.lines.map((l) => ({ id: l.id, name: l.name, unitPriceYen: l.unitPriceYen, qty: l.qty, lineTotalYen: l.lineTotalYen, categoryId: l.categoryId, categoryName: l.categoryName })),
       subtotalYen: cart.subtotalYen,
       shippingYen: cart.shippingYen ?? 0,
       shippingProvisional: cart.shippingProvisional,
@@ -78,7 +78,22 @@ export async function updateOrderMail(id: string, mail: OrderRecord['mail']): Pr
 
 export async function listOrders(): Promise<OrderRecord[]> {
   const snap = await requireDb().collection(COLLECTION).orderBy('createdAt', 'desc').limit(200).get();
-  return snap.docs.map((d) => d.data() as OrderRecord);
+  const orders = snap.docs.map((d) => d.data() as OrderRecord);
+  // カテゴリ導入前の注文など、カテゴリ情報が無い明細は現在の商品情報から補完する
+  if (orders.some((o) => o.lines.some((l) => l.categoryName === undefined))) {
+    const { products } = await listAllProducts();
+    const byId = new Map(products.map((p) => [p.id, p]));
+    for (const o of orders) {
+      for (const l of o.lines) {
+        if (l.categoryName === undefined) {
+          const p = byId.get(l.id);
+          l.categoryId = p?.categoryId ?? null;
+          l.categoryName = p?.categoryName ?? null;
+        }
+      }
+    }
+  }
+  return orders;
 }
 
 export async function updateOrderStatus(id: string, status: OrderStatus): Promise<void> {

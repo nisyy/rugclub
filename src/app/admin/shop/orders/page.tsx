@@ -13,6 +13,7 @@ export default function AdminShopOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
+  const [category, setCategory] = useState<string>('all');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -25,6 +26,16 @@ export default function AdminShopOrdersPage() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); }, [load]);
 
+  const UNCAT = '__none';
+  const catOf = (l: OrderRecord['lines'][number]) => ({ id: l.categoryId ?? UNCAT, name: l.categoryName ?? '未分類' });
+  const catCounts = new Map<string, { name: string; count: number }>();
+  for (const o of orders) {
+    for (const c of new Map(o.lines.map((l) => [catOf(l).id, catOf(l)])).values()) {
+      catCounts.set(c.id, { name: c.name, count: (catCounts.get(c.id)?.count ?? 0) + 1 });
+    }
+  }
+  const visible = category === 'all' ? orders : orders.filter((o) => o.lines.some((l) => catOf(l).id === category));
+
   async function setStatus(id: string, status: OrderStatus) {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
     const res = await fetch('/admin/api/shop/orders', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) });
@@ -36,15 +47,24 @@ export default function AdminShopOrdersPage() {
       <AdminHeader />
       <main className="max-w-4xl mx-auto px-6 py-10">
         <h2 className="text-xl font-bold text-white">ショップ注文管理</h2>
-        <p className="text-xs text-gray-500 mt-1 mb-8">{orders.length} 件 · 新しい順（最大200件）</p>
+        <p className="text-xs text-gray-500 mt-1 mb-8">{visible.length} 件 · 新しい順（最大200件）</p>
+        {catCounts.size > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {([['all', { name: 'すべて', count: orders.length }], ...catCounts.entries()] as [string, { name: string; count: number }][]).map(([id, c]) => (
+              <button key={id} onClick={() => setCategory(id)} className={`text-xs px-3.5 py-1.5 rounded-full transition-colors ${category === id ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}>
+                {c.name} <span className="opacity-60">{c.count}</span>
+              </button>
+            ))}
+          </div>
+        )}
         {error && <div className="mb-6 bg-red-950/60 border border-red-800 text-red-300 text-xs px-4 py-3 rounded-lg break-all">{error}</div>}
         {loading ? (
           <div className="text-center py-20 text-gray-500 text-sm">読み込み中...</div>
-        ) : orders.length === 0 ? (
-          <div className="text-center py-20 text-gray-600 text-sm">注文はまだありません。</div>
+        ) : visible.length === 0 ? (
+          <div className="text-center py-20 text-gray-600 text-sm">該当する注文はありません。</div>
         ) : (
           <div className="space-y-3">
-            {orders.map((o) => (
+            {visible.map((o) => (
               <div key={o.id} className="bg-gray-900 border border-gray-800 rounded-xl">
                 <button onClick={() => setOpenId(openId === o.id ? null : o.id)} className="w-full flex items-center gap-4 p-4 text-left">
                   <div className="min-w-0 flex-1">
@@ -53,6 +73,9 @@ export default function AdminShopOrdersPage() {
                       {o.testMode && <span className="ml-2 text-[10px] bg-amber-900/60 text-amber-300 px-2 py-0.5 rounded-full">テスト注文</span>}
                     </p>
                     <p className="text-gray-400 text-xs mt-0.5">{new Date(o.createdAt).toLocaleString('ja-JP')} · {o.customer.name} 様</p>
+                    <p className="mt-1.5 flex flex-wrap gap-1.5">
+                      {Array.from(new Set(o.lines.map((l) => catOf(l).name))).map((n) => <span key={n} className="text-[10px] bg-gray-800 text-gray-300 px-2 py-0.5 rounded-full">{n}</span>)}
+                    </p>
                   </div>
                   <span className="text-white text-sm tabular-nums">{yen(o.totalYen)}</span>
                   <span className="text-[11px] px-2.5 py-1 rounded-full bg-gray-800 text-gray-300">{STATUS_LABEL[o.status]}</span>
@@ -60,7 +83,7 @@ export default function AdminShopOrdersPage() {
                 {openId === o.id && (
                   <div className="border-t border-gray-800 p-4 space-y-4 text-sm">
                     <ul className="space-y-1 text-gray-300">
-                      {o.lines.map((l) => <li key={l.id}>{l.name} × {l.qty}　<span className="text-gray-500">{yen(l.lineTotalYen)}</span></li>)}
+                      {o.lines.map((l) => <li key={l.id}>{l.name} <span className="text-gray-500 text-xs">［{catOf(l).name}］</span> × {l.qty}　<span className="text-gray-500">{yen(l.lineTotalYen)}</span></li>)}
                     </ul>
                     <p className="text-gray-400 text-xs">小計 {yen(o.subtotalYen)} + 送料 {yen(o.shippingYen)}{o.shippingProvisional ? '（テスト用の仮送料）' : ''} = <span className="text-white">{yen(o.totalYen)}</span></p>
                     <div className="text-xs text-gray-400 space-y-0.5">

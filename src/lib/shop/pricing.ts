@@ -47,6 +47,8 @@ export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
       qty,
       lineTotalYen: p.priceYen * qty,
       maxQty,
+      categoryId: p.categoryId,
+      categoryName: p.categoryName,
     });
   }
 

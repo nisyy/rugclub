@@ -43,6 +43,8 @@ export interface PricedLine {
   qty: number;
   lineTotalYen: number;
   maxQty: number;
+  categoryId: string | null;
+  categoryName: string | null;
 }
 
 export type CartIssue =
@@ -83,7 +85,7 @@ export interface OrderRecord {
   status: OrderStatus;
   testMode: boolean;
   customer: Customer;
-  lines: { id: string; name: string; unitPriceYen: number; qty: number; lineTotalYen: number }[];
+  lines: { id: string; name: string; unitPriceYen: number; qty: number; lineTotalYen: number; categoryId?: string | null; categoryName?: string | null }[];
   subtotalYen: number;
   shippingYen: number;
   shippingProvisional: boolean;
