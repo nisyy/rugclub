@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { formatYen } from '@/lib/shop/pricing';
+import { useRef, useState } from 'react';
+import { useCart } from '@/components/shop/CartProvider';
+import { formatYen } from '@/lib/shop/format';
 import { EMPTY_CUSTOMER, PREFECTURES, validateCustomer, type CustomerErrors } from '@/lib/shop/validation';
 import type { Customer } from '@/lib/shop/types';
 import ShopHeading from '../_components/ShopHeading';
@@ -28,6 +29,9 @@ function Field({ label, required, error, children }: { label: string; required?:
 export default function CheckoutPage() {
   const router = useRouter();
   const { hydrated, cart, messages, error } = useServerCart();
+  const { clear } = useCart();
+  const idempotencyKey = useRef(crypto.randomUUID());
+  const [submitting, setSubmitting] = useState(false);
   const [customer, setCustomer] = useState<Customer>(EMPTY_CUSTOMER);
   const [errors, setErrors] = useState<CustomerErrors>({});
   const [step, setStep] = useState<'input' | 'confirm'>('input');
@@ -46,20 +50,35 @@ export default function CheckoutPage() {
   }
 
   async function submitOrder() {
-    if (!cart || cart.blockedReasons.length > 0) return;
+    if (!cart || cart.blockedReasons.length > 0 || submitting) return;
     setSubmitError('');
+    setSubmitting(true);
     try {
       const res = await fetch('/api/shop/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lines: cart.lines.map((l) => ({ id: l.id, qty: l.qty })), customer }),
+        body: JSON.stringify({
+          lines: cart.lines.map((l) => ({ id: l.id, qty: l.qty })),
+          customer,
+          idempotencyKey: idempotencyKey.current,
+        }),
       });
-      const data = (await res.json()) as { ok: boolean; redirectUrl?: string };
+      const data = (await res.json()) as {
+        ok: boolean; error?: string; name?: string; redirectUrl?: string;
+        testOrder?: { orderNumber: string };
+      };
       if (data.ok && data.redirectUrl) { window.location.href = data.redirectUrl; return; }
-      setSubmitError('現在ご注文を受け付けられません。');
+      if (data.ok && data.testOrder) {
+        sessionStorage.setItem('rugclub_last_order', JSON.stringify(data.testOrder));
+        clear();
+        router.push('/shop/complete');
+        return;
+      }
+      setSubmitError(data.error === 'out_of_stock' ? `「${data.name}」の在庫が足りなくなりました。カートをご確認ください。` : '現在ご注文を受け付けられません。');
     } catch {
       setSubmitError('通信に失敗しました。時間をおいて再度お試しください。');
     }
+    setSubmitting(false);
   }
 
   if (!hydrated) return <div className="bg-cream min-h-screen" />;
@@ -78,7 +97,7 @@ export default function CheckoutPage() {
     <div className="bg-cream min-h-screen pb-20">
       <ShopHeading eyebrow="Checkout" title="CHECKOUT" bg="ORDER" />
       <div className="max-w-2xl mx-auto px-6 lg:px-10">
-        <DevNotice>決済未接続の開発用画面です。実際の注文・決済は行われません。</DevNotice>
+        <DevNotice>{cart.testMode ? 'テストモードです。「テスト注文」として保存・メール送信されますが、決済・発送は行われません。送料はテスト用の仮の金額です。' : '決済未接続の開発用画面です。実際の注文・決済は行われません。'}</DevNotice>
         {messages.length > 0 && <div role="alert" className="mb-6 text-xs text-orange space-y-1">{messages.map((m) => <p key={m}>{m}</p>)}</div>}
         {error && <p className="mb-6 text-xs text-orange">最新の価格・在庫を取得できませんでした。</p>}
 
@@ -95,7 +114,7 @@ export default function CheckoutPage() {
           </ul>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between"><dt className="text-navy/60">商品小計（税込）</dt><dd className="tabular-nums">{formatYen(cart.subtotalYen)}</dd></div>
-            <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className={cart.shippingYen === null ? 'text-orange' : 'tabular-nums'}>{cart.shippingYen === null ? '未確定' : formatYen(cart.shippingYen)}</dd></div>
+            <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className={cart.shippingYen === null ? 'text-orange' : 'tabular-nums'}>{cart.shippingYen === null ? '未確定' : formatYen(cart.shippingYen) + (cart.testMode ? '（テスト用の仮送料）' : '')}</dd></div>
             <div className="flex justify-between border-t border-navy/10 pt-2 font-bold"><dt>合計</dt><dd className="tabular-nums">{cart.totalYen === null ? '送料確定後に表示' : formatYen(cart.totalYen)}</dd></div>
           </dl>
         </section>
@@ -139,11 +158,10 @@ export default function CheckoutPage() {
             {submitError && <p role="alert" className="text-xs text-orange">{submitError}</p>}
             <div className="flex flex-col-reverse sm:flex-row items-center justify-center gap-6">
               <button type="button" onClick={() => setStep('input')} className="text-[11px] font-bold tracking-[0.25em] text-navy/40 hover:text-navy uppercase transition-colors">← 修正する</button>
-              <button type="button" disabled={blocked} onClick={submitOrder} className="w-full max-w-xs bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-orange-dark transition-colors disabled:bg-navy/20 disabled:cursor-not-allowed">
-                {blocked ? '現在ご注文いただけません' : '決済へ進む'}
+              <button type="button" disabled={blocked || submitting} onClick={submitOrder} className="w-full max-w-xs bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-orange-dark transition-colors disabled:bg-navy/20 disabled:cursor-not-allowed">
+                {blocked ? '現在ご注文いただけません' : submitting ? '送信中...' : cart.testMode ? 'テスト注文を確定する' : '決済へ進む'}
               </button>
             </div>
-            <p className="text-center"><button type="button" onClick={() => router.push('/shop/complete')} className="text-[11px] text-navy/30 underline underline-offset-2 hover:text-navy/60">完了画面のプレビューを見る（開発用）</button></p>
           </section>
         )}
       </div>

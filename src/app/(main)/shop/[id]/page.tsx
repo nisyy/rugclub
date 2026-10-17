@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProductById, isPurchasable } from '@/lib/shop/products';
-import { formatYen } from '@/lib/shop/pricing';
+import { formatYen } from '@/lib/shop/format';
 import ProductImage from '../_components/ProductImage';
 import AddToCart from '../_components/AddToCart';
 
@@ -34,7 +34,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </p>
             <p className="mt-6 text-sm text-navy/70 leading-relaxed whitespace-pre-wrap">{p.description}</p>
             <div className="mt-8">
-              <AddToCart productId={p.id} maxQty={Math.min(p.stock, 99)} purchasable={purchasable} />
+              <AddToCart productId={p.id} productName={p.name} maxQty={Math.min(p.stock, 99)} purchasable={purchasable} />
             </div>
           </div>
         </div>

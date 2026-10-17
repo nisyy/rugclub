@@ -40,6 +40,20 @@ export default async function AdminDashboard() {
       color: 'from-amber-600 to-orange-600',
       icon: '🖼️',
     },
+    {
+      label: 'Shop Products',
+      labelJa: 'ショップ商品管理',
+      href: '/admin/shop',
+      color: 'from-rose-600 to-pink-600',
+      icon: '🛍️',
+    },
+    {
+      label: 'Shop Orders',
+      labelJa: 'ショップ注文管理',
+      href: '/admin/shop/orders',
+      color: 'from-fuchsia-600 to-purple-600',
+      icon: '📦',
+    },
   ];
 
   return (

@@ -9,6 +9,8 @@ const navItems = [
   { label: 'メニュー', href: '/admin/menu' },
   { label: 'ニュース', href: '/admin/news' },
   { label: 'ギャラリー', href: '/admin/gallery' },
+  { label: 'ショップ商品', href: '/admin/shop' },
+  { label: 'ショップ注文', href: '/admin/shop/orders' },
 ];
 
 export default function AdminHeader() {
@@ -29,7 +31,9 @@ export default function AdminHeader() {
             const isActive =
               item.href === '/admin'
                 ? pathname === '/admin'
-                : pathname.startsWith(item.href);
+                : item.href === '/admin/shop'
+                  ? pathname === '/admin/shop'
+                  : pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}

@@ -1,5 +1,6 @@
 import { getApps, initializeApp, cert } from 'firebase-admin/app';
 import { getAuth, type Auth } from 'firebase-admin/auth';
+import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 
 /**
  * Firebase Admin Auth を遅延初期化して返す。
@@ -34,6 +35,31 @@ export function getAdminAuth(): Auth | null {
     return getAuth(app);
   } catch (e) {
     console.error('[firebaseAdmin] 初期化失敗（Firebase関連機能は無効）:', e instanceof Error ? e.message : e);
+    return null;
+  }
+}
+
+/** Firestore（サーバー専用）。環境変数未設定・初期化失敗時は null */
+export function getAdminDb(): Firestore | null {
+  try {
+    const existing = getApps().find((a) => a.name === 'ragclub-admin');
+    const app =
+      existing ??
+      initializeApp(
+        {
+          credential: cert({
+            projectId:
+              process.env.FIREBASE_PROJECT_ID ??
+              process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+          }),
+        },
+        'ragclub-admin',
+      );
+    return getFirestore(app);
+  } catch (e) {
+    console.error('[firebaseAdmin] Firestore初期化失敗:', e instanceof Error ? e.message : e);
     return null;
   }
 }

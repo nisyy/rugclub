@@ -2,12 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { priceCart, sanitizeLines } from '@/lib/shop/pricing';
 import { startCheckout } from '@/lib/shop/payment';
 import { validateCustomer } from '@/lib/shop/validation';
+import { createOrder, OutOfStockError, updateOrderMail } from '@/lib/shop/orders';
+import { sendOrderMails } from '@/lib/shop/orderMail';
+import { isShopTestMode } from '@/lib/shop/testMode';
 import type { Customer } from '@/lib/shop/types';
 
-// 決済開始。ブラウザの価格・合計は一切信用せず、商品ID＋数量からサーバーで再計算する。
-// 注文確定（保存・在庫引き当て）はここでは行わない。将来は Stripe Webhook 側で実施する。
+export const maxDuration = 60;
+
+// 注文開始。ブラウザの価格・合計は一切信用せず、商品ID＋数量からサーバーで再計算する。
+// ・通常: 決済(payment.ts)へ。現状は未接続なので 501。注文確定は将来 Stripe Webhook 側で行う。
+// ・テストモード(SHOP_TEST_MODE=true): 「テスト注文」として保存・在庫引き当て・メール送信まで行う。
 export async function POST(req: NextRequest) {
-  let body: { lines?: unknown; customer?: Partial<Customer> };
+  let body: { lines?: unknown; customer?: Partial<Customer>; idempotencyKey?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -33,6 +39,37 @@ export async function POST(req: NextRequest) {
   }
   if (cart.shippingYen === null) {
     return NextResponse.json({ ok: false, error: 'shipping_unset' }, { status: 409 });
+  }
+
+  if (isShopTestMode()) {
+    const key = typeof body.idempotencyKey === 'string' ? body.idempotencyKey : '';
+    if (key.length < 8 || key.length > 100) {
+      return NextResponse.json({ ok: false, error: 'invalid_idempotency_key' }, { status: 400 });
+    }
+    try {
+      const { order, created } = await createOrder(key, cart, customer);
+      if (created) {
+        order.mail = await sendOrderMails(order);
+        await updateOrderMail(order.id, order.mail).catch(() => {});
+      }
+      return NextResponse.json({
+        ok: true,
+        testOrder: {
+          orderNumber: order.orderNumber,
+          lines: order.lines,
+          subtotalYen: order.subtotalYen,
+          shippingYen: order.shippingYen,
+          totalYen: order.totalYen,
+          mailSent: order.mail.customer === 'sent',
+        },
+      });
+    } catch (e) {
+      if (e instanceof OutOfStockError) {
+        return NextResponse.json({ ok: false, error: 'out_of_stock', name: e.productName }, { status: 409 });
+      }
+      console.error('[Shop] 注文作成失敗:', e instanceof Error ? e.message : e);
+      return NextResponse.json({ ok: false, error: 'order_failed' }, { status: 500 });
+    }
   }
 
   const result = await startCheckout(cart, customer);

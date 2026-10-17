@@ -51,7 +51,7 @@ async function compressImage(file: File): Promise<File> {
  */
 export async function uploadImage(
   file: File,
-  folder: 'menu' | 'news' | 'gallery' | 'home-menu' = 'menu',
+  folder: 'menu' | 'news' | 'gallery' | 'home-menu' | 'shop' = 'menu',
   onProgress?: (progress: number) => void,
 ): Promise<string> {
   const compressed = await compressImage(file);

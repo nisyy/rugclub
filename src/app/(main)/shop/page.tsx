@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getProducts, isPurchasable } from '@/lib/shop/products';
-import { formatYen } from '@/lib/shop/pricing';
+import { formatYen } from '@/lib/shop/format';
 import ProductImage from './_components/ProductImage';
 import ShopHeading from './_components/ShopHeading';
 import DevNotice from './_components/DevNotice';
@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   title: 'SHOP',
   description: 'RUG CLUBのオンラインショップ。グッズ・作品の一覧です。',
 };
+
+export const revalidate = 30;
 
 export default async function ShopPage() {
   const products = await getProducts();

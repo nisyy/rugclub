@@ -7,7 +7,7 @@ interface Props {
   label: string;
   value: string;
   onChange: (url: string) => void;
-  folder?: 'menu' | 'news' | 'gallery' | 'home-menu';
+  folder?: 'menu' | 'news' | 'gallery' | 'home-menu' | 'shop';
   previewSize?: 'sm' | 'md';
 }
 

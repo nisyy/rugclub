@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useCart } from '@/components/shop/CartProvider';
-import { formatYen } from '@/lib/shop/pricing';
+import { formatYen } from '@/lib/shop/format';
 import ProductImage from '../_components/ProductImage';
 import QtyStepper from '../_components/QtyStepper';
 import ShopHeading from '../_components/ShopHeading';
@@ -17,7 +17,7 @@ export default function CartPage() {
     <div className="bg-cream min-h-screen pb-20">
       <ShopHeading eyebrow="Shopping Cart" title="CART" bg="CART" />
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
-        <DevNotice>現在ご注文・決済はできません（決済未接続）。</DevNotice>
+        <DevNotice>{cart?.testMode ? 'テストモード中です。ご注文はテスト注文として扱われ、決済・発送は行われません。' : '現在ご注文・決済はできません（決済未接続）。'}</DevNotice>
 
         {messages.length > 0 && (
           <div role="alert" className="mb-6 rounded-lg border border-orange/40 bg-white px-4 py-3 text-xs text-orange space-y-1">
@@ -54,7 +54,7 @@ export default function CartPage() {
 
             <dl className="mt-6 space-y-2 text-sm">
               <div className="flex justify-between"><dt className="text-navy/60">小計（税込）</dt><dd className="tabular-nums">{formatYen(cart.subtotalYen)}</dd></div>
-              <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className="text-navy/50">購入手続きで確認（未確定）</dd></div>
+              <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className="text-navy/50">{cart.shippingYen === null ? '購入手続きで確認（未確定）' : `${formatYen(cart.shippingYen)}（テスト用の仮送料）`}</dd></div>
             </dl>
 
             <div className="mt-10 flex flex-col items-center gap-4">

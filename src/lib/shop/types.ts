@@ -50,4 +50,25 @@ export interface PricedCart {
   totalYen: number | null;
   /** 注文を進められない理由。空配列なら進行可能 */
   blockedReasons: string[];
+  /** テストモード（仮送料・テスト注文）で動作中 */
+  testMode: boolean;
 }
+
+export type OrderStatus = 'received' | 'shipped' | 'canceled';
+
+export interface OrderRecord {
+  id: string;
+  orderNumber: string;
+  createdAt: string;
+  status: OrderStatus;
+  testMode: boolean;
+  customer: Customer;
+  lines: { id: string; name: string; unitPriceYen: number; qty: number; lineTotalYen: number }[];
+  subtotalYen: number;
+  shippingYen: number;
+  totalYen: number;
+  mail: { customer: 'sent' | 'failed' | 'skipped'; shop: 'sent' | 'failed' | 'skipped' };
+}
+
+export type ProductInput = Omit<Product, 'id'> & { order: number };
+export type AdminProduct = Product & { order: number };

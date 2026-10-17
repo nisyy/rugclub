@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useCart } from '@/components/shop/CartProvider';
+import { useToast } from '@/components/shop/ToastProvider';
 import QtyStepper from './QtyStepper';
 
-export default function AddToCart({ productId, maxQty, purchasable }: { productId: string; maxQty: number; purchasable: boolean }) {
+export default function AddToCart({ productId, productName, maxQty, purchasable }: { productId: string; productName: string; maxQty: number; purchasable: boolean }) {
   const { add, lines } = useCart();
+  const { show } = useToast();
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   const inCart = lines.find((l) => l.id === productId)?.qty ?? 0;
@@ -27,7 +29,13 @@ export default function AddToCart({ productId, maxQty, purchasable }: { productI
       <button
         type="button"
         disabled={remaining === 0}
-        onClick={() => { add(productId, Math.min(qty, remaining), maxQty); setAdded(true); }}
+        onClick={() => {
+          const n = Math.min(qty, remaining);
+          add(productId, n, maxQty);
+          setAdded(true);
+          setQty(1);
+          show({ message: `「${productName}」を${n}点カートに追加しました`, href: '/shop/cart', hrefLabel: 'カートを見る' });
+        }}
         className="w-full max-w-xs bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-orange-dark transition-colors disabled:bg-navy/20 disabled:cursor-not-allowed"
       >
         {remaining === 0 ? 'カートの数量が上限です' : 'カートに追加する'}

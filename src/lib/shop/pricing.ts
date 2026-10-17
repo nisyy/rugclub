@@ -1,13 +1,11 @@
 import { getProductById, isPurchasable } from './products';
 import { getShippingFeeYen } from './shipping';
 import { isPaymentConnected } from './payment';
+import { isShopTestMode } from './testMode';
+export { formatYen } from './format';
 import type { CartIssue, CartLine, PricedCart, PricedLine } from './types';
 
 export const MAX_QTY_PER_LINE = 99;
-
-export function formatYen(yen: number): string {
-  return `¥${yen.toLocaleString('ja-JP')}`;
-}
 
 /** 信頼できない入力（JSON）をCartLine[]へ。IDごとに合算し、数量は整数のみ許可 */
 export function sanitizeLines(input: unknown): CartLine[] {
@@ -58,8 +56,10 @@ export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
 
   const blockedReasons: string[] = [];
   if (priced.length === 0) blockedReasons.push('カートに購入可能な商品がありません。');
+  const testMode = isShopTestMode();
   if (priced.length > 0 && shippingYen === null) blockedReasons.push('送料が未確定のため、注文を確定できません。');
-  if (!isPaymentConnected()) blockedReasons.push('決済が未接続のため、注文を確定できません。');
+  // テストモード中は決済未接続でも「テスト注文」として確定できる（実決済は行われない）
+  if (!isPaymentConnected() && !testMode) blockedReasons.push('決済が未接続のため、注文を確定できません。');
 
-  return { lines: priced, issues, subtotalYen, shippingYen, totalYen, blockedReasons };
+  return { lines: priced, issues, subtotalYen, shippingYen, totalYen, blockedReasons, testMode };
 }
