@@ -13,8 +13,8 @@ const STATUS_CLS: Record<ProductStatus, string> = {
   hidden: 'bg-gray-800 text-gray-400',
 };
 
-interface Form { name: string; description: string; imageUrls: string[]; priceYen: string; stock: string; weight: string; status: ProductStatus; artistId: string; categoryId: string }
-const EMPTY: Form = { name: '', description: '', imageUrls: [], priceYen: '', stock: '', weight: '0', status: 'on_sale', artistId: '', categoryId: '' };
+interface Form { name: string; description: string; imageUrls: string[]; priceYen: string; stock: string; status: ProductStatus; artistId: string; categoryId: string }
+const EMPTY: Form = { name: '', description: '', imageUrls: [], priceYen: '', stock: '', status: 'on_sale', artistId: '', categoryId: '' };
 const inputCls = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500';
 
 export default function AdminShopProductsPage() {
@@ -68,7 +68,7 @@ export default function AdminShopProductsPage() {
   function openNew() { setEditing(null); setForm(EMPTY); setSaveError(''); setOpen(true); }
   function openEdit(p: AdminProduct) {
     setEditing(p);
-    setForm({ name: p.name, description: p.description, imageUrls: p.imageUrls, priceYen: String(p.priceYen), stock: String(p.stock), weight: String(p.weight), status: p.status, artistId: p.artistId ?? '', categoryId: p.categoryId ?? '' });
+    setForm({ name: p.name, description: p.description, imageUrls: p.imageUrls, priceYen: String(p.priceYen), stock: String(p.stock), status: p.status, artistId: p.artistId ?? '', categoryId: p.categoryId ?? '' });
     setSaveError('');
     setOpen(true);
   }
@@ -81,7 +81,6 @@ export default function AdminShopProductsPage() {
       ...form,
       priceYen: Number(form.priceYen),
       stock: Number(form.stock),
-      weight: form.weight.trim() === '' ? 0 : Number(form.weight),
       artistId: form.artistId || null,
       categoryId: form.categoryId || null,
       order: editing && !usingSamples ? editing.order : maxOrder + 1,
@@ -133,6 +132,14 @@ export default function AdminShopProductsPage() {
     setForm((f) => ({ ...f, categoryId: data.id }));
   }
 
+  // 一覧からの在庫クイック編集（キャンセル時の在庫調整など）
+  async function changeStock(p: AdminProduct, next: number) {
+    if (!Number.isInteger(next) || next < 0 || next > 100_000) return;
+    setProducts((prev) => prev.map((x) => (x.id === p.id ? { ...x, stock: next } : x)));
+    const res = await fetch('/admin/api/shop/products', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: p.id, stock: next }) });
+    if (!res.ok) { alert((await res.json().catch(() => ({}))).error ?? '在庫の更新に失敗しました'); load(); }
+  }
+
   async function remove(p: AdminProduct) {
     if (!confirm(`「${p.name}」を削除します。よろしいですか？`)) return;
     const res = await fetch(`/admin/api/shop/products?id=${encodeURIComponent(p.id)}`, { method: 'DELETE' });
@@ -176,9 +183,16 @@ export default function AdminShopProductsPage() {
                 <div className="min-w-0 flex-1">
                   <p className="text-white font-medium truncate">{p.name}</p>
                   <p className="text-gray-500 text-[11px] mt-0.5">{[p.artistName, p.categoryName].filter(Boolean).join(' · ') || '作家・カテゴリ未設定'}</p>
-                  <p className="text-gray-400 text-xs mt-0.5">¥{p.priceYen.toLocaleString('ja-JP')} · 在庫 {p.stock} · 重み {p.weight}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">¥{p.priceYen.toLocaleString('ja-JP')} · 在庫 {p.stock} · 売れた個数 {p.soldCount}</p>
                 </div>
                 <span className={`text-[11px] px-2.5 py-1 rounded-full shrink-0 ${STATUS_CLS[p.status]}`}>{STATUS_LABEL[p.status]}</span>
+                {!usingSamples && (
+                  <div className="flex items-center gap-1 shrink-0" title="在庫数">
+                    <button aria-label="在庫を減らす" onClick={() => changeStock(p, p.stock - 1)} disabled={p.stock <= 0} className="w-7 h-7 rounded bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-30">−</button>
+                    <input aria-label="在庫数" inputMode="numeric" defaultValue={p.stock} key={`${p.id}-${p.stock}`} onBlur={(e) => { const n = Number(e.target.value); if (n !== p.stock) changeStock(p, n); }} onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }} className="w-14 text-center bg-gray-800 border border-gray-700 rounded text-xs text-white py-1.5" />
+                    <button aria-label="在庫を増やす" onClick={() => changeStock(p, p.stock + 1)} className="w-7 h-7 rounded bg-gray-800 text-gray-300 hover:bg-gray-700">＋</button>
+                  </div>
+                )}
                 {!usingSamples && (
                   <div className="flex gap-2 shrink-0">
                     <button onClick={() => openEdit(p)} className="text-xs text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg">編集</button>
@@ -238,11 +252,6 @@ export default function AdminShopProductsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div><label className="block text-xs text-gray-400 mb-1.5">販売価格（税込・円）</label><input inputMode="numeric" className={inputCls} value={form.priceYen} onChange={(e) => setForm({ ...form, priceYen: e.target.value })} /></div>
               <div><label className="block text-xs text-gray-400 mb-1.5">在庫数</label><input inputMode="numeric" className={inputCls} value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></div>
-            </div>
-            <div>
-              <label className="block text-xs text-gray-400 mb-1.5">表示の重み（大きいほど一覧の先頭に表示）</label>
-              <input inputMode="numeric" className={inputCls} value={form.weight} onChange={(e) => setForm({ ...form, weight: e.target.value })} placeholder="0" />
-              <p className="text-[11px] text-gray-500 mt-1">例：100 → 先頭、0 → 通常、-10 → 後ろ。同じ値の商品は登録順です。</p>
             </div>
             <div>
               <label className="block text-xs text-gray-400 mb-1.5">販売状態</label>

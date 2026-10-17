@@ -1,4 +1,5 @@
 import { createHash, randomInt } from 'crypto';
+import { FieldValue } from 'firebase-admin/firestore';
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import { listAllProducts, PRODUCTS_COLLECTION } from './products';
 import { calcCommission } from './commission';
@@ -60,7 +61,8 @@ export async function createOrder(
       if (!snap.exists) return;
       const stock = Number(snap.data()?.stock ?? 0);
       if (snap.data()?.status !== 'on_sale' || stock < l.qty) throw new OutOfStockError(l.name);
-      tx.update(productRefs[i], { stock: stock - l.qty });
+      // 人気順の集計用に販売数量を加算（テスト注文は数えない）
+      tx.update(productRefs[i], { stock: stock - l.qty, ...(cart.testMode ? {} : { soldCount: FieldValue.increment(l.qty) }) });
     });
 
     const order: OrderRecord = {
@@ -126,10 +128,35 @@ export async function updateOrderFields(id: string, fields: Partial<OrderRecord>
 
 /** 作家ごとの精算済みチェック（settled=false で取り消し） */
 export async function setSettlement(id: string, artistId: string, settled: boolean): Promise<void> {
-  const { FieldValue } = await import('firebase-admin/firestore');
   const key = `settlements.${artistId}`;
   await requireDb()
     .collection(COLLECTION)
     .doc(id)
     .update({ [key]: settled ? { settledAt: new Date().toISOString() } : FieldValue.delete() });
+}
+
+/**
+ * キャンセル注文の在庫を戻す（二重に戻さない）。販売数量（人気順）も差し引く。
+ * Firestoreに無い商品（サンプル表示中の商品）はスキップする。
+ */
+export async function restoreStock(orderId: string): Promise<{ restored: number }> {
+  const db = requireDb();
+  const ref = db.collection(COLLECTION).doc(orderId);
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) throw new Error('注文が見つかりません');
+    const order = snap.data() as OrderRecord;
+    if (order.status !== 'canceled') throw new Error('キャンセル済みの注文のみ在庫を戻せます');
+    if (order.stockRestored) throw new Error('この注文の在庫はすでに戻してあります');
+    const prodRefs = order.lines.map((l) => db.collection(PRODUCTS_COLLECTION).doc(l.id));
+    const prodSnaps = await Promise.all(prodRefs.map((r) => tx.get(r)));
+    let restored = 0;
+    order.lines.forEach((l, i) => {
+      if (!prodSnaps[i].exists) return;
+      tx.update(prodRefs[i], { stock: FieldValue.increment(l.qty), ...(order.testMode ? {} : { soldCount: FieldValue.increment(-l.qty) }) });
+      restored += l.qty;
+    });
+    tx.update(ref, { stockRestored: true });
+    return { restored };
+  });
 }

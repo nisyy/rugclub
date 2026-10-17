@@ -10,13 +10,18 @@ const COLLECTION = 'shop_products';
 
 const SAMPLE_DESC = 'これは表示確認用のサンプル商品です。実際の販売商品ではありません。';
 const SAMPLES: AdminProduct[] = [
-  { id: 'sample-001', name: 'サンプル商品｜オリジナルトートバッグ', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 2800, stock: 10, status: 'on_sale', weight: 0, order: 1, artistId: 'sample-artist-a', categoryId: 'sample-cat-goods', artistName: 'サンプル作家A', categoryName: 'グッズ' },
-  { id: 'sample-002', name: 'サンプル商品｜アートポストカード（3枚組）', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 660, stock: 30, status: 'on_sale', weight: 0, order: 2, artistId: 'sample-artist-a', categoryId: 'sample-cat-goods', artistName: 'サンプル作家A', categoryName: 'グッズ' },
-  { id: 'sample-003', name: 'サンプル商品｜ステッカーセット', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 550, stock: 3, status: 'on_sale', weight: 0, order: 3, artistId: 'sample-artist-b', categoryId: 'sample-cat-goods', artistName: 'サンプル作家B', categoryName: 'グッズ' },
-  { id: 'sample-004', name: 'サンプル商品｜ミニ原画プリント', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 4400, stock: 0, status: 'sold_out', weight: 0, order: 4, artistId: 'sample-artist-b', categoryId: 'sample-cat-print', artistName: 'サンプル作家B', categoryName: 'プリント・原画' },
-  { id: 'sample-005', name: 'サンプル商品｜マグカップ', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 2200, stock: 5, status: 'on_sale', weight: 0, order: 5, artistId: 'sample-artist-a', categoryId: 'sample-cat-goods', artistName: 'サンプル作家A', categoryName: 'グッズ' },
-  { id: 'sample-999', name: '（非公開サンプル）', imageUrl: null, imageUrls: [], description: '非公開のため一覧・詳細には表示されません。', priceYen: 1000, stock: 1, status: 'hidden', weight: 0, order: 6, artistId: null, categoryId: null, artistName: null, categoryName: null },
+  { id: 'sample-001', name: 'サンプル商品｜オリジナルトートバッグ', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 2800, stock: 10, status: 'on_sale', createdAt: '2026-10-05T00:00:00.000Z', soldCount: 12, order: 1, artistId: 'sample-artist-a', categoryId: 'sample-cat-goods', artistName: 'サンプル作家A', categoryName: 'グッズ' },
+  { id: 'sample-002', name: 'サンプル商品｜アートポストカード（3枚組）', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 660, stock: 30, status: 'on_sale', createdAt: '2026-10-04T00:00:00.000Z', soldCount: 30, order: 2, artistId: 'sample-artist-a', categoryId: 'sample-cat-goods', artistName: 'サンプル作家A', categoryName: 'グッズ' },
+  { id: 'sample-003', name: 'サンプル商品｜ステッカーセット', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 550, stock: 3, status: 'on_sale', createdAt: '2026-10-03T00:00:00.000Z', soldCount: 5, order: 3, artistId: 'sample-artist-b', categoryId: 'sample-cat-goods', artistName: 'サンプル作家B', categoryName: 'グッズ' },
+  { id: 'sample-004', name: 'サンプル商品｜ミニ原画プリント', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 4400, stock: 0, status: 'sold_out', createdAt: '2026-10-02T00:00:00.000Z', soldCount: 20, order: 4, artistId: 'sample-artist-b', categoryId: 'sample-cat-print', artistName: 'サンプル作家B', categoryName: 'プリント・原画' },
+  { id: 'sample-005', name: 'サンプル商品｜マグカップ', imageUrl: null, imageUrls: [], description: SAMPLE_DESC, priceYen: 2200, stock: 5, status: 'on_sale', createdAt: '2026-10-01T00:00:00.000Z', soldCount: 2, order: 5, artistId: 'sample-artist-a', categoryId: 'sample-cat-goods', artistName: 'サンプル作家A', categoryName: 'グッズ' },
+  { id: 'sample-999', name: '（非公開サンプル）', imageUrl: null, imageUrls: [], description: '非公開のため一覧・詳細には表示されません。', priceYen: 1000, stock: 1, status: 'hidden', createdAt: '2026-09-30T00:00:00.000Z', soldCount: 0, order: 6, artistId: null, categoryId: null, artistName: null, categoryName: null },
 ];
+
+/** 新着順（登録日時の新しい順） */
+export const byNewest = (a: Product, b: Product) => b.createdAt.localeCompare(a.createdAt);
+/** 人気順（販売数量の多い順。同数は新着順） */
+export const byPopular = (a: Product, b: Product) => b.soldCount - a.soldCount || byNewest(a, b);
 
 const STATUSES: ProductStatus[] = ['on_sale', 'sold_out', 'hidden'];
 
@@ -36,7 +41,8 @@ function docToProduct(id: string, d: any, artists: Map<string, string>, categori
     priceYen: Number.isInteger(d.priceYen) ? d.priceYen : 0,
     stock: Number.isInteger(d.stock) ? d.stock : 0,
     status: STATUSES.includes(d.status) ? d.status : 'hidden',
-    weight: Number.isInteger(d.weight) ? d.weight : 0,
+    createdAt: typeof d.createdAt === 'string' ? d.createdAt : '',
+    soldCount: Number.isInteger(d.soldCount) ? d.soldCount : 0,
     order: Number.isFinite(d.order) ? d.order : 999,
     artistId,
     categoryId,
@@ -56,7 +62,7 @@ export async function listAllProducts(): Promise<{ products: AdminProduct[]; usi
         const [artists, categories] = await Promise.all([listTaxonomy('artists'), listTaxonomy('categories')]);
         const aMap = new Map((artists ?? []).map((t) => [t.id, t.name]));
         const cMap = new Map((categories ?? []).map((t) => [t.id, t.name]));
-        const products = snap.docs.map((d) => docToProduct(d.id, d.data(), aMap, cMap)).sort((a, b) => b.weight - a.weight || a.order - b.order);
+        const products = snap.docs.map((d) => docToProduct(d.id, d.data(), aMap, cMap)).sort(byNewest);
         return { products, usingSamples: false };
       }
     } catch (e) {
@@ -64,7 +70,7 @@ export async function listAllProducts(): Promise<{ products: AdminProduct[]; usi
       console.error('[shop products] Firestore読み込み失敗（サンプルを表示）:', firestoreError);
     }
   }
-  return { products: [...SAMPLES].sort((a, b) => b.weight - a.weight || a.order - b.order), usingSamples: true, firestoreError };
+  return { products: [...SAMPLES].sort(byNewest), usingSamples: true, firestoreError };
 }
 
 export async function getProducts(): Promise<Product[]> {
@@ -111,10 +117,8 @@ export function parseProductInput(raw: unknown): ProductInput | string {
     .slice(0, MAX_IMAGES);
   const imageUrl = imageUrls[0] ?? null;
   const order = Number.isFinite(Number(r.order)) ? Number(r.order) : 999;
-  const weight = r.weight === undefined || r.weight === '' || r.weight === null ? 0 : Number(r.weight);
-  if (!Number.isInteger(weight) || Math.abs(weight) > 1_000_000) return '重みは整数で入力してください（大きいほど先頭に表示）';
   const id = (v: unknown) => (typeof v === 'string' && v.trim() && v.length <= 100 ? v.trim() : null);
-  return { name, description, imageUrl, imageUrls, priceYen, stock, status, weight, order, artistId: id(r.artistId), categoryId: id(r.categoryId) };
+  return { name, description, imageUrl, imageUrls, priceYen, stock, status, order, artistId: id(r.artistId), categoryId: id(r.categoryId) };
 }
 
 function requireDb() {
@@ -130,6 +134,11 @@ export async function createProduct(input: ProductInput): Promise<string> {
 
 export async function updateProduct(id: string, input: Partial<ProductInput>): Promise<void> {
   await requireDb().collection(COLLECTION).doc(id).update({ ...input, updatedAt: new Date().toISOString() });
+}
+
+/** 在庫数だけを更新する（キャンセル時の在庫調整など） */
+export async function updateProductStock(id: string, stock: number): Promise<void> {
+  await requireDb().collection(COLLECTION).doc(id).update({ stock, updatedAt: new Date().toISOString() });
 }
 
 export async function deleteProduct(id: string): Promise<void> {

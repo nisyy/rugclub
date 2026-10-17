@@ -12,8 +12,10 @@ export interface Product {
   priceYen: number;
   stock: number;
   status: ProductStatus;
-  /** 一覧の表示順の重み。大きいほど先頭に表示（同じ値は登録順） */
-  weight: number;
+  /** 登録日時（ISO）。新着順の並びに使う */
+  createdAt: string;
+  /** 販売数量の累計（テスト注文・キャンセル分は含まない）。人気順の並びに使う */
+  soldCount: number;
   /** 作家・カテゴリ（マスタのID）。未設定は null */
   artistId: string | null;
   categoryId: string | null;
@@ -107,9 +109,11 @@ export interface OrderRecord {
   trackingNumber?: string;
   shippedAt?: string;
   shippedMail?: 'sent' | 'failed' | 'skipped';
+  /** キャンセル時に在庫を戻し済み（二重に戻さないためのフラグ） */
+  stockRestored?: boolean;
   /** 作家ごとの精算済み記録（キー＝作家ID） */
   settlements?: Record<string, { settledAt: string }>;
 }
 
-export type ProductInput = Omit<Product, 'id' | 'artistName' | 'categoryName'> & { order: number };
+export type ProductInput = Omit<Product, 'id' | 'artistName' | 'categoryName' | 'createdAt' | 'soldCount'> & { order: number };
 export type AdminProduct = Product & { order: number };

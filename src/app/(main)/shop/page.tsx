@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getProducts, getTaxonomies, isPurchasable } from '@/lib/shop/products';
+import { byNewest, byPopular, getProducts, getTaxonomies, isPurchasable } from '@/lib/shop/products';
 import { formatYen } from '@/lib/shop/format';
+import { matchesSearch } from '@/lib/shop/search';
 import ProductImage from './_components/ProductImage';
 import ShopHeading from './_components/ShopHeading';
 import DevNotice from './_components/DevNotice';
@@ -13,6 +14,8 @@ export const metadata: Metadata = {
 
 export const revalidate = 30;
 
+type Sort = 'new' | 'popular';
+
 function Chip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
     <Link href={href} className={`shrink-0 whitespace-nowrap text-xs font-semibold tracking-wide px-3.5 sm:px-4 py-2 rounded-full transition-colors ${active ? 'bg-navy text-cream' : 'bg-white text-navy border border-navy/20 hover:border-navy/50'}`}>
@@ -21,19 +24,28 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
   );
 }
 
-export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string; artist?: string }> }) {
-  const { category, artist } = await searchParams;
+export default async function ShopPage({ searchParams }: { searchParams: Promise<{ category?: string; sort?: string; q?: string }> }) {
+  const sp = await searchParams;
+  const category = sp.category;
+  const sort: Sort = sp.sort === 'popular' ? 'popular' : 'new';
+  const q = (sp.q ?? '').slice(0, 100).trim();
+
   const [all, tax] = await Promise.all([getProducts(), getTaxonomies()]);
-  const products = all.filter((p) => (!category || p.categoryId === category) && (!artist || p.artistId === artist));
-  const usedArtists = tax.artists.filter((a) => all.some((p) => p.artistId === a.id));
+  const products = all
+    .filter((p) => (!category || p.categoryId === category) && matchesSearch(q, [p.name, p.artistName, p.categoryName, p.description]))
+    .sort(sort === 'popular' ? byPopular : byNewest);
   const usedCategories = tax.categories.filter((c) => all.some((p) => p.categoryId === c.id));
-  const href = (c?: string, a?: string) => {
-    const q = new URLSearchParams();
-    if (c) q.set('category', c);
-    if (a) q.set('artist', a);
-    const qs = q.toString();
+
+  const href = (o: { category?: string; sort?: Sort; q?: string }) => {
+    const next = { category, sort, q, ...o };
+    const params = new URLSearchParams();
+    if (next.category) params.set('category', next.category);
+    if (next.sort === 'popular') params.set('sort', 'popular');
+    if (next.q) params.set('q', next.q);
+    const qs = params.toString();
     return qs ? `/shop?${qs}` : '/shop';
   };
+
   return (
     <div className="bg-cream min-h-screen pb-20">
       <ShopHeading eyebrow="Online Shop" title="SHOP" bg="SHOP" />
@@ -41,28 +53,49 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         <DevNotice>
           オンラインショップは準備中です。表示中の商品はサンプルで、現在ご注文・決済はできません。
         </DevNotice>
-        {(usedCategories.length > 0 || usedArtists.length > 0) && (
-          <div className="mb-8 space-y-3">
-            {usedCategories.length > 0 && (
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
-                <span className="text-[10px] sm:text-[11px] tracking-[0.2em] text-navy/40 sm:w-24 shrink-0">CATEGORY</span>
-                <div className="flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible -mx-6 px-6 sm:mx-0 sm:px-0 pb-1 sm:pb-0 scrollbar-none">
-                <Chip href={href(undefined, artist)} active={!category}>すべて</Chip>
-                {usedCategories.map((c) => <Chip key={c.id} href={href(c.id, artist)} active={category === c.id}>{c.name}</Chip>)}
-                </div>
+
+        {/* 検索 */}
+        <form action="/shop" method="get" role="search" className="mb-6 flex gap-2">
+          {category && <input type="hidden" name="category" value={category} />}
+          {sort === 'popular' && <input type="hidden" name="sort" value="popular" />}
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder="作家名・商品名・カテゴリで検索"
+            aria-label="商品を検索"
+            maxLength={100}
+            className="flex-1 min-w-0 bg-white border border-navy/20 rounded-full px-5 py-3 text-sm text-navy placeholder:text-navy/30 focus:outline-none focus:border-orange transition-colors"
+          />
+          <button type="submit" className="shrink-0 bg-navy text-cream text-xs font-bold tracking-widest px-6 rounded-full hover:opacity-80 transition-opacity">検索</button>
+        </form>
+
+        <div className="mb-8 space-y-3">
+          {usedCategories.length > 0 && (
+            <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+              <span className="text-[10px] sm:text-[11px] tracking-[0.2em] text-navy/40 sm:w-24 shrink-0">CATEGORY</span>
+              <div className="flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible -mx-6 px-6 sm:mx-0 sm:px-0 pb-1 sm:pb-0 scrollbar-none">
+                <Chip href={href({ category: undefined })} active={!category}>すべて</Chip>
+                {usedCategories.map((c) => <Chip key={c.id} href={href({ category: c.id })} active={category === c.id}>{c.name}</Chip>)}
               </div>
-            )}
-            {usedArtists.length > 0 && (
-              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
-                <span className="text-[10px] sm:text-[11px] tracking-[0.2em] text-navy/40 sm:w-24 shrink-0">ARTIST</span>
-                <div className="flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible -mx-6 px-6 sm:mx-0 sm:px-0 pb-1 sm:pb-0 scrollbar-none">
-                <Chip href={href(category, undefined)} active={!artist}>すべて</Chip>
-                {usedArtists.map((a) => <Chip key={a.id} href={href(category, a.id)} active={artist === a.id}>{a.name}</Chip>)}
-                </div>
-              </div>
-            )}
+            </div>
+          )}
+          <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+            <span className="text-[10px] sm:text-[11px] tracking-[0.2em] text-navy/40 sm:w-24 shrink-0">SORT</span>
+            <div className="flex gap-2">
+              <Chip href={href({ sort: 'new' })} active={sort === 'new'}>新着順</Chip>
+              <Chip href={href({ sort: 'popular' })} active={sort === 'popular'}>人気順</Chip>
+            </div>
           </div>
+        </div>
+
+        {(q || category) && (
+          <p className="mb-6 text-xs text-navy/50" aria-live="polite">
+            {q && <>「{q}」の検索結果　</>}{products.length}件
+            <Link href="/shop" className="ml-3 text-orange underline underline-offset-2">条件をクリア</Link>
+          </p>
         )}
+
         {products.length === 0 ? (
           <p className="text-center py-20 text-sm text-navy/40">該当する商品はありません。</p>
         ) : (

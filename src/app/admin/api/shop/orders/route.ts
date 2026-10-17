@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getOrder, listOrders, setSettlement, updateOrderFields, updateOrderStatus } from '@/lib/shop/orders';
+import { getOrder, listOrders, restoreStock, setSettlement, updateOrderFields, updateOrderStatus } from '@/lib/shop/orders';
 import { sendShippedMail } from '@/lib/shop/orderMail';
 import type { OrderStatus } from '@/lib/shop/types';
 
@@ -24,6 +24,11 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const { id } = body;
     if (typeof id !== 'string' || !id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+
+    if (body.restoreStock === true) {
+      const r = await restoreStock(id);
+      return NextResponse.json({ ok: true, restored: r.restored });
+    }
 
     if (body.settle) {
       const { artistId, settled } = body.settle;

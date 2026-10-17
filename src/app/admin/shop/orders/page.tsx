@@ -90,6 +90,15 @@ export default function AdminShopOrdersPage() {
   const visible = filter === 'all' ? orders : orders.filter((o) => o.status === filter);
   const count = (st: OrderStatus) => orders.filter((o) => o.status === st).length;
 
+  async function restore(id: string) {
+    if (!confirm('この注文の数量を商品の在庫に戻します。よろしいですか？（1回のみ実行できます）')) return;
+    const res = await fetch('/admin/api/shop/orders', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, restoreStock: true }) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { alert(data.error ?? '在庫を戻せませんでした'); return; }
+    alert(data.restored > 0 ? `在庫を${data.restored}点分戻しました` : '戻す対象の商品がありませんでした（サンプル商品など）');
+    load(true);
+  }
+
   async function setStatus(id: string, status: OrderStatus) {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
     const res = await fetch('/admin/api/shop/orders', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }) });
@@ -160,7 +169,15 @@ export default function AdminShopOrdersPage() {
                       <span className="text-[11px] text-gray-600">「発送済み」は下の発送情報から設定します</span>
                     </div>
                     {o.status !== 'canceled' && <ShipForm order={o} onDone={() => load(true)} />}
-                    {o.status === 'canceled' && <p className="text-[11px] text-gray-500">※キャンセルしても在庫は自動では戻りません。商品管理で在庫数を調整してください。</p>}
+                {o.status === 'canceled' && (
+                      <div className="bg-gray-800/50 rounded-lg p-3 space-y-2">
+                        <p className="text-xs text-gray-300 font-semibold">在庫の調整</p>
+                        <p className="text-[11px] text-gray-500">キャンセルしても在庫は自動では戻りません。必要な場合は下のボタンで、この注文の数量を在庫に戻せます（1回のみ）。個別の調整は商品管理の在庫欄からも行えます。</p>
+                        <button disabled={!!o.stockRestored} onClick={() => restore(o.id)} className="bg-sky-700 hover:bg-sky-600 disabled:bg-gray-700 disabled:text-gray-500 text-white text-xs font-semibold px-4 py-2 rounded-lg">
+                          {o.stockRestored ? '在庫を戻し済み' : 'この注文の数量を在庫に戻す'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
