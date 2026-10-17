@@ -93,6 +93,8 @@ export interface PricedCart {
   blockedReasons: string[];
   /** テストモード（仮送料・テスト注文）で動作中 */
   testMode: boolean;
+  /** 決済（Stripe）が接続されている */
+  paymentConnected: boolean;
 }
 
 export type OrderStatus = 'pending_payment' | 'received' | 'packing' | 'shipped' | 'canceled';

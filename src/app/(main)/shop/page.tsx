@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { byNewest, byPopular, getProducts, getTaxonomies, isPurchasable } from '@/lib/shop/products';
+import { byNewest, byPopular, getProducts, getTaxonomies, isPurchasable, listAllProducts } from '@/lib/shop/products';
+import { isPaymentConnected } from '@/lib/shop/payment';
+import { isShopTestMode } from '@/lib/shop/testMode';
 import { formatYen } from '@/lib/shop/format';
 import { matchesSearch } from '@/lib/shop/search';
 import ProductImage from './_components/ProductImage';
@@ -33,7 +35,11 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const sort: Sort = sp.sort === 'popular' ? 'popular' : 'new';
   const q = (sp.q ?? '').slice(0, 100).trim();
 
-  const [all, tax] = await Promise.all([getProducts(), getTaxonomies()]);
+  const [all, tax, { usingSamples }] = await Promise.all([getProducts(), getTaxonomies(), listAllProducts()]);
+  // 開発・準備中の案内は、必要な時だけ表示する（決済が接続されて商品が登録されていれば何も出さない）
+  const notices: string[] = [];
+  if (usingSamples) notices.push('表示中の商品はサンプルです。');
+  if (!isPaymentConnected()) notices.push(isShopTestMode() ? 'テストモード中です。ご注文はテスト注文として扱われ、決済・発送は行われません。' : '現在ご注文・決済はできません。');
   const products = all
     .filter((p) => (!category || p.categoryId === category) && matchesSearch(q, [p.name, p.artistName, p.categoryName, p.description, p.size]))
     .sort(sort === 'popular' ? byPopular : byNewest);
@@ -54,9 +60,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       <HeaderBackdrop />
       <ShopHeading eyebrow="Online Shop" title="SHOP" bg="SHOP" />
       <div className="max-w-5xl mx-auto px-6 lg:px-10">
-        <DevNotice>
-          オンラインショップは準備中です。表示中の商品はサンプルで、現在ご注文・決済はできません。
-        </DevNotice>
+        {notices.length > 0 && <DevNotice>{notices.join(' ')}</DevNotice>}
 
         {/* 検索 */}
         <div className="sticky top-16 z-40 -mx-6 lg:-mx-10 px-6 lg:px-10 py-3 mb-4 bg-cream">

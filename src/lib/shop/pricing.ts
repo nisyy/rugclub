@@ -69,5 +69,5 @@ export async function priceCart(lines: CartLine[], prefecture?: string): Promise
   if (missingLegalFields(legal).length > 0 && !testMode) blockedReasons.push('特定商取引法に基づく表記が未設定のため、注文を確定できません。');
   if (!isPaymentConnected() && !testMode) blockedReasons.push('決済が未接続のため、注文を確定できません。');
 
-  return { lines: priced, issues, subtotalYen, shippingYen, remoteShippingYen: shipping.remoteYen, freeShippingRemainingYen: shipping.freeRemainingYen, terms: { paymentMethod: legal.paymentMethod, paymentTiming: legal.paymentTiming, deliveryTime: legal.deliveryTime, returnPolicy: legal.returnPolicy }, shippingProvisional: shipping.provisional, totalYen, blockedReasons, testMode };
+  return { lines: priced, issues, subtotalYen, shippingYen, remoteShippingYen: shipping.remoteYen, freeShippingRemainingYen: shipping.freeRemainingYen, terms: { paymentMethod: legal.paymentMethod, paymentTiming: legal.paymentTiming, deliveryTime: legal.deliveryTime, returnPolicy: legal.returnPolicy }, shippingProvisional: shipping.provisional, totalYen, blockedReasons, testMode, paymentConnected: isPaymentConnected() };
 }

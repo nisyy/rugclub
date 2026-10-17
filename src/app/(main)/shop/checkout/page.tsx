@@ -163,7 +163,8 @@ export default function CheckoutPage() {
       <OrderingOverlay active={submitting} testMode={cart.testMode} />
       <ShopHeading eyebrow="Checkout" title="CHECKOUT" bg="ORDER" />
       <div className="max-w-2xl mx-auto px-6 lg:px-10">
-        <DevNotice>{cart.testMode ? 'テストモードです。「テスト注文」として保存・メール送信されますが、決済・発送は行われません。送料はテスト用の仮の金額です。' : '決済未接続の開発用画面です。実際の注文・決済は行われません。'}</DevNotice>
+        {!cart.paymentConnected && <DevNotice>{cart.testMode ? 'テストモードです。「テスト注文」として保存・メール送信されますが、決済・発送は行われません。送料はテスト用の仮の金額です。' : '現在ご注文・決済はできません。'}</DevNotice>}
+        {cart.paymentConnected && cart.testMode && <DevNotice>テスト用キーでの決済です。実際の請求は行われません（Stripeのテストカードをお使いください）。</DevNotice>}
         {canceledNotice && <p role="status" className="mb-6 rounded-lg border border-navy/15 bg-white px-4 py-3 text-xs text-navy/70">お支払いは完了していません。内容をご確認のうえ、あらためてお進みください。</p>}
         {messages.length > 0 && <div role="alert" className="mb-6 text-xs text-orange space-y-1">{messages.map((m) => <p key={m}>{m}</p>)}</div>}
         {error && <p className="mb-6 text-xs text-orange">最新の価格・在庫を取得できませんでした。</p>}

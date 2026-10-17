@@ -26,7 +26,7 @@ export default function CartPage() {
     <div className="bg-cream min-h-screen pb-20">
       <ShopHeading eyebrow="Shopping Cart" title="CART" bg="CART" />
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
-        <DevNotice>{cart?.testMode ? 'テストモード中です。ご注文はテスト注文として扱われ、決済・発送は行われません。' : '現在ご注文・決済はできません（決済未接続）。'}</DevNotice>
+        {cart && !cart.paymentConnected && <DevNotice>{cart.testMode ? 'テストモード中です。ご注文はテスト注文として扱われ、決済・発送は行われません。' : '現在ご注文・決済はできません。'}</DevNotice>}
 
         {messages.length > 0 && (
           <div role="alert" className="mb-6 rounded-lg border border-orange/40 bg-white px-4 py-3 text-xs text-orange space-y-1">
