@@ -4,8 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import AdminHeader from '../../_components/AdminHeader';
 import type { OrderRecord, OrderStatus } from '@/lib/shop/types';
 
-const STATUS_LABEL: Record<OrderStatus, string> = { received: '受付', packing: '梱包中', shipped: '発送済み', canceled: 'キャンセル' };
+const STATUS_LABEL: Record<OrderStatus, string> = { pending_payment: '決済待ち', received: '受付', packing: '梱包中', shipped: '発送済み', canceled: 'キャンセル' };
 const STATUS_CLS: Record<OrderStatus, string> = {
+  pending_payment: 'bg-violet-900/50 text-violet-300',
   received: 'bg-sky-900/50 text-sky-300',
   packing: 'bg-amber-900/50 text-amber-300',
   shipped: 'bg-emerald-900/50 text-emerald-300',
@@ -117,7 +118,7 @@ export default function AdminShopOrdersPage() {
           <button onClick={() => load(true)} className="text-xs text-gray-300 hover:text-white bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg shrink-0">更新</button>
         </div>
         <div className="flex flex-wrap gap-2 mb-6">
-          {([['all', 'すべて', orders.length], ['received', STATUS_LABEL.received, count('received')], ['packing', STATUS_LABEL.packing, count('packing')], ['shipped', STATUS_LABEL.shipped, count('shipped')], ['canceled', STATUS_LABEL.canceled, count('canceled')]] as const).map(([id, label, n]) => (
+          {([['all', 'すべて', orders.length], ['pending_payment', STATUS_LABEL.pending_payment, count('pending_payment')], ['received', STATUS_LABEL.received, count('received')], ['packing', STATUS_LABEL.packing, count('packing')], ['shipped', STATUS_LABEL.shipped, count('shipped')], ['canceled', STATUS_LABEL.canceled, count('canceled')]] as const).map(([id, label, n]) => (
             <button key={id} onClick={() => setFilter(id)} className={`text-xs px-3.5 py-1.5 rounded-full transition-colors ${filter === id ? 'bg-indigo-600 text-white' : 'bg-gray-800 text-gray-400 hover:text-white'}`}>
               {label} <span className="opacity-60">{n}</span>
             </button>
@@ -159,16 +160,19 @@ export default function AdminShopOrdersPage() {
                       <p>{o.customer.name} / {o.customer.email}</p>
                       <p>〒{o.customer.postalCode} {o.customer.prefecture}{o.customer.city} {o.customer.address2}</p>
                       <p>メール：購入者 {MAIL_LABEL[o.mail.customer]} / 店舗 {MAIL_LABEL[o.mail.shop]}</p>
+                      {o.paidAt && <p>決済：クレジットカード（{new Date(o.paidAt).toLocaleString('ja-JP')}）{o.paymentIntentId ? ` / ${o.paymentIntentId}` : ''}</p>}
                       {o.shippedAt && <p>発送：{o.carrier} {o.trackingNumber}（{new Date(o.shippedAt).toLocaleString('ja-JP')}）</p>}
                     </div>
                     <div className="flex items-center gap-3">
                       <label className="text-xs text-gray-500">ステータス</label>
                       <select value={o.status} onChange={(e) => (e.target.value === 'shipped' ? setOpenId(o.id) : setStatus(o.id, e.target.value as OrderStatus))} className={inputCls}>
-                        {(Object.keys(STATUS_LABEL) as OrderStatus[]).map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
+                        {(Object.keys(STATUS_LABEL) as OrderStatus[]).filter((s) => s !== 'pending_payment' || o.status === 'pending_payment').map((s) => <option key={s} value={s} disabled={s === 'pending_payment'}>{STATUS_LABEL[s]}</option>)}
                       </select>
                       <span className="text-[11px] text-gray-600">「発送済み」は下の発送情報から設定します</span>
                     </div>
-                    {o.status !== 'canceled' && <ShipForm order={o} onDone={() => load(true)} />}
+                    {o.status !== 'canceled' && o.status !== 'pending_payment' && <ShipForm order={o} onDone={() => load(true)} />}
+                    {o.status === 'pending_payment' && <p className="text-[11px] text-violet-300">お客様が決済ページで支払い中です。決済が完了すると自動で「受付」になります（30分で期限切れ。その場合は自動でキャンセルされ、在庫が戻ります）。</p>}
+                    {o.paymentIssue && <p className="text-xs text-red-300 bg-red-950/50 border border-red-800 rounded-lg px-3 py-2">⚠ 要確認：{o.paymentIssue}。Stripeのダッシュボードで決済内容を確認してください。</p>}
                 {o.status === 'canceled' && (
                       <div className="bg-gray-800/50 rounded-lg p-3 space-y-2">
                         <p className="text-xs text-gray-300 font-semibold">在庫の調整</p>

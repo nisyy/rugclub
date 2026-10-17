@@ -42,6 +42,7 @@ export async function createOrder(
   idempotencyKey: string,
   cart: PricedCart,
   customer: Customer,
+  opts: { pending?: boolean } = {},
 ): Promise<{ order: OrderRecord; created: boolean }> {
   const db = requireDb();
   const rates = await commissionRates();
@@ -62,14 +63,15 @@ export async function createOrder(
       const stock = Number(snap.data()?.stock ?? 0);
       if (snap.data()?.status !== 'on_sale' || stock < l.qty) throw new OutOfStockError(l.name);
       // 人気順の集計用に販売数量を加算（テスト注文は数えない）
-      tx.update(productRefs[i], { stock: stock - l.qty, ...(cart.testMode ? {} : { soldCount: FieldValue.increment(l.qty) }) });
+      // 決済待ちの注文は在庫だけ確保し、売れた個数は決済確定時に加算する。テスト注文は人気順に数えない
+      tx.update(productRefs[i], { stock: stock - l.qty, ...(cart.testMode || opts.pending ? {} : { soldCount: FieldValue.increment(l.qty) }) });
     });
 
     const order: OrderRecord = {
       id,
       orderNumber: makeOrderNumber(),
       createdAt: new Date().toISOString(),
-      status: 'received',
+      status: opts.pending ? 'pending_payment' : 'received',
       testMode: cart.testMode,
       customer,
       lines: cart.lines.map((l) => ({ id: l.id, name: l.name, unitPriceYen: l.unitPriceYen, qty: l.qty, lineTotalYen: l.lineTotalYen, categoryId: l.categoryId, categoryName: l.categoryName, artistId: l.artistId, artistName: l.artistName, ...calcCommission(l.lineTotalYen, l.artistId ? rates.get(l.artistId) ?? 0 : 0) })),
@@ -158,5 +160,69 @@ export async function restoreStock(orderId: string): Promise<{ restored: number 
     });
     tx.update(ref, { stockRestored: true });
     return { restored };
+  });
+}
+
+// ─── Stripe決済の状態遷移 ───
+export async function attachStripeSession(id: string, sessionId: string, url: string): Promise<void> {
+  await requireDb().collection(COLLECTION).doc(id).update({ stripeSessionId: sessionId, stripeCheckoutUrl: url });
+}
+
+export async function findOrderBySessionId(sessionId: string): Promise<OrderRecord | null> {
+  const snap = await requireDb().collection(COLLECTION).where('stripeSessionId', '==', sessionId).limit(1).get();
+  return snap.empty ? null : (snap.docs[0].data() as OrderRecord);
+}
+
+/**
+ * 決済の完了を注文に反映する（決済待ち → 受付）。何度呼ばれても、遷移は1回だけ（transitioned=true の時だけメール送信）。
+ * 金額が注文と一致しない場合は確定せず、paymentIssue を記録して管理画面で確認できるようにする。
+ */
+export async function confirmPayment(
+  orderId: string,
+  info: { sessionId: string; amountTotal: number | null; paymentIntentId: string | null },
+): Promise<{ order: OrderRecord; transitioned: boolean }> {
+  const db = requireDb();
+  const ref = db.collection(COLLECTION).doc(orderId);
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) throw new Error(`注文が見つかりません: ${orderId}`);
+    const order = snap.data() as OrderRecord;
+    if (order.status !== 'pending_payment') return { order, transitioned: false };
+
+    if (info.amountTotal !== order.totalYen) {
+      const issue = `金額不一致（注文 ${order.totalYen} 円 / 決済 ${info.amountTotal} 円）`;
+      tx.update(ref, { paymentIssue: issue });
+      console.error('[Shop] 決済の金額が注文と一致しません:', orderId, issue);
+      return { order: { ...order, paymentIssue: issue }, transitioned: false };
+    }
+
+    // 売れた個数（人気順）を加算。テスト注文は数えない。読み取りは書き込みより先に行う
+    const prodRefs = order.testMode ? [] : order.lines.map((l) => db.collection(PRODUCTS_COLLECTION).doc(l.id));
+    const prodSnaps = await Promise.all(prodRefs.map((r) => tx.get(r)));
+    const paidAt = new Date().toISOString();
+    tx.update(ref, { status: 'received', paidAt, paymentIntentId: info.paymentIntentId ?? '', stripeSessionId: info.sessionId });
+    order.lines.forEach((l, i) => {
+      if (prodSnaps[i]?.exists) tx.update(prodRefs[i], { soldCount: FieldValue.increment(l.qty) });
+    });
+    return { order: { ...order, status: 'received', paidAt, paymentIntentId: info.paymentIntentId ?? '' } as OrderRecord, transitioned: true };
+  });
+}
+
+/** 決済されなかった注文（期限切れ・戻る）を取り消し、確保していた在庫を戻す。決済待ちの注文にだけ作用する */
+export async function releaseOrder(orderId: string): Promise<boolean> {
+  const db = requireDb();
+  const ref = db.collection(COLLECTION).doc(orderId);
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists) return false;
+    const order = snap.data() as OrderRecord;
+    if (order.status !== 'pending_payment') return false;
+    const prodRefs = order.lines.map((l) => db.collection(PRODUCTS_COLLECTION).doc(l.id));
+    const prodSnaps = await Promise.all(prodRefs.map((r) => tx.get(r)));
+    order.lines.forEach((l, i) => {
+      if (prodSnaps[i].exists) tx.update(prodRefs[i], { stock: FieldValue.increment(l.qty) });
+    });
+    tx.update(ref, { status: 'canceled', stockRestored: true });
+    return true;
   });
 }

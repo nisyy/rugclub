@@ -8,6 +8,7 @@ export const maxDuration = 60;
 
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : 'Unknown error');
 const STATUSES: OrderStatus[] = ['received', 'packing', 'shipped', 'canceled'];
+// 決済待ち(pending_payment)はStripeの結果で自動的に変わる。管理画面から手動では変更しない
 const CARRIERS = ['ヤマト運輸', '日本郵便', '佐川急便', 'その他'];
 
 export async function GET() {
@@ -38,6 +39,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const status = body.status as OrderStatus;
+    const current = await getOrder(id);
+    if (current?.status === 'pending_payment') return NextResponse.json({ error: '決済待ちの注文は変更できません（決済の完了または期限切れで自動的に更新されます）' }, { status: 409 });
     if (!STATUSES.includes(status)) return NextResponse.json({ error: 'invalid status' }, { status: 400 });
 
     if (status === 'shipped') {

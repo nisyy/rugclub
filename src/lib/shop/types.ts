@@ -95,7 +95,7 @@ export interface PricedCart {
   testMode: boolean;
 }
 
-export type OrderStatus = 'received' | 'packing' | 'shipped' | 'canceled';
+export type OrderStatus = 'pending_payment' | 'received' | 'packing' | 'shipped' | 'canceled';
 
 export interface OrderRecord {
   id: string;
@@ -110,6 +110,13 @@ export interface OrderRecord {
   shippingProvisional: boolean;
   totalYen: number;
   mail: { customer: 'sent' | 'failed' | 'skipped'; shop: 'sent' | 'failed' | 'skipped' };
+  /** Stripe決済の情報 */
+  stripeSessionId?: string;
+  stripeCheckoutUrl?: string;
+  paymentIntentId?: string;
+  paidAt?: string;
+  /** 決済と注文の不整合（金額の不一致など）。管理画面で要確認 */
+  paymentIssue?: string;
   /** 発送情報（発送済みにした時に記録） */
   carrier?: string;
   trackingNumber?: string;

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import AdminHeader from '../../_components/AdminHeader';
 import type { Artist, OrderRecord, OrderStatus } from '@/lib/shop/types';
 
-const STATUS_LABEL: Record<OrderStatus, string> = { received: '受付', packing: '梱包中', shipped: '発送済み', canceled: 'キャンセル' };
+const STATUS_LABEL: Record<OrderStatus, string> = { pending_payment: '決済待ち', received: '受付', packing: '梱包中', shipped: '発送済み', canceled: 'キャンセル' };
 const yen = (n: number) => `¥${n.toLocaleString('ja-JP')}`;
 const NONE = '__none';
 
@@ -33,7 +33,7 @@ export default function AdminShopSettlementsPage() {
   const groups = useMemo(() => {
     const map = new Map<string, { name: string; rows: Row[] }>();
     for (const o of orders) {
-      if (o.status === 'canceled' || (o.testMode && !includeTest)) continue;
+      if (o.status === 'canceled' || o.status === 'pending_payment' || (o.testMode && !includeTest)) continue;
       const byArtist = new Map<string, { name: string; lines: OrderRecord['lines'] }>();
       for (const l of o.lines) {
         const id = l.artistId ?? NONE;

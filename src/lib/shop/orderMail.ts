@@ -23,6 +23,7 @@ function body(o: OrderRecord, audience: 'customer' | 'shop') {
   const inquiry = audience === 'customer' ? ['【ご注文に関するお問い合わせ】', `ご不明な点は、こちらからお問い合わせください（注文番号が自動で入力されます）。`, inquiryUrl, ''] : [];
   const text = [
     intro, testNote, `注文番号：${o.orderNumber}`, '', '【ご注文内容】', ...lines, '',
+    ...(o.paidAt ? ['お支払い：クレジットカード（決済済み）'] : []),
     `商品小計（税込）：${formatYen(o.subtotalYen)}`, `送料：${formatYen(o.shippingYen)}${o.shippingProvisional ? '（テスト用の仮送料）' : ''}`, `合計：${formatYen(o.totalYen)}`, '',
     '【お届け先】', `お名前：${c.name}`, `メール：${c.email}`, addr, '',
     ...inquiry,

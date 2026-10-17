@@ -35,13 +35,33 @@ export default function CheckoutPage() {
   const { hydrated, cart, messages, error } = useServerCart(pref || undefined);
   const { clear } = useCart();
   const idempotencyKey = useRef(crypto.randomUUID());
+  const [submitting, setSubmitting] = useState(false);
+  const [canceledNotice, setCanceledNotice] = useState(false);
+
+  // 決済ページから「戻る」で戻ってきた時：確保していた在庫を解放し、もう一度注文できる状態にする
+  useEffect(() => {
+    const reset = () => { idempotencyKey.current = crypto.randomUUID(); setSubmitting(false); };
+    const releasePending = () => {
+      const sid = sessionStorage.getItem('rugclub_pending_session');
+      if (!sid) return;
+      sessionStorage.removeItem('rugclub_pending_session');
+      fetch('/api/shop/checkout/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId: sid }) }).catch(() => {});
+    };
+    if (new URLSearchParams(window.location.search).get('canceled') === '1') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCanceledNotice(true);
+      releasePending();
+    }
+    const onShow = (e: PageTransitionEvent) => { if (e.persisted) { reset(); releasePending(); setCanceledNotice(true); } };
+    window.addEventListener('pageshow', onShow);
+    return () => window.removeEventListener('pageshow', onShow);
+  }, []);
   const began = useRef(false);
   useEffect(() => {
     if (began.current || !cart || cart.lines.length === 0) return;
     began.current = true;
     trackShop('begin_checkout', cart.lines.map((l) => ({ id: l.id, name: l.name, price: l.unitPriceYen, quantity: l.qty, artist: l.artistName, category: l.categoryName })));
   }, [cart]);
-  const [submitting, setSubmitting] = useState(false);
   const [customer, setCustomer] = useState<Customer>(EMPTY_CUSTOMER);
   const [errors, setErrors] = useState<CustomerErrors>({});
   const [step, setStep] = useState<'input' | 'confirm'>('input');
@@ -100,17 +120,26 @@ export default function CheckoutPage() {
         }),
       });
       const data = (await res.json()) as {
-        ok: boolean; error?: string; name?: string; redirectUrl?: string;
+        ok: boolean; error?: string; name?: string; redirectUrl?: string; sessionId?: string;
         testOrder?: { orderNumber: string };
       };
-      if (data.ok && data.redirectUrl) { window.location.href = data.redirectUrl; return; }
+      if (data.ok && data.redirectUrl) {
+        // 決済ページへ移動。戻ってきた時に在庫の確保を解除できるよう、セッションIDを控えておく
+        if (data.sessionId) sessionStorage.setItem('rugclub_pending_session', data.sessionId);
+        window.location.href = data.redirectUrl;
+        return;
+      }
       if (data.ok && data.testOrder) {
         sessionStorage.setItem('rugclub_last_order', JSON.stringify(data.testOrder));
         clear();
         router.push('/shop/complete');
         return;
       }
-      setSubmitError(data.error === 'out_of_stock' ? `「${data.name}」の在庫が足りなくなりました。カートをご確認ください。` : '現在ご注文を受け付けられません。');
+      setSubmitError(
+        data.error === 'out_of_stock' ? `「${data.name}」の在庫が足りなくなりました。カートをご確認ください。`
+        : data.error === 'checkout_failed' ? '決済ページを開けませんでした。時間をおいて再度お試しください。'
+        : '現在ご注文を受け付けられません。',
+      );
     } catch {
       setSubmitError('通信に失敗しました。時間をおいて再度お試しください。');
     }
@@ -135,6 +164,7 @@ export default function CheckoutPage() {
       <ShopHeading eyebrow="Checkout" title="CHECKOUT" bg="ORDER" />
       <div className="max-w-2xl mx-auto px-6 lg:px-10">
         <DevNotice>{cart.testMode ? 'テストモードです。「テスト注文」として保存・メール送信されますが、決済・発送は行われません。送料はテスト用の仮の金額です。' : '決済未接続の開発用画面です。実際の注文・決済は行われません。'}</DevNotice>
+        {canceledNotice && <p role="status" className="mb-6 rounded-lg border border-navy/15 bg-white px-4 py-3 text-xs text-navy/70">お支払いは完了していません。内容をご確認のうえ、あらためてお進みください。</p>}
         {messages.length > 0 && <div role="alert" className="mb-6 text-xs text-orange space-y-1">{messages.map((m) => <p key={m}>{m}</p>)}</div>}
         {error && <p className="mb-6 text-xs text-orange">最新の価格・在庫を取得できませんでした。</p>}
 
