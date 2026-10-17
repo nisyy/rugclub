@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { compressImageToDataUrl } from '@/lib/compressImageToDataUrl';
 
 interface FormData {
@@ -34,14 +34,18 @@ const inputBase =
 
 export default function ContactForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // 注文メールのリンク（?subject=shop&order=RC-...）から開いた場合は、購入の件名と注文番号を事前入力する
+  const fromOrder = searchParams.get('subject') === 'shop';
+  const presetOrder = (searchParams.get('order') ?? '').slice(0, 40);
 
   const [form, setForm] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
-    subject: '',
+    subject: fromOrder ? 'オンラインショップのご購入について' : '',
     portfolioUrl: '',
-    orderNumber: '',
+    orderNumber: fromOrder ? presetOrder : '',
     message: '',
   });
 

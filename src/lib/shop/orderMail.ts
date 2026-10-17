@@ -5,6 +5,8 @@ import type { OrderRecord } from './types';
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://rug-club.net').replace(/\/$/, '');
+
 function body(o: OrderRecord, audience: 'customer' | 'shop') {
   const tag = o.testMode ? '【テスト注文】' : '';
   const c = o.customer;
@@ -17,13 +19,16 @@ function body(o: OrderRecord, audience: 'customer' | 'shop') {
   const testNote = o.testMode
     ? '\n※これはテスト注文です。決済は行われておらず、商品は発送されません。送料はテスト用の仮の金額です。\n'
     : '';
+  const inquiryUrl = `${SITE_URL}/contact?subject=shop&order=${encodeURIComponent(o.orderNumber)}`;
+  const inquiry = audience === 'customer' ? ['【ご注文に関するお問い合わせ】', `ご不明な点は、こちらからお問い合わせください（注文番号が自動で入力されます）。`, inquiryUrl, ''] : [];
   const text = [
     intro, testNote, `注文番号：${o.orderNumber}`, '', '【ご注文内容】', ...lines, '',
     `商品小計（税込）：${formatYen(o.subtotalYen)}`, `送料：${formatYen(o.shippingYen)}`, `合計：${formatYen(o.totalYen)}`, '',
     '【お届け先】', `お名前：${c.name}`, `メール：${c.email}`, addr, '',
+    ...inquiry,
     'RUG CLUB',
   ].join('\n');
-  const html = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e;white-space:pre-wrap;">${esc(text)}</div>`;
+  const html = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e;white-space:pre-wrap;">${esc(text).replace(esc(inquiryUrl), `<a href="${esc(inquiryUrl)}">${esc(inquiryUrl)}</a>`)}</div>`;
   return { subject: `${tag}ご注文を受け付けました（${o.orderNumber}）${audience === 'shop' ? ` ― ${c.name} 様` : ''}`, text, html };
 }
 

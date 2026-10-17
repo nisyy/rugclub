@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import ContactForm from './_components/ContactForm';
 import ExhibitionSlideshow from './_components/ExhibitionSlideshow';
@@ -48,7 +49,9 @@ export default function ContactPage() {
           <p className="text-sm text-navy/50 mb-8">
             お問い合わせ内容をご入力ください。
           </p>
-          <ContactForm />
+          <Suspense>
+            <ContactForm />
+          </Suspense>
         </div>
       </div>
     </section>
