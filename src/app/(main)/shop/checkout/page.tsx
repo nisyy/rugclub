@@ -114,7 +114,7 @@ export default function CheckoutPage() {
           </ul>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between"><dt className="text-navy/60">商品小計（税込）</dt><dd className="tabular-nums">{formatYen(cart.subtotalYen)}</dd></div>
-            <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className={cart.shippingYen === null ? 'text-orange' : 'tabular-nums'}>{cart.shippingYen === null ? '未確定' : formatYen(cart.shippingYen) + (cart.testMode ? '（テスト用の仮送料）' : '')}</dd></div>
+            <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className={cart.shippingYen === null ? 'text-orange' : 'tabular-nums'}>{cart.shippingYen === null ? '未確定' : formatYen(cart.shippingYen) + (cart.shippingProvisional ? '（テスト用の仮送料）' : '')}</dd></div>
             <div className="flex justify-between border-t border-navy/10 pt-2 font-bold"><dt>合計</dt><dd className="tabular-nums">{cart.totalYen === null ? '送料確定後に表示' : formatYen(cart.totalYen)}</dd></div>
           </dl>
         </section>

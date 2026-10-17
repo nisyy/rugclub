@@ -62,7 +62,7 @@ export default function AdminShopOrdersPage() {
                     <ul className="space-y-1 text-gray-300">
                       {o.lines.map((l) => <li key={l.id}>{l.name} × {l.qty}　<span className="text-gray-500">{yen(l.lineTotalYen)}</span></li>)}
                     </ul>
-                    <p className="text-gray-400 text-xs">小計 {yen(o.subtotalYen)} + 送料 {yen(o.shippingYen)}{o.testMode ? '（テスト用の仮送料）' : ''} = <span className="text-white">{yen(o.totalYen)}</span></p>
+                    <p className="text-gray-400 text-xs">小計 {yen(o.subtotalYen)} + 送料 {yen(o.shippingYen)}{o.shippingProvisional ? '（テスト用の仮送料）' : ''} = <span className="text-white">{yen(o.totalYen)}</span></p>
                     <div className="text-xs text-gray-400 space-y-0.5">
                       <p>{o.customer.name} / {o.customer.email}</p>
                       <p>〒{o.customer.postalCode} {o.customer.prefecture}{o.customer.city} {o.customer.address2}</p>

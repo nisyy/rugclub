@@ -12,6 +12,7 @@ const navItems = [
   { label: 'ショップ商品', href: '/admin/shop' },
   { label: 'ショップ注文', href: '/admin/shop/orders' },
   { label: '作家・カテゴリ', href: '/admin/shop/taxonomy' },
+  { label: '送料設定', href: '/admin/shop/shipping' },
 ];
 
 export default function AdminHeader() {

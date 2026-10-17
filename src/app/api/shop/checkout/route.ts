@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
           lines: order.lines,
           subtotalYen: order.subtotalYen,
           shippingYen: order.shippingYen,
+          shippingProvisional: order.shippingProvisional,
           totalYen: order.totalYen,
           mailSent: order.mail.customer === 'sent',
         },

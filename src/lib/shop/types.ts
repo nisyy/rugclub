@@ -60,6 +60,8 @@ export interface PricedCart {
   subtotalYen: number;
   /** 送料ルール未確定の間は null */
   shippingYen: number | null;
+  /** 送料が管理画面の設定ではなく、テスト用の仮値である */
+  shippingProvisional: boolean;
   totalYen: number | null;
   /** 注文を進められない理由。空配列なら進行可能 */
   blockedReasons: string[];
@@ -79,6 +81,7 @@ export interface OrderRecord {
   lines: { id: string; name: string; unitPriceYen: number; qty: number; lineTotalYen: number }[];
   subtotalYen: number;
   shippingYen: number;
+  shippingProvisional: boolean;
   totalYen: number;
   mail: { customer: 'sent' | 'failed' | 'skipped'; shop: 'sent' | 'failed' | 'skipped' };
 }

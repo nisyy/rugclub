@@ -45,14 +45,14 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           <div className="mb-8 space-y-3">
             {usedCategories.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] tracking-[0.2em] text-navy/40 w-16">CATEGORY</span>
+                <span className="text-[11px] tracking-[0.2em] text-navy/40 w-24 shrink-0">CATEGORY</span>
                 <Chip href={href(undefined, artist)} active={!category}>すべて</Chip>
                 {usedCategories.map((c) => <Chip key={c.id} href={href(c.id, artist)} active={category === c.id}>{c.name}</Chip>)}
               </div>
             )}
             {usedArtists.length > 0 && (
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] tracking-[0.2em] text-navy/40 w-16">ARTIST</span>
+                <span className="text-[11px] tracking-[0.2em] text-navy/40 w-24 shrink-0">ARTIST</span>
                 <Chip href={href(category, undefined)} active={!artist}>すべて</Chip>
                 {usedArtists.map((a) => <Chip key={a.id} href={href(category, a.id)} active={artist === a.id}>{a.name}</Chip>)}
               </div>

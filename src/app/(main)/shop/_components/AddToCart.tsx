@@ -38,7 +38,7 @@ export default function AddToCart({ productId, productName, maxQty, purchasable 
         }}
         className="w-full max-w-xs bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-orange-dark transition-colors disabled:bg-navy/20 disabled:cursor-not-allowed"
       >
-        {remaining === 0 ? 'カートの数量が上限です' : 'カートに追加する'}
+        {remaining === 0 ? '在庫の上限までカートに入っています' : 'カートに追加する'}
       </button>
       {(added || inCart > 0) && (
         <p className="text-xs text-navy/60">

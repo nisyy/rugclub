@@ -61,6 +61,13 @@ export default async function AdminDashboard() {
       color: 'from-teal-600 to-cyan-600',
       icon: '🏷️',
     },
+    {
+      label: 'Shipping',
+      labelJa: '送料設定',
+      href: '/admin/shop/shipping',
+      color: 'from-orange-600 to-red-600',
+      icon: '🚚',
+    },
   ];
 
   return (

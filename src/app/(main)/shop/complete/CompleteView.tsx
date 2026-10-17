@@ -10,6 +10,7 @@ interface TestOrder {
   lines: { id: string; name: string; qty: number; lineTotalYen: number }[];
   subtotalYen: number;
   shippingYen: number;
+  shippingProvisional: boolean;
   totalYen: number;
   mailSent: boolean;
 }
@@ -41,7 +42,7 @@ export default function CompleteView() {
         <div className={row}><dt className={dt}>注文番号</dt><dd className={order ? 'text-navy font-bold' : 'text-navy/40'}>{order ? order.orderNumber : '未発行'}</dd></div>
         <div className={row}><dt className={dt}>注文商品</dt><dd className="text-navy/70 space-y-1">{order ? order.lines.map((l) => <p key={l.id}>{l.name} × {l.qty}　{formatYen(l.lineTotalYen)}</p>) : <span className="text-navy/40">（注文確定後に表示）</span>}</dd></div>
         <div className={row}><dt className={dt}>商品小計</dt><dd className="text-navy/70">{order ? formatYen(order.subtotalYen) : '—'}</dd></div>
-        <div className={row}><dt className={dt}>送料</dt><dd className="text-navy/70">{order ? `${formatYen(order.shippingYen)}（テスト用の仮送料）` : '—'}</dd></div>
+        <div className={row}><dt className={dt}>送料</dt><dd className="text-navy/70">{order ? `${formatYen(order.shippingYen)}${order.shippingProvisional ? '（テスト用の仮送料）' : ''}` : '—'}</dd></div>
         <div className={row}><dt className={dt}>合計金額</dt><dd className="text-navy font-bold">{order ? formatYen(order.totalYen) : '—'}</dd></div>
       </dl>
       <p className="mt-6 text-xs text-navy/50 leading-relaxed">

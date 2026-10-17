@@ -1,5 +1,5 @@
 import { getProductById, isPurchasable } from './products';
-import { getShippingFeeYen } from './shipping';
+import { resolveShipping } from './shipping';
 import { isPaymentConnected } from './payment';
 import { isShopTestMode } from './testMode';
 export { formatYen } from './format';
@@ -51,7 +51,8 @@ export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
   }
 
   const subtotalYen = priced.reduce((s, l) => s + l.lineTotalYen, 0);
-  const shippingYen = priced.length > 0 ? getShippingFeeYen(subtotalYen) : null;
+  const shipping = priced.length > 0 ? await resolveShipping(subtotalYen) : { yen: null, provisional: false };
+  const shippingYen = shipping.yen;
   const totalYen = shippingYen === null ? null : subtotalYen + shippingYen;
 
   const blockedReasons: string[] = [];
@@ -61,5 +62,5 @@ export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
   // テストモード中は決済未接続でも「テスト注文」として確定できる（実決済は行われない）
   if (!isPaymentConnected() && !testMode) blockedReasons.push('決済が未接続のため、注文を確定できません。');
 
-  return { lines: priced, issues, subtotalYen, shippingYen, totalYen, blockedReasons, testMode };
+  return { lines: priced, issues, subtotalYen, shippingYen, shippingProvisional: shipping.provisional, totalYen, blockedReasons, testMode };
 }

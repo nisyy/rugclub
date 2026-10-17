@@ -63,6 +63,7 @@ export async function createOrder(
       lines: cart.lines.map((l) => ({ id: l.id, name: l.name, unitPriceYen: l.unitPriceYen, qty: l.qty, lineTotalYen: l.lineTotalYen })),
       subtotalYen: cart.subtotalYen,
       shippingYen: cart.shippingYen ?? 0,
+      shippingProvisional: cart.shippingProvisional,
       totalYen: cart.totalYen ?? cart.subtotalYen,
       mail: { customer: 'skipped', shop: 'skipped' },
     };
