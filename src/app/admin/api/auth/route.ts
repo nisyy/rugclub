@@ -34,7 +34,13 @@ export async function POST(request: NextRequest) {
   }
   const expected = process.env.ADMIN_PASSWORD;
 
-  if (!expected || typeof password !== 'string' || !safeEqual(password, expected)) {
+  // サーバー側にパスワードが設定されていない（環境変数の未設定）場合は、原因が分かるようにする
+  if (!expected) {
+    console.error('[auth] ADMIN_PASSWORD が設定されていません（.env.local または Vercel の環境変数を確認してください）');
+    return NextResponse.json({ error: 'not_configured' }, { status: 500 });
+  }
+
+  if (typeof password !== 'string' || !safeEqual(password, expected)) {
     return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
   }
 

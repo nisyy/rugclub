@@ -36,7 +36,7 @@ export default function AdminLoginPage() {
         router.push('/admin');
         router.refresh();
       } else {
-        setError(res.status === 429 ? '試行回数が多すぎます。しばらく時間をおいてからお試しください。' : 'パスワードが正しくありません。');
+        setError(res.status === 500 ? 'サーバーにパスワードが設定されていません（環境変数 ADMIN_PASSWORD を確認してください）。' : res.status === 429 ? '試行回数が多すぎます。しばらく時間をおいてからお試しください。' : 'パスワードが正しくありません。');
       }
     } catch {
       setError('接続エラーが発生しました。');
