@@ -46,8 +46,9 @@ function docToProduct(id: string, d: any, artists: Map<string, string>, categori
 }
 
 /** 管理画面用: 非公開も含む全件。Firestoreが空/未設定なら usingSamples=true でサンプルを返す */
-export async function listAllProducts(): Promise<{ products: AdminProduct[]; usingSamples: boolean }> {
+export async function listAllProducts(): Promise<{ products: AdminProduct[]; usingSamples: boolean; firestoreError?: string }> {
   const db = getAdminDb();
+  let firestoreError: string | undefined = db ? undefined : 'Firestoreの認証情報（FIREBASE_PROJECT_ID / FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY）が設定されていません';
   if (db) {
     try {
       const snap = await db.collection(COLLECTION).get();
@@ -59,10 +60,11 @@ export async function listAllProducts(): Promise<{ products: AdminProduct[]; usi
         return { products, usingSamples: false };
       }
     } catch (e) {
-      console.error('[shop products] Firestore読み込み失敗（サンプルを表示）:', e instanceof Error ? e.message : e);
+      firestoreError = e instanceof Error ? e.message : String(e);
+      console.error('[shop products] Firestore読み込み失敗（サンプルを表示）:', firestoreError);
     }
   }
-  return { products: [...SAMPLES].sort((a, b) => b.weight - a.weight || a.order - b.order), usingSamples: true };
+  return { products: [...SAMPLES].sort((a, b) => b.weight - a.weight || a.order - b.order), usingSamples: true, firestoreError };
 }
 
 export async function getProducts(): Promise<Product[]> {

@@ -20,6 +20,7 @@ const inputCls = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2
 export default function AdminShopProductsPage() {
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [usingSamples, setUsingSamples] = useState(false);
+  const [firestoreError, setFirestoreError] = useState('');
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [open, setOpen] = useState(false);
@@ -41,7 +42,8 @@ export default function AdminShopProductsPage() {
     setLoadError('');
     const res = await fetch('/admin/api/shop/products');
     if (res.ok) {
-      const data = (await res.json()) as { products: AdminProduct[]; usingSamples: boolean };
+      const data = (await res.json()) as { products: AdminProduct[]; usingSamples: boolean; firestoreError?: string };
+      setFirestoreError(data.firestoreError ?? '');
       setProducts(data.products);
       setUsingSamples(data.usingSamples);
     } else {
@@ -134,9 +136,14 @@ export default function AdminShopProductsPage() {
           <button onClick={openNew} className="bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors">＋ 新規追加</button>
         </div>
 
-        {usingSamples && (
+        {usingSamples && firestoreError && (
+          <div className="mb-6 bg-red-950/60 border border-red-800 text-red-200 text-xs px-4 py-3 rounded-lg leading-relaxed break-all">
+            Firestore に接続できていません。表示確認用のサンプル商品を表示しています（編集・削除できません）。<br />原因：{firestoreError}
+          </div>
+        )}
+        {usingSamples && !firestoreError && (
           <div className="mb-6 bg-amber-950/50 border border-amber-800 text-amber-200 text-xs px-4 py-3 rounded-lg leading-relaxed">
-            Firestore に商品が未登録のため、表示確認用のサンプル商品を表示しています（サンプルは編集・削除できません）。「＋ 新規追加」で最初の商品を登録すると、サンプルは表示されなくなります。
+            Firestore には接続できていますが、商品がまだ登録されていないため、表示確認用のサンプル商品を表示しています（サンプルは編集・削除できません）。「＋ 新規追加」で最初の商品を登録すると、サンプルは表示されなくなります。
           </div>
         )}
         {loadError && <div className="mb-6 bg-red-950/60 border border-red-800 text-red-300 text-xs px-4 py-3 rounded-lg break-all">{loadError}</div>}
