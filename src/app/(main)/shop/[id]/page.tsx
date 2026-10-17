@@ -5,6 +5,7 @@ import { getProductById, isPurchasable } from '@/lib/shop/products';
 import { formatYen } from '@/lib/shop/format';
 import ProductGallery from '../_components/ProductGallery';
 import AddToCart from '../_components/AddToCart';
+import TrackViewItem from '../_components/TrackViewItem';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -20,6 +21,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="bg-cream min-h-screen pt-24 lg:pt-28 pb-20">
+      <TrackViewItem item={{ id: p.id, name: p.name, price: p.priceYen, artist: p.artistName, category: p.categoryName }} />
       <div className="max-w-5xl mx-auto px-6 lg:px-10">
         <Link href="/shop" className="text-[11px] font-bold tracking-[0.25em] text-navy/40 hover:text-navy uppercase transition-colors">
           ← SHOP
@@ -43,7 +45,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             )}
             <p className="mt-6 text-sm text-navy/70 leading-relaxed whitespace-pre-wrap">{p.description}</p>
             <div className="mt-8">
-              <AddToCart productId={p.id} productName={p.name} maxQty={Math.min(p.stock, 99)} purchasable={purchasable} />
+              <AddToCart productId={p.id} productName={p.name} priceYen={p.priceYen} artistName={p.artistName} categoryName={p.categoryName} maxQty={Math.min(p.stock, 99)} purchasable={purchasable} />
             </div>
           </div>
         </div>

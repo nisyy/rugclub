@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
         ok: true,
         testOrder: {
           orderNumber: order.orderNumber,
+          testMode: order.testMode,
           lines: order.lines,
           subtotalYen: order.subtotalYen,
           shippingYen: order.shippingYen,

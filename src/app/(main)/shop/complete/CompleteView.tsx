@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { formatYen } from '@/lib/shop/format';
+import { trackShop } from '@/lib/analytics';
 import DevNotice from '../_components/DevNotice';
 
 interface TestOrder {
   orderNumber: string;
+  testMode?: boolean;
   lines: { id: string; name: string; qty: number; lineTotalYen: number }[];
   subtotalYen: number;
   shippingYen: number;
@@ -23,8 +25,16 @@ export default function CompleteView() {
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem('rugclub_last_order');
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (raw) setOrder(JSON.parse(raw) as TestOrder);
+      if (raw) {
+        const o = JSON.parse(raw) as TestOrder;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setOrder(o);
+        // 実注文のみ purchase を送る（テスト注文は数字に混ぜない）。再読込で二重に送らない
+        if (!o.testMode && sessionStorage.getItem('rugclub_purchase_logged') !== o.orderNumber) {
+          sessionStorage.setItem('rugclub_purchase_logged', o.orderNumber);
+          trackShop('purchase', o.lines.map((l) => ({ id: l.id, name: l.name, price: Math.round(l.lineTotalYen / l.qty), quantity: l.qty })), { transactionId: o.orderNumber, shipping: o.shippingYen });
+        }
+      }
     } catch {}
   }, []);
 

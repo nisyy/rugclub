@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useRef } from 'react';
 import { useCart } from '@/components/shop/CartProvider';
+import { trackShop } from '@/lib/analytics';
 import { formatYen } from '@/lib/shop/format';
 import ProductImage from '../_components/ProductImage';
 import QtyStepper from '../_components/QtyStepper';
@@ -13,6 +15,12 @@ import { useServerCart } from '../_components/useServerCart';
 export default function CartPage() {
   const { remove, setQty } = useCart();
   const { lines, hydrated, cart, messages, error } = useServerCart();
+  const viewed = useRef(false);
+  useEffect(() => {
+    if (viewed.current || !cart || cart.lines.length === 0) return;
+    viewed.current = true;
+    trackShop('view_cart', cart.lines.map((l) => ({ id: l.id, name: l.name, price: l.unitPriceYen, quantity: l.qty, artist: l.artistName, category: l.categoryName })));
+  }, [cart]);
 
   return (
     <div className="bg-cream min-h-screen pb-20">
@@ -47,7 +55,7 @@ export default function CartPage() {
                       <QtyStepper value={l.qty} max={l.maxQty} onChange={(n) => setQty(l.id, n)} />
                       <p className="text-sm text-navy tabular-nums">{formatYen(l.lineTotalYen)}</p>
                     </div>
-                    <button type="button" onClick={() => remove(l.id)} className="mt-2 text-[11px] text-navy/40 hover:text-orange underline underline-offset-2">削除</button>
+                    <button type="button" onClick={() => { trackShop('remove_from_cart', [{ id: l.id, name: l.name, price: l.unitPriceYen, quantity: l.qty, artist: l.artistName, category: l.categoryName }]); remove(l.id); }} className="mt-2 text-[11px] text-navy/40 hover:text-orange underline underline-offset-2">削除</button>
                   </div>
                 </li>
               ))}

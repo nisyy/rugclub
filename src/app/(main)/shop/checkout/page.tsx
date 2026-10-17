@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { trackShop } from '@/lib/analytics';
 import { useCart } from '@/components/shop/CartProvider';
 import { formatYen } from '@/lib/shop/format';
 import { EMPTY_CUSTOMER, PREFECTURES, validateCustomer, type CustomerErrors } from '@/lib/shop/validation';
@@ -34,6 +35,12 @@ export default function CheckoutPage() {
   const { hydrated, cart, messages, error } = useServerCart(pref || undefined);
   const { clear } = useCart();
   const idempotencyKey = useRef(crypto.randomUUID());
+  const began = useRef(false);
+  useEffect(() => {
+    if (began.current || !cart || cart.lines.length === 0) return;
+    began.current = true;
+    trackShop('begin_checkout', cart.lines.map((l) => ({ id: l.id, name: l.name, price: l.unitPriceYen, quantity: l.qty, artist: l.artistName, category: l.categoryName })));
+  }, [cart]);
   const [submitting, setSubmitting] = useState(false);
   const [customer, setCustomer] = useState<Customer>(EMPTY_CUSTOMER);
   const [errors, setErrors] = useState<CustomerErrors>({});

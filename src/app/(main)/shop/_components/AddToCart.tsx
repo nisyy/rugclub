@@ -4,9 +4,10 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useCart } from '@/components/shop/CartProvider';
 import { useToast } from '@/components/shop/ToastProvider';
+import { trackShop } from '@/lib/analytics';
 import QtyStepper from './QtyStepper';
 
-export default function AddToCart({ productId, productName, maxQty, purchasable }: { productId: string; productName: string; maxQty: number; purchasable: boolean }) {
+export default function AddToCart({ productId, productName, priceYen, artistName, categoryName, maxQty, purchasable }: { productId: string; productName: string; priceYen: number; artistName: string | null; categoryName: string | null; maxQty: number; purchasable: boolean }) {
   const { add, lines } = useCart();
   const { show } = useToast();
   const [qty, setQty] = useState(1);
@@ -32,6 +33,7 @@ export default function AddToCart({ productId, productName, maxQty, purchasable 
         onClick={() => {
           const n = Math.min(qty, remaining);
           add(productId, n, maxQty);
+          trackShop('add_to_cart', [{ id: productId, name: productName, price: priceYen, quantity: n, artist: artistName, category: categoryName }]);
           setAdded(true);
           setQty(1);
           show({ message: `「${productName}」を${n}点カートに追加しました`, href: '/shop/cart', hrefLabel: 'カートを見る' });

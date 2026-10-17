@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { trackSearch } from '@/lib/analytics';
 
 // 商品検索。ページを読み込み直さず、画面内の遷移で結果を切り替える。
 export default function SearchForm({ q, category, sort }: { q: string; category?: string; sort: 'new' | 'popular' }) {
@@ -14,7 +15,7 @@ export default function SearchForm({ q, category, sort }: { q: string; category?
     if (category) params.set('category', category);
     if (sort === 'popular') params.set('sort', 'popular');
     const v = value.trim();
-    if (v) params.set('q', v);
+    if (v) { params.set('q', v); trackSearch(v); }
     const qs = params.toString();
     router.push(qs ? `/shop?${qs}` : '/shop', { scroll: false });
   }
