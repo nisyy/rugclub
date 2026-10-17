@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import AdminHeader from '../_components/AdminHeader';
-import ImageUploadField from '../_components/ImageUploadField';
+import { uploadImage } from '@/lib/uploadImage';
+import { MAX_IMAGES } from '@/lib/shop/constants';
 import type { AdminProduct, ProductStatus, Taxonomy, TaxonomyKind } from '@/lib/shop/types';
 
 const STATUS_LABEL: Record<ProductStatus, string> = { on_sale: '販売中', sold_out: '売り切れ', hidden: '非公開' };
@@ -12,8 +13,8 @@ const STATUS_CLS: Record<ProductStatus, string> = {
   hidden: 'bg-gray-800 text-gray-400',
 };
 
-interface Form { name: string; description: string; imageUrl: string; priceYen: string; stock: string; status: ProductStatus; artistId: string; categoryId: string }
-const EMPTY: Form = { name: '', description: '', imageUrl: '', priceYen: '', stock: '', status: 'on_sale', artistId: '', categoryId: '' };
+interface Form { name: string; description: string; imageUrls: string[]; priceYen: string; stock: string; status: ProductStatus; artistId: string; categoryId: string }
+const EMPTY: Form = { name: '', description: '', imageUrls: [], priceYen: '', stock: '', status: 'on_sale', artistId: '', categoryId: '' };
 const inputCls = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500';
 
 export default function AdminShopProductsPage() {
@@ -26,6 +27,8 @@ export default function AdminShopProductsPage() {
   const [form, setForm] = useState<Form>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
   const [tax, setTax] = useState<{ artists: Taxonomy[]; categories: Taxonomy[] }>({ artists: [], categories: [] });
 
   const loadTax = useCallback(async () => {
@@ -53,7 +56,7 @@ export default function AdminShopProductsPage() {
   function openNew() { setEditing(null); setForm(EMPTY); setSaveError(''); setOpen(true); }
   function openEdit(p: AdminProduct) {
     setEditing(p);
-    setForm({ name: p.name, description: p.description, imageUrl: p.imageUrl ?? '', priceYen: String(p.priceYen), stock: String(p.stock), status: p.status, artistId: p.artistId ?? '', categoryId: p.categoryId ?? '' });
+    setForm({ name: p.name, description: p.description, imageUrls: p.imageUrls, priceYen: String(p.priceYen), stock: String(p.stock), status: p.status, artistId: p.artistId ?? '', categoryId: p.categoryId ?? '' });
     setSaveError('');
     setOpen(true);
   }
@@ -66,7 +69,6 @@ export default function AdminShopProductsPage() {
       ...form,
       priceYen: Number(form.priceYen),
       stock: Number(form.stock),
-      imageUrl: form.imageUrl || null,
       artistId: form.artistId || null,
       categoryId: form.categoryId || null,
       order: editing && !usingSamples ? editing.order : maxOrder + 1,
@@ -78,6 +80,28 @@ export default function AdminShopProductsPage() {
     });
     if (res.ok) { setOpen(false); load(); } else { setSaveError((await res.json().catch(() => ({}))).error ?? '保存に失敗しました'); }
     setSaving(false);
+  }
+
+  async function addImages(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    setUploadError('');
+    const urls: string[] = [];
+    for (const f of Array.from(files).slice(0, MAX_IMAGES - form.imageUrls.length)) {
+      try { urls.push(await uploadImage(f, 'shop')); } catch { setUploadError(`${f.name} のアップロードに失敗しました`); }
+    }
+    setForm((prev) => ({ ...prev, imageUrls: [...prev.imageUrls, ...urls].slice(0, MAX_IMAGES) }));
+    setUploading(false);
+  }
+
+  function moveImage(i: number, d: -1 | 1) {
+    setForm((prev) => {
+      const a = [...prev.imageUrls];
+      const j = i + d;
+      if (j < 0 || j >= a.length) return prev;
+      [a[i], a[j]] = [a[j], a[i]];
+      return { ...prev, imageUrls: a };
+    });
   }
 
   // 「＋ 新しく作成」: 選択肢にない作家・カテゴリをその場で作成して選択する
@@ -162,7 +186,32 @@ export default function AdminShopProductsPage() {
                 </div>
               ))}
             </div>
-            <ImageUploadField label="商品画像" value={form.imageUrl} onChange={(url) => setForm({ ...form, imageUrl: url })} folder="shop" previewSize="md" />
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">商品画像（最大{MAX_IMAGES}枚・先頭が一覧のサムネイル）</label>
+              {form.imageUrls.length > 0 && (
+                <div className="grid grid-cols-4 gap-3 mb-3">
+                  {form.imageUrls.map((u, i) => (
+                    <div key={u + i} className="relative aspect-square rounded-lg overflow-hidden bg-gray-800 border border-gray-700">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={u} alt="" className="w-full h-full object-cover" />
+                      {i === 0 && <span className="absolute top-1 left-1 text-[9px] bg-amber-600 text-white px-1.5 py-0.5 rounded">メイン</span>}
+                      <button type="button" aria-label="画像を削除" onClick={() => setForm({ ...form, imageUrls: form.imageUrls.filter((_, k) => k !== i) })} className="absolute top-1 right-1 w-5 h-5 bg-black/70 hover:bg-red-600 text-white rounded-full text-[10px] leading-none">✕</button>
+                      <div className="absolute bottom-1 inset-x-1 flex justify-between">
+                        <button type="button" aria-label="前へ" disabled={i === 0} onClick={() => moveImage(i, -1)} className="w-6 h-5 bg-black/70 text-white text-[11px] rounded disabled:opacity-30">←</button>
+                        <button type="button" aria-label="後ろへ" disabled={i === form.imageUrls.length - 1} onClick={() => moveImage(i, 1)} className="w-6 h-5 bg-black/70 text-white text-[11px] rounded disabled:opacity-30">→</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {form.imageUrls.length < MAX_IMAGES && (
+                <label className={`flex items-center justify-center w-full border border-dashed rounded-lg py-4 text-xs cursor-pointer transition-colors ${uploading ? 'border-gray-700 text-gray-600' : 'border-gray-600 text-gray-400 hover:border-indigo-500 hover:text-indigo-300'}`}>
+                  {uploading ? 'アップロード中...' : '＋ 画像を追加（複数選択可）'}
+                  <input type="file" accept="image/*" multiple className="hidden" disabled={uploading} onChange={(e) => { addImages(e.target.files); e.target.value = ''; }} />
+                </label>
+              )}
+              {uploadError && <p className="mt-1.5 text-xs text-red-400">{uploadError}</p>}
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div><label className="block text-xs text-gray-400 mb-1.5">販売価格（税込・円）</label><input inputMode="numeric" className={inputCls} value={form.priceYen} onChange={(e) => setForm({ ...form, priceYen: e.target.value })} /></div>
               <div><label className="block text-xs text-gray-400 mb-1.5">在庫数</label><input inputMode="numeric" className={inputCls} value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></div>

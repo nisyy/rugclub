@@ -3,7 +3,10 @@ export type ProductStatus = 'on_sale' | 'sold_out' | 'hidden';
 export interface Product {
   id: string;
   name: string;
+  /** 先頭の画像（一覧・カート用） */
   imageUrl: string | null;
+  /** 商品画像（複数・表示順）。先頭が imageUrl */
+  imageUrls: string[];
   description: string;
   /** 販売価格（税込・円・整数） */
   priceYen: number;

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProductById, isPurchasable } from '@/lib/shop/products';
 import { formatYen } from '@/lib/shop/format';
-import ProductImage from '../_components/ProductImage';
+import ProductGallery from '../_components/ProductGallery';
 import AddToCart from '../_components/AddToCart';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -25,7 +25,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           ← SHOP
         </Link>
         <div className="mt-6 grid gap-8 md:grid-cols-2 md:gap-12">
-          <ProductImage src={p.imageUrl} alt={p.name} sizes="(min-width: 768px) 50vw, 100vw" />
+          <ProductGallery images={p.imageUrls} alt={p.name} />
           <div>
             {(p.artistName || p.categoryName) && (
               <p className="mb-2 text-xs tracking-wide text-navy/50">{[p.artistName, p.categoryName].filter(Boolean).join(' / ')}</p>
