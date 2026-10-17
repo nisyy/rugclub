@@ -5,6 +5,7 @@ import { formatYen } from '@/lib/shop/format';
 import { matchesSearch } from '@/lib/shop/search';
 import ProductImage from './_components/ProductImage';
 import SortMenu from './_components/SortMenu';
+import HeaderBackdrop from './_components/HeaderBackdrop';
 import ShopHeading from './_components/ShopHeading';
 import DevNotice from './_components/DevNotice';
 
@@ -49,6 +50,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
   return (
     <div className="bg-cream min-h-screen pb-20">
+      <HeaderBackdrop />
       <ShopHeading eyebrow="Online Shop" title="SHOP" bg="SHOP" />
       <div className="max-w-5xl mx-auto px-6 lg:px-10">
         <DevNotice>
@@ -56,7 +58,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         </DevNotice>
 
         {/* 検索 */}
-        <div className="sticky top-16 z-40 -mx-6 lg:-mx-10 px-6 lg:px-10 py-3 mb-4 bg-cream/95 backdrop-blur-sm">
+        <div className="sticky top-16 z-40 -mx-6 lg:-mx-10 px-6 lg:px-10 py-3 mb-4 bg-cream">
         <form action="/shop" method="get" role="search" className="flex gap-2">
           {category && <input type="hidden" name="category" value={category} />}
           {sort === 'popular' && <input type="hidden" name="sort" value="popular" />}
