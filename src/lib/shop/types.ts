@@ -12,6 +12,8 @@ export interface Product {
   priceYen: number;
   stock: number;
   status: ProductStatus;
+  /** 一覧の表示順の重み。大きいほど先頭に表示（同じ値は登録順） */
+  weight: number;
   /** 作家・カテゴリ（マスタのID）。未設定は null */
   artistId: string | null;
   categoryId: string | null;
