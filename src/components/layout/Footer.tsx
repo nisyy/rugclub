@@ -92,6 +92,12 @@ export default function Footer() {
             プライバシーポリシー
           </Link>
           <Link
+            href="/tokushoho"
+            className="text-xs text-cream/70 hover:text-cream transition-colors duration-200"
+          >
+            特定商取引法に基づく表記
+          </Link>
+          <Link
             href="/contact"
             className="text-xs text-cream/70 hover:text-cream transition-colors duration-200"
           >

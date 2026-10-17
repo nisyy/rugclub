@@ -8,6 +8,7 @@ import { formatYen } from '@/lib/shop/format';
 import { EMPTY_CUSTOMER, PREFECTURES, validateCustomer, type CustomerErrors } from '@/lib/shop/validation';
 import type { Customer } from '@/lib/shop/types';
 import ShopHeading from '../_components/ShopHeading';
+import FreeShippingNote from '../_components/FreeShippingNote';
 import DevNotice from '../_components/DevNotice';
 import { useServerCart } from '../_components/useServerCart';
 
@@ -37,7 +38,7 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<CustomerErrors>({});
   const [step, setStep] = useState<'input' | 'confirm'>('input');
   const [submitError, setSubmitError] = useState('');
-  const [zipStatus, setZipStatus] = useState<'idle' | 'loading' | 'found' | 'notfound' | 'failed'>('idle');
+  const [zipStatus, setZipStatus] = useState<'idle' | 'loading' | 'found' | 'notfound' | 'failed' | 'limited'>('idle');
   const zipReq = useRef(0);
 
   const set = (k: keyof Customer) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -62,7 +63,7 @@ export default function CheckoutPage() {
         setErrors((p) => ({ ...p, prefecture: undefined, city: undefined }));
         setZipStatus('found');
       } else {
-        setZipStatus(data.error === 'not_found' ? 'notfound' : 'failed');
+        setZipStatus(data.error === 'not_found' ? 'notfound' : data.error === 'rate_limited' ? 'limited' : 'failed');
       }
     } catch {
       if (id === zipReq.current) setZipStatus('failed');
@@ -144,6 +145,7 @@ export default function CheckoutPage() {
             <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className={cart.shippingYen === null ? 'text-orange' : 'tabular-nums'}>{cart.shippingYen === null ? '未確定' : formatYen(cart.shippingYen) + (cart.shippingProvisional ? '（テスト用の仮送料）' : '')}</dd></div>
             <div className="flex justify-between border-t border-navy/10 pt-2 font-bold"><dt>合計</dt><dd className="tabular-nums">{cart.totalYen === null ? '送料確定後に表示' : formatYen(cart.totalYen)}</dd></div>
           </dl>
+          <FreeShippingNote remainingYen={cart.freeShippingRemainingYen} />
         </section>
 
         {step === 'input' ? (
@@ -151,13 +153,33 @@ export default function CheckoutPage() {
             <h2 className="text-sm font-bold text-navy">お届け先</h2>
             <Field label="お名前" required error={errors.name}><input className={inputBase} value={customer.name} onChange={set('name')} autoComplete="name" /></Field>
             <Field label="メールアドレス" required error={errors.email}><input type="email" className={inputBase} value={customer.email} onChange={set('email')} autoComplete="email" /></Field>
-            <Field label="郵便番号" required error={errors.postalCode}><input className={inputBase} value={customer.postalCode} onChange={(e) => { set('postalCode')(e); lookupZip(e.target.value); }} placeholder="123-4567" inputMode="numeric" autoComplete="postal-code" />
+            <Field label="郵便番号" required error={errors.postalCode}>
+              <div className="relative">
+                <input
+                  className={`${inputBase} pr-24`}
+                  value={customer.postalCode}
+                  onChange={(e) => { set('postalCode')(e); setZipStatus('idle'); }}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); lookupZip(customer.postalCode); } }}
+                  placeholder="123-4567"
+                  inputMode="numeric"
+                  autoComplete="postal-code"
+                />
+                <button
+                  type="button"
+                  onClick={() => lookupZip(customer.postalCode)}
+                  disabled={zipStatus === 'loading' || customer.postalCode.replace(/\D/g, '').length !== 7}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md bg-navy px-4 py-1.5 text-xs font-bold tracking-wider text-cream transition-opacity hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  {zipStatus === 'loading' ? '検索中' : '検索'}
+                </button>
+              </div>
               <p className="mt-1.5 text-xs text-navy/50" aria-live="polite">
                 {zipStatus === 'loading' && '住所を検索しています...'}
                 {zipStatus === 'found' && '都道府県・市区町村を自動入力しました。番地などを続けてご入力ください。'}
                 {zipStatus === 'notfound' && '該当する住所が見つかりませんでした。手入力してください。'}
-                {zipStatus === 'failed' && '住所を検索できませんでした。手入力してください。'}
-                {zipStatus === 'idle' && '7桁を入力すると住所が自動入力されます。'}
+                {zipStatus === 'limited' && '検索回数が多いため、しばらくしてからお試しください。手入力もできます。'}
+                {zipStatus === 'failed' && '住所を検索できませんでした。時間をおいて再度お試しいただくか、手入力してください。'}
+                {zipStatus === 'idle' && '7桁を入力して「検索」を押すと、住所が自動入力されます。'}
               </p>
             </Field>
             <Field label="都道府県" required error={errors.prefecture}>
@@ -185,6 +207,18 @@ export default function CheckoutPage() {
                 <div key={k} className="flex gap-6 py-3"><dt className="w-32 shrink-0 text-navy/50">{k}</dt><dd className="text-navy break-all">{v}</dd></div>
               ))}
             </dl>
+            <h2 className="text-sm font-bold text-navy pt-2">お支払い・お届け・返品について</h2>
+            <dl className="border-y border-navy/10 divide-y divide-navy/10 text-sm">
+              {([['お支払い方法', cart.terms.paymentMethod], ['お支払い時期', cart.terms.paymentTiming], ['商品の引渡時期', cart.terms.deliveryTime], ['返品・交換・キャンセル', cart.terms.returnPolicy]] as const).map(([k, v]) => (
+                <div key={k} className="flex flex-col sm:flex-row gap-1 sm:gap-6 py-3">
+                  <dt className="sm:w-40 shrink-0 text-navy/50">{k}</dt>
+                  <dd className="text-navy whitespace-pre-wrap break-words">{v || <span className="text-orange">（未設定）</span>}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="text-xs text-navy/50">
+              上記の内容は<Link href="/tokushoho" target="_blank" className="text-orange underline underline-offset-2">特定商取引法に基づく表記</Link>でもご確認いただけます。内容をご確認のうえ、お進みください。
+            </p>
             {blocked && (
               <div role="status" className="rounded-lg border border-dashed border-orange/60 bg-orange/5 px-4 py-3 text-xs text-orange space-y-1">
                 {cart.blockedReasons.map((r) => <p key={r}>・{r}</p>)}

@@ -35,6 +35,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <p className="mt-2 text-xs font-semibold tracking-wide" style={{ color: purchasable ? '#547443' : '#EF4123' }}>
               {!purchasable ? '売り切れ' : p.stock <= 3 ? `残りわずか（在庫${p.stock}点）` : '在庫あり'}
             </p>
+            {p.size && (
+              <dl className="mt-5 flex gap-4 text-sm">
+                <dt className="shrink-0 text-navy/50">サイズ</dt>
+                <dd className="text-navy whitespace-pre-wrap">{p.size}</dd>
+              </dl>
+            )}
             <p className="mt-6 text-sm text-navy/70 leading-relaxed whitespace-pre-wrap">{p.description}</p>
             <div className="mt-8">
               <AddToCart productId={p.id} productName={p.name} maxQty={Math.min(p.stock, 99)} purchasable={purchasable} />

@@ -34,7 +34,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
   const [all, tax] = await Promise.all([getProducts(), getTaxonomies()]);
   const products = all
-    .filter((p) => (!category || p.categoryId === category) && matchesSearch(q, [p.name, p.artistName, p.categoryName, p.description]))
+    .filter((p) => (!category || p.categoryId === category) && matchesSearch(q, [p.name, p.artistName, p.categoryName, p.description, p.size]))
     .sort(sort === 'popular' ? byPopular : byNewest);
   const usedCategories = tax.categories.filter((c) => all.some((p) => p.categoryId === c.id));
 

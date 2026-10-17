@@ -2,6 +2,7 @@ import { getProductById, isPurchasable } from './products';
 import { resolveShipping } from './shipping';
 import { isPaymentConnected } from './payment';
 import { isShopTestMode } from './testMode';
+import { getLegalSettings, missingLegalFields } from './legal';
 export { formatYen } from './format';
 import type { CartIssue, CartLine, PricedCart, PricedLine } from './types';
 
@@ -55,7 +56,7 @@ export async function priceCart(lines: CartLine[], prefecture?: string): Promise
   }
 
   const subtotalYen = priced.reduce((s, l) => s + l.lineTotalYen, 0);
-  const shipping = priced.length > 0 ? await resolveShipping(subtotalYen, prefecture) : { yen: null, provisional: false, remoteYen: null };
+  const shipping = priced.length > 0 ? await resolveShipping(subtotalYen, prefecture) : { yen: null, provisional: false, remoteYen: null, freeRemainingYen: null };
   const shippingYen = shipping.yen;
   const totalYen = shippingYen === null ? null : subtotalYen + shippingYen;
 
@@ -64,7 +65,9 @@ export async function priceCart(lines: CartLine[], prefecture?: string): Promise
   const testMode = isShopTestMode();
   if (priced.length > 0 && shippingYen === null) blockedReasons.push('送料が未確定のため、注文を確定できません。');
   // テストモード中は決済未接続でも「テスト注文」として確定できる（実決済は行われない）
+  const legal = await getLegalSettings();
+  if (missingLegalFields(legal).length > 0 && !testMode) blockedReasons.push('特定商取引法に基づく表記が未設定のため、注文を確定できません。');
   if (!isPaymentConnected() && !testMode) blockedReasons.push('決済が未接続のため、注文を確定できません。');
 
-  return { lines: priced, issues, subtotalYen, shippingYen, remoteShippingYen: shipping.remoteYen, shippingProvisional: shipping.provisional, totalYen, blockedReasons, testMode };
+  return { lines: priced, issues, subtotalYen, shippingYen, remoteShippingYen: shipping.remoteYen, freeShippingRemainingYen: shipping.freeRemainingYen, terms: { paymentMethod: legal.paymentMethod, paymentTiming: legal.paymentTiming, deliveryTime: legal.deliveryTime, returnPolicy: legal.returnPolicy }, shippingProvisional: shipping.provisional, totalYen, blockedReasons, testMode };
 }

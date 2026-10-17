@@ -6,6 +6,7 @@ import { formatYen } from '@/lib/shop/format';
 import ProductImage from '../_components/ProductImage';
 import QtyStepper from '../_components/QtyStepper';
 import ShopHeading from '../_components/ShopHeading';
+import FreeShippingNote from '../_components/FreeShippingNote';
 import DevNotice from '../_components/DevNotice';
 import { useServerCart } from '../_components/useServerCart';
 
@@ -56,6 +57,7 @@ export default function CartPage() {
               <div className="flex justify-between"><dt className="text-navy/60">小計（税込）</dt><dd className="tabular-nums">{formatYen(cart.subtotalYen)}</dd></div>
               <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className="text-navy/50">{cart.shippingYen === null ? '購入手続きで確認（未確定）' : `${formatYen(cart.shippingYen)}${cart.shippingProvisional ? '（テスト用の仮送料）' : ''}${cart.remoteShippingYen !== null ? `　※北海道・沖縄は${formatYen(cart.remoteShippingYen)}` : ''}`}</dd></div>
             </dl>
+            <FreeShippingNote remainingYen={cart.freeShippingRemainingYen} />
 
             <div className="mt-10 flex flex-col items-center gap-4">
               <Link href="/shop/checkout" className="w-full max-w-xs text-center bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-orange-dark transition-colors">

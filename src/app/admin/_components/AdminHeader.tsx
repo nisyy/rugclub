@@ -14,6 +14,7 @@ const navItems = [
   { label: '精算管理', href: '/admin/shop/settlements' },
   { label: '作家・カテゴリ', href: '/admin/shop/taxonomy' },
   { label: '送料設定', href: '/admin/shop/shipping' },
+  { label: '特商法表記', href: '/admin/shop/legal' },
 ];
 
 export default function AdminHeader() {

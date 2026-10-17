@@ -8,6 +8,8 @@ export interface Product {
   /** 商品画像（複数・表示順）。先頭が imageUrl */
   imageUrls: string[];
   description: string;
+  /** サイズ（自由記入。例：縦30×横40cm） */
+  size: string;
   /** 販売価格（税込・円・整数） */
   priceYen: number;
   stock: number;
@@ -80,6 +82,10 @@ export interface PricedCart {
   shippingYen: number | null;
   /** 北海道・沖縄の送料が一般地域と異なる場合の金額（案内表示用） */
   remoteShippingYen: number | null;
+  /** 送料無料まであと何円か（無料条件が未設定・達成済み・送料未確定の場合は null） */
+  freeShippingRemainingYen: number | null;
+  /** 購入手続きの最終確認画面に表示する取引条件（特商法の表記から） */
+  terms: { paymentMethod: string; paymentTiming: string; deliveryTime: string; returnPolicy: string };
   /** 送料が管理画面の設定ではなく、テスト用の仮値である */
   shippingProvisional: boolean;
   totalYen: number | null;

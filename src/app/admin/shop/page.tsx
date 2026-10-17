@@ -13,8 +13,8 @@ const STATUS_CLS: Record<ProductStatus, string> = {
   hidden: 'bg-gray-800 text-gray-400',
 };
 
-interface Form { name: string; description: string; imageUrls: string[]; priceYen: string; stock: string; status: ProductStatus; artistId: string; categoryId: string }
-const EMPTY: Form = { name: '', description: '', imageUrls: [], priceYen: '', stock: '', status: 'on_sale', artistId: '', categoryId: '' };
+interface Form { name: string; description: string; size: string; imageUrls: string[]; priceYen: string; stock: string; status: ProductStatus; artistId: string; categoryId: string }
+const EMPTY: Form = { name: '', description: '', size: '', imageUrls: [], priceYen: '', stock: '', status: 'on_sale', artistId: '', categoryId: '' };
 const inputCls = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500';
 
 export default function AdminShopProductsPage() {
@@ -68,7 +68,7 @@ export default function AdminShopProductsPage() {
   function openNew() { setEditing(null); setForm(EMPTY); setSaveError(''); setOpen(true); }
   function openEdit(p: AdminProduct) {
     setEditing(p);
-    setForm({ name: p.name, description: p.description, imageUrls: p.imageUrls, priceYen: String(p.priceYen), stock: String(p.stock), status: p.status, artistId: p.artistId ?? '', categoryId: p.categoryId ?? '' });
+    setForm({ name: p.name, description: p.description, size: p.size, imageUrls: p.imageUrls, priceYen: String(p.priceYen), stock: String(p.stock), status: p.status, artistId: p.artistId ?? '', categoryId: p.categoryId ?? '' });
     setSaveError('');
     setOpen(true);
   }
@@ -210,6 +210,11 @@ export default function AdminShopProductsPage() {
           <div className="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-lg my-8 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-bold text-white">{editing && !usingSamples ? '商品を編集' : '商品を追加'}</h3>
             <div><label className="block text-xs text-gray-400 mb-1.5">商品名</label><input className={inputCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5">サイズ</label>
+              <input className={inputCls} value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })} placeholder="例：縦30 × 横40cm（額縁込み） / Mサイズ 高さ12cm" maxLength={200} />
+              <p className="text-[11px] text-gray-500 mt-1">商品ページに表示されます。作品は寸法（額縁・マット込みか）、グッズはサイズ展開などを記入してください。</p>
+            </div>
             <div><label className="block text-xs text-gray-400 mb-1.5">商品説明</label><textarea rows={4} className={inputCls} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
             <div className="grid grid-cols-2 gap-4">
               {([['artists', '作家', 'artistId', tax.artists], ['categories', 'カテゴリ', 'categoryId', tax.categories]] as const).map(([kind, label, key, list]) => (

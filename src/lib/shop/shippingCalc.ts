@@ -22,14 +22,15 @@ export function computeShipping(
   subtotalYen: number,
   prefecture: string | undefined,
   testMode: boolean,
-): { yen: number | null; provisional: boolean; remoteYen: number | null } {
+): { yen: number | null; provisional: boolean; remoteYen: number | null; freeRemainingYen: number | null } {
   if (s.flatFeeYen === null) {
-    return testMode ? { yen: TEST_SHIPPING_YEN, provisional: true, remoteYen: null } : { yen: null, provisional: false, remoteYen: null };
+    return testMode ? { yen: TEST_SHIPPING_YEN, provisional: true, remoteYen: null, freeRemainingYen: null } : { yen: null, provisional: false, remoteYen: null, freeRemainingYen: null };
   }
   const free = s.freeThresholdYen !== null && subtotalYen >= s.freeThresholdYen;
   const isRemote = !!prefecture && REMOTE_PREFECTURES.includes(prefecture);
   const base = isRemote && s.remoteFeeYen !== null ? s.remoteFeeYen : s.flatFeeYen;
   const remoteYen = s.remoteFeeYen !== null && s.remoteFeeYen !== s.flatFeeYen && !free && !prefecture ? s.remoteFeeYen : null;
-  return { yen: free ? 0 : base, provisional: false, remoteYen };
+  const freeRemainingYen = s.freeThresholdYen !== null && !free ? s.freeThresholdYen - subtotalYen : null;
+  return { yen: free ? 0 : base, provisional: false, remoteYen, freeRemainingYen };
 }
 
