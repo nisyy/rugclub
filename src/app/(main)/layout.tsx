@@ -2,6 +2,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import PageViewTracker from '@/components/analytics/PageViewTracker';
 import SplashScreen from '@/components/ui/SplashScreen';
+import { CartProvider } from '@/components/shop/CartProvider';
 
 export default function MainLayout({
   children,
@@ -9,12 +10,14 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative">
-      <SplashScreen />
-      <PageViewTracker />
-      <Header />
-      <main>{children}</main>
-      <Footer />
-    </div>
+    <CartProvider>
+      <div className="relative">
+        <SplashScreen />
+        <PageViewTracker />
+        <Header />
+        <main>{children}</main>
+        <Footer />
+      </div>
+    </CartProvider>
   );
 }

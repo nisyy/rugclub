@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
+import CartIcon from '@/components/shop/CartIcon';
 
 const navLinks = [
   { label: 'ABOUT', sub: 'RUG CLUBについて', href: '/about' },
@@ -46,11 +47,14 @@ export default function Header() {
         <Link href="/" className="hover:opacity-80 transition-opacity">
           <Image src="/RUG_CLUB_logo2.png" alt="Logo" width={120} height={80} className="object-contain" />
         </Link>
-        <button onClick={openMenu} className="flex flex-col gap-[5px] w-8">
-          <span className="block h-[2px] w-full bg-navy rounded-full" />
-          <span className="block h-[2px] w-full bg-navy rounded-full" />
-          <span className="block h-[2px] w-5 bg-navy rounded-full" />
-        </button>
+        <div className="flex items-center gap-4">
+          <CartIcon />
+          <button onClick={openMenu} aria-label="メニューを開く" className="flex flex-col gap-[5px] w-8">
+            <span className="block h-[2px] w-full bg-navy rounded-full" />
+            <span className="block h-[2px] w-full bg-navy rounded-full" />
+            <span className="block h-[2px] w-5 bg-navy rounded-full" />
+          </button>
+        </div>
       </header>
 
       {menuOpen && (
@@ -89,6 +93,12 @@ export default function Header() {
                 <Link href="/menu" onClick={closeMenu} className="group">
                   <p className="font-display text-cream text-4xl group-hover:opacity-70 transition-opacity uppercase tracking-tight">MENU</p>
                   <p className="text-cream/60 text-xs mt-1">フード・ドリンク</p>
+                </Link>
+
+                {/* SHOP */}
+                <Link href="/shop" onClick={closeMenu} className="group">
+                  <p className="font-display text-cream text-4xl group-hover:opacity-70 transition-opacity uppercase tracking-tight">SHOP</p>
+                  <p className="text-cream/60 text-xs mt-1">オンラインショップ</p>
                 </Link>
 
                 {/* その他のリンク（ABOUT を除く） */}
