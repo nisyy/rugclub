@@ -1,5 +1,6 @@
 'use client';
 
+import RemoteImg from '@/components/ui/RemoteImg';
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 /** カード i が current から何枚ずれているか（-n/2 < offset <= n/2） */
@@ -82,10 +83,10 @@ export default function MenuCarousel({ slides }: { slides: string[] }) {
             >
               {/* 高さ固定・幅は画像本来のアスペクト比のまま（切り抜きなし） */}
               <div className="h-full overflow-hidden rounded-2xl shadow-xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <RemoteImg
                   src={src}
                   alt=""
+                  sizes="(max-width: 768px) 80vw, 600px"
                   className="h-full w-auto max-w-none object-contain"
                   draggable={false}
                 />
@@ -115,10 +116,10 @@ export default function MenuCarousel({ slides }: { slides: string[] }) {
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6"
           onClick={() => setLightbox(null)}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <RemoteImg
             src={lightbox}
             alt=""
+            sizes="100vw"
             className="max-h-full max-w-full object-contain rounded-xl"
             draggable={false}
             onClick={(e) => e.stopPropagation()}

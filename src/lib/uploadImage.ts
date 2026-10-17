@@ -61,7 +61,10 @@ export async function uploadImage(
   const storageRef = ref(storage, filename);
 
   return new Promise((resolve, reject) => {
-    const uploadTask = uploadBytesResumable(storageRef, compressed);
+    const uploadTask = uploadBytesResumable(storageRef, compressed, {
+      // ファイル名は一意（タイムスタンプ）なので、ブラウザ・CDNに長期キャッシュさせる
+      cacheControl: 'public, max-age=31536000, immutable',
+    });
 
     uploadTask.on(
       'state_changed',

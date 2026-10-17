@@ -4,6 +4,7 @@ import { getMenuItems } from '@/lib/notion';
 import { DEMO_MENU } from '@/lib/demoData';
 import type { AdminMenuItem } from '@/types/admin';
 import FadeIn from '@/components/ui/FadeIn';
+import RemoteImg from '@/components/ui/RemoteImg';
 import DrinksLightbox from './_components/DrinksLightbox';
 
 export const revalidate = 60;
@@ -165,8 +166,7 @@ function MorningSingle({ group }: { group: CategoryGroup }) {
   return (
     <div className="pt-2">
       <div className="overflow-hidden rounded-md bg-navy/5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={item.imageUrl} alt={item.name || 'モーニング'} className="w-full h-auto object-contain" />
+        <RemoteImg src={item.imageUrl} alt={item.name || 'モーニング'} sizes="(min-width: 1024px) 1024px, 100vw" className="w-full h-auto object-contain" />
       </div>
     </div>
   );

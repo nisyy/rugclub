@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import RemoteImg from '@/components/ui/RemoteImg';
 import type { Metadata } from 'next';
 import { getNewsItems, getGalleryItems, getHomeSlides } from '@/lib/notion';
 import { DEMO_NEWS, DEMO_GALLERY } from '@/lib/demoData';
@@ -146,9 +147,10 @@ function GallerySection({ items }: { items: AdminGalleryItem[] }) {
             {display.map((item, i) => (
               <FadeIn key={item.id} delay={i * 50} className="break-inside-avoid mb-4">
                 <div className="group relative overflow-hidden rounded-xl bg-navy/5">
-                  <img
+                  <RemoteImg
                     src={item.imageUrl || GALLERY_FALLBACK}
                     alt={item.title}
+                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
                     className="w-full h-auto transition-transform duration-700 group-hover:scale-[1.03]"
                   />
                   <div className="absolute inset-0 bg-navy/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">

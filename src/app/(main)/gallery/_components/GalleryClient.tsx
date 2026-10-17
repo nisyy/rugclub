@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { AdminGalleryItem } from '@/types/admin';
 import FadeIn from '@/components/ui/FadeIn';
+import RemoteImg from '@/components/ui/RemoteImg';
 import SectionHeader from '@/components/ui/SectionHeader';
 import CTAButton from '@/components/ui/CTAButton';
 
@@ -84,9 +85,10 @@ function ArtworkGrid({ items }: { items: AdminGalleryItem[] }) {
                 <article className="group cursor-pointer">
                   <div className="relative overflow-hidden bg-navy/5">
                     {/* imgタグでアス比を維持 (w-full h-auto) */}
-                    <img
+                    <RemoteImg
                       src={art.imageUrl || FALLBACK}
                       alt={art.title}
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                       className="w-full h-auto group-hover:scale-[1.03] transition-transform duration-700"
                     />
                     

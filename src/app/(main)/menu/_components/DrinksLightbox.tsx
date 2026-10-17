@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { createPortal } from 'react-dom';
 import type { AdminMenuItem } from '@/types/admin';
+import RemoteImg from '@/components/ui/RemoteImg';
 
 // ドリンク：画像2枚を横並びで表示（商品名・価格なし）。タップで拡大表示。
 export default function DrinksLightbox({ items }: { items: AdminMenuItem[] }) {
@@ -34,10 +35,10 @@ export default function DrinksLightbox({ items }: { items: AdminMenuItem[] }) {
           className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-6"
           onClick={() => setLightbox(null)}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <RemoteImg
             src={lightbox}
             alt=""
+            sizes="100vw"
             className="max-h-full max-w-full object-contain rounded-xl"
             draggable={false}
             onClick={(e) => e.stopPropagation()}
