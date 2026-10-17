@@ -5,6 +5,7 @@ import { formatYen } from '@/lib/shop/format';
 import { matchesSearch } from '@/lib/shop/search';
 import ProductImage from './_components/ProductImage';
 import SortMenu from './_components/SortMenu';
+import SearchForm from './_components/SearchForm';
 import HeaderBackdrop from './_components/HeaderBackdrop';
 import ShopHeading from './_components/ShopHeading';
 import DevNotice from './_components/DevNotice';
@@ -59,20 +60,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
         {/* 検索 */}
         <div className="sticky top-16 z-40 -mx-6 lg:-mx-10 px-6 lg:px-10 py-3 mb-4 bg-cream">
-        <form action="/shop" method="get" role="search" className="flex gap-2">
-          {category && <input type="hidden" name="category" value={category} />}
-          {sort === 'popular' && <input type="hidden" name="sort" value="popular" />}
-          <input
-            type="search"
-            name="q"
-            defaultValue={q}
-            placeholder="作家名・商品名・カテゴリで検索"
-            aria-label="商品を検索"
-            maxLength={100}
-            className="flex-1 min-w-0 bg-white border border-navy/20 rounded-full px-5 py-3 text-sm text-navy placeholder:text-navy/30 focus:outline-none focus:border-orange transition-colors"
-          />
-          <button type="submit" className="shrink-0 bg-navy text-cream text-xs font-bold tracking-widest px-6 rounded-full hover:opacity-80 transition-opacity">検索</button>
-        </form>
+        <SearchForm key={q} q={q} category={category} sort={sort} />
         </div>
 
         {/* 並び順（カテゴリの上・右寄せ） */}

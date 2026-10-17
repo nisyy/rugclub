@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 // アニメーションのフェーズ
 // visible  → まっすぐ表示
@@ -12,8 +13,13 @@ import Image from 'next/image';
 // done     → アンマウント
 type Phase = 'visible' | 'tilting' | 'clicking' | 'clicked' | 'fading' | 'done';
 
+// ショップ関連ページは、直接開いた時や別タブで開いた時も起動画面を出さない
+const NO_SPLASH_PREFIXES = ['/shop', '/tokushoho'];
+
 export default function SplashScreen() {
-  const [phase, setPhase] = useState<Phase>('visible');
+  const pathname = usePathname();
+  const skipSplash = NO_SPLASH_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  const [phase, setPhase] = useState<Phase>(skipSplash ? 'done' : 'visible');
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   function clearTimers() {
@@ -22,6 +28,7 @@ export default function SplashScreen() {
   }
 
   useEffect(() => {
+    if (skipSplash) return;
     // 自動アニメーションのスケジュール
     timersRef.current.push(setTimeout(() => setPhase('tilting'),  700));  // 傾く
     timersRef.current.push(setTimeout(() => setPhase('clicking'), 1000)); // 縮む
@@ -30,6 +37,7 @@ export default function SplashScreen() {
     timersRef.current.push(setTimeout(() => setPhase('done'),     2200)); // アンマウント
 
     return () => clearTimers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ロゴクリックでスキップ
