@@ -15,7 +15,18 @@ import { useServerCart } from '../_components/useServerCart';
 
 export default function CartPage() {
   const { remove, setQty } = useCart();
-  const { lines, cart, messages, error, loading } = useServerCart();
+  const { lines, cart, messages, error, loading, fetching } = useServerCart();
+  // 画面の数量・金額は、ブラウザ内のカートの数量から即座に計算して表示する。
+  // サーバーでの再確認（価格・在庫）はあとから反映され、差異があれば補正される。
+  const shownLines = (cart?.lines ?? [])
+    .map((l) => {
+      const local = lines.find((x) => x.id === l.id);
+      if (!local) return null;
+      const qty = Math.min(local.qty, l.maxQty);
+      return { ...l, qty, lineTotalYen: l.unitPriceYen * qty };
+    })
+    .filter((l): l is NonNullable<typeof l> => l !== null);
+  const shownSubtotal = shownLines.reduce((s, l) => s + l.lineTotalYen, 0);
   const viewed = useRef(false);
   useEffect(() => {
     if (viewed.current || !cart || cart.lines.length === 0) return;
@@ -36,7 +47,7 @@ export default function CartPage() {
         )}
         {error && <p className="mb-6 text-xs text-orange">カートの最新情報を取得できませんでした。時間をおいて再度お試しください。</p>}
 
-        {loading ? <CartLoading /> : lines.length > 0 && !cart ? null : lines.length === 0 || !cart || cart.lines.length === 0 ? (
+        {loading ? <CartLoading /> : lines.length > 0 && !cart ? null : lines.length === 0 || !cart || shownLines.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-sm text-navy/50">カートに商品がありません。</p>
             <Link href="/shop" className="btn-pill mt-8">SHOPへ</Link>
@@ -44,7 +55,7 @@ export default function CartPage() {
         ) : (
           <>
             <ul className="divide-y divide-navy/10 border-y border-navy/10">
-              {cart.lines.map((l) => (
+              {shownLines.map((l) => (
                 <li key={l.id} className="flex gap-4 py-5">
                   <Link href={`/shop/${l.id}`} className="w-20 shrink-0">
                     <ProductImage src={l.imageUrl} alt={l.name} sizes="80px" />
@@ -63,10 +74,10 @@ export default function CartPage() {
             </ul>
 
             <dl className="mt-6 space-y-2 text-sm">
-              <div className="flex justify-between"><dt className="text-navy/60">小計（税込）</dt><dd className="tabular-nums">{formatYen(cart.subtotalYen)}</dd></div>
-              <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className="text-navy/50">{cart.shippingYen === null ? '購入手続きで確認（未確定）' : `${formatYen(cart.shippingYen)}${cart.shippingProvisional ? '（テスト用の仮送料）' : ''}${cart.remoteShippingYen !== null ? `　※北海道・沖縄は${formatYen(cart.remoteShippingYen)}` : ''}`}</dd></div>
+              <div className="flex justify-between"><dt className="text-navy/60">小計（税込）</dt><dd className="tabular-nums">{formatYen(shownSubtotal)}</dd></div>
+              <div className="flex justify-between"><dt className="text-navy/60">送料</dt><dd className="text-navy/50">{fetching ? <span aria-live="polite">計算中…</span> : cart.shippingYen === null ? '購入手続きで確認（未確定）' : `${formatYen(cart.shippingYen)}${cart.shippingProvisional ? '（テスト用の仮送料）' : ''}${cart.remoteShippingYen !== null ? `　※北海道・沖縄は${formatYen(cart.remoteShippingYen)}` : ''}`}</dd></div>
             </dl>
-            <FreeShippingNote remainingYen={cart.freeShippingRemainingYen} />
+            {!fetching && <FreeShippingNote remainingYen={cart.freeShippingRemainingYen} />}
 
             <div className="mt-10 flex flex-col items-center gap-4">
               <Link href="/shop/checkout" className="w-full max-w-xs text-center bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-orange-dark transition-colors">

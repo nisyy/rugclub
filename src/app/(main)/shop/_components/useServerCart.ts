@@ -25,6 +25,8 @@ export function useServerCart(prefecture?: string) {
     if (lines.length === 0) { setCart(null); return; }
     let cancelled = false;
     setFetching(true);
+    // 数量を連続で変えた時に通信を繰り返さないよう、少し待ってからまとめて確認する（初回は待たない）
+    const timer = setTimeout(() => {
     (async () => {
       try {
         const res = await fetch('/api/shop/cart/validate', {
@@ -50,7 +52,8 @@ export function useServerCart(prefecture?: string) {
         if (!cancelled) setFetching(false);
       }
     })();
-    return () => { cancelled = true; };
+    }, cart ? 300 : 0);
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [lines, hydrated, remove, setQty, prefecture]);
 
   // カートに商品があるのに、サーバーでの確認結果がまだ届いていない間は読み込み中
