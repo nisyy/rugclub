@@ -4,6 +4,7 @@ import { byNewest, byPopular, getProducts, getTaxonomies, isPurchasable } from '
 import { formatYen } from '@/lib/shop/format';
 import { matchesSearch } from '@/lib/shop/search';
 import ProductImage from './_components/ProductImage';
+import SortMenu from './_components/SortMenu';
 import ShopHeading from './_components/ShopHeading';
 import DevNotice from './_components/DevNotice';
 
@@ -55,7 +56,8 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         </DevNotice>
 
         {/* 検索 */}
-        <form action="/shop" method="get" role="search" className="mb-6 flex gap-2">
+        <div className="sticky top-16 z-40 -mx-6 lg:-mx-10 px-6 lg:px-10 py-3 mb-4 bg-cream/95 backdrop-blur-sm">
+        <form action="/shop" method="get" role="search" className="flex gap-2">
           {category && <input type="hidden" name="category" value={category} />}
           {sort === 'popular' && <input type="hidden" name="sort" value="popular" />}
           <input
@@ -69,6 +71,12 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           />
           <button type="submit" className="shrink-0 bg-navy text-cream text-xs font-bold tracking-widest px-6 rounded-full hover:opacity-80 transition-opacity">検索</button>
         </form>
+        </div>
+
+        {/* 並び順（カテゴリの上・右寄せ） */}
+        <div className="mb-5 flex justify-end">
+          <SortMenu options={[{ label: '新着順', href: href({ sort: 'new' }), active: sort === 'new' }, { label: '人気順', href: href({ sort: 'popular' }), active: sort === 'popular' }]} />
+        </div>
 
         <div className="mb-8 space-y-3">
           {usedCategories.length > 0 && (
@@ -80,13 +88,6 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
               </div>
             </div>
           )}
-          <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
-            <span className="text-[10px] sm:text-[11px] tracking-[0.2em] text-navy/40 sm:w-24 shrink-0">SORT</span>
-            <div className="flex gap-2">
-              <Chip href={href({ sort: 'new' })} active={sort === 'new'}>新着順</Chip>
-              <Chip href={href({ sort: 'popular' })} active={sort === 'popular'}>人気順</Chip>
-            </div>
-          </div>
         </div>
 
         {(q || category) && (
