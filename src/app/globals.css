@@ -174,3 +174,12 @@ body {
 .btn-text:hover { opacity: 0.7; }
 .btn-text > span:last-child { transition: transform 0.2s; }
 .btn-text:hover > span:last-child { transform: translateX(4px); }
+
+/* 横スクロール領域のスクロールバーを隠す */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

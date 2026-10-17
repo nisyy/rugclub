@@ -15,7 +15,7 @@ export const revalidate = 30;
 
 function Chip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
-    <Link href={href} className={`text-xs font-semibold tracking-wide px-4 py-2 rounded-full transition-colors ${active ? 'bg-navy text-cream' : 'bg-white text-navy border border-navy/20 hover:border-navy/50'}`}>
+    <Link href={href} className={`shrink-0 whitespace-nowrap text-xs font-semibold tracking-wide px-3.5 sm:px-4 py-2 rounded-full transition-colors ${active ? 'bg-navy text-cream' : 'bg-white text-navy border border-navy/20 hover:border-navy/50'}`}>
       {children}
     </Link>
   );
@@ -44,17 +44,21 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         {(usedCategories.length > 0 || usedArtists.length > 0) && (
           <div className="mb-8 space-y-3">
             {usedCategories.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] tracking-[0.2em] text-navy/40 w-24 shrink-0">CATEGORY</span>
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+                <span className="text-[10px] sm:text-[11px] tracking-[0.2em] text-navy/40 sm:w-24 shrink-0">CATEGORY</span>
+                <div className="flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible -mx-6 px-6 sm:mx-0 sm:px-0 pb-1 sm:pb-0 scrollbar-none">
                 <Chip href={href(undefined, artist)} active={!category}>すべて</Chip>
                 {usedCategories.map((c) => <Chip key={c.id} href={href(c.id, artist)} active={category === c.id}>{c.name}</Chip>)}
+                </div>
               </div>
             )}
             {usedArtists.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] tracking-[0.2em] text-navy/40 w-24 shrink-0">ARTIST</span>
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:items-center sm:gap-2">
+                <span className="text-[10px] sm:text-[11px] tracking-[0.2em] text-navy/40 sm:w-24 shrink-0">ARTIST</span>
+                <div className="flex gap-2 overflow-x-auto sm:flex-wrap sm:overflow-visible -mx-6 px-6 sm:mx-0 sm:px-0 pb-1 sm:pb-0 scrollbar-none">
                 <Chip href={href(category, undefined)} active={!artist}>すべて</Chip>
                 {usedArtists.map((a) => <Chip key={a.id} href={href(category, a.id)} active={artist === a.id}>{a.name}</Chip>)}
+                </div>
               </div>
             )}
           </div>
