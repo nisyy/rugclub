@@ -9,6 +9,7 @@ import { formatYen } from '@/lib/shop/format';
 import { EMPTY_CUSTOMER, PREFECTURES, validateCustomer, type CustomerErrors } from '@/lib/shop/validation';
 import type { Customer } from '@/lib/shop/types';
 import ShopHeading from '../_components/ShopHeading';
+import CartLoading from '../_components/CartLoading';
 import FreeShippingNote from '../_components/FreeShippingNote';
 import OrderingOverlay from '../_components/OrderingOverlay';
 import DevNotice from '../_components/DevNotice';
@@ -32,11 +33,13 @@ function Field({ label, required, error, children }: { label: string; required?:
 export default function CheckoutPage() {
   const router = useRouter();
   const [pref, setPref] = useState('');
-  const { hydrated, cart, messages, error } = useServerCart(pref || undefined);
+  const { cart, messages, error, loading, fetching } = useServerCart(pref || undefined);
   const { clear } = useCart();
   const idempotencyKey = useRef(crypto.randomUUID());
   const [submitting, setSubmitting] = useState(false);
   const [canceledNotice, setCanceledNotice] = useState(false);
+  // 決済ページから戻った時、確保していた在庫の解放が終わるまでは読み込み表示にする
+  const [releasing, setReleasing] = useState(false);
 
   // 決済ページから「戻る」で戻ってきた時：確保していた在庫を解放し、もう一度注文できる状態にする
   useEffect(() => {
@@ -45,7 +48,10 @@ export default function CheckoutPage() {
       const sid = sessionStorage.getItem('rugclub_pending_session');
       if (!sid) return;
       sessionStorage.removeItem('rugclub_pending_session');
-      fetch('/api/shop/checkout/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId: sid }) }).catch(() => {});
+      setReleasing(true);
+      fetch('/api/shop/checkout/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sessionId: sid }) })
+        .catch(() => {})
+        .finally(() => setReleasing(false));
     };
     if (new URLSearchParams(window.location.search).get('canceled') === '1') {
       // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -106,7 +112,7 @@ export default function CheckoutPage() {
   }
 
   async function submitOrder() {
-    if (!cart || cart.blockedReasons.length > 0 || submitting) return;
+    if (!cart || cart.blockedReasons.length > 0 || submitting || fetching) return;
     setSubmitError('');
     setSubmitting(true);
     try {
@@ -146,7 +152,7 @@ export default function CheckoutPage() {
     setSubmitting(false);
   }
 
-  if (!hydrated) return <div className="bg-cream min-h-screen" />;
+  if (loading || releasing) return <div className="bg-cream min-h-screen pt-28"><CartLoading /></div>;
   if (!cart || cart.lines.length === 0) {
     return (
       <div className="bg-cream min-h-screen pt-32 text-center px-6">
@@ -170,7 +176,13 @@ export default function CheckoutPage() {
         {error && <p className="mb-6 text-xs text-orange">最新の価格・在庫を取得できませんでした。</p>}
 
         {/* 注文概要 */}
-        <section className="mb-10">
+        <section className="mb-10 relative" aria-busy={fetching}>
+          {fetching && (
+            <div role="status" aria-live="polite" className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-cream/80 backdrop-blur-[1px]">
+              <svg className="animate-spin text-orange" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>
+              <span className="sr-only">ご注文内容を更新しています</span>
+            </div>
+          )}
           <h2 className="text-sm font-bold text-navy mb-3">ご注文内容</h2>
           <ul className="divide-y divide-navy/10 border-y border-navy/10">
             {cart.lines.map((l) => (
@@ -267,7 +279,7 @@ export default function CheckoutPage() {
             {submitError && <p role="alert" className="text-xs text-orange">{submitError}</p>}
             <div className="flex flex-col-reverse sm:flex-row items-center justify-center gap-6">
               <button type="button" onClick={() => setStep('input')} className="text-[11px] font-bold tracking-[0.25em] text-navy/40 hover:text-navy uppercase transition-colors">← 修正する</button>
-              <button type="button" disabled={blocked || submitting} onClick={submitOrder} className="w-full max-w-xs bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-orange-dark transition-colors disabled:bg-navy/20 disabled:cursor-not-allowed">
+              <button type="button" disabled={blocked || submitting || fetching} onClick={submitOrder} className="w-full max-w-xs bg-orange text-white text-sm font-bold tracking-widest px-10 py-4 rounded-full hover:bg-orange-dark transition-colors disabled:bg-navy/20 disabled:cursor-not-allowed">
                 {blocked ? '現在ご注文いただけません' : submitting ? '送信中...' : cart.testMode ? 'テスト注文を確定する' : '決済へ進む'}
               </button>
             </div>

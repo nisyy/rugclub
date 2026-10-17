@@ -8,13 +8,14 @@ import { formatYen } from '@/lib/shop/format';
 import ProductImage from '../_components/ProductImage';
 import QtyStepper from '../_components/QtyStepper';
 import ShopHeading from '../_components/ShopHeading';
+import CartLoading from '../_components/CartLoading';
 import FreeShippingNote from '../_components/FreeShippingNote';
 import DevNotice from '../_components/DevNotice';
 import { useServerCart } from '../_components/useServerCart';
 
 export default function CartPage() {
   const { remove, setQty } = useCart();
-  const { lines, hydrated, cart, messages, error } = useServerCart();
+  const { lines, cart, messages, error, loading } = useServerCart();
   const viewed = useRef(false);
   useEffect(() => {
     if (viewed.current || !cart || cart.lines.length === 0) return;
@@ -35,7 +36,7 @@ export default function CartPage() {
         )}
         {error && <p className="mb-6 text-xs text-orange">カートの最新情報を取得できませんでした。時間をおいて再度お試しください。</p>}
 
-        {!hydrated ? null : lines.length === 0 || !cart || cart.lines.length === 0 ? (
+        {loading ? <CartLoading /> : lines.length > 0 && !cart ? null : lines.length === 0 || !cart || cart.lines.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-sm text-navy/50">カートに商品がありません。</p>
             <Link href="/shop" className="btn-pill mt-8">SHOPへ</Link>

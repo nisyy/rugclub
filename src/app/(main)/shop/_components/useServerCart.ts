@@ -18,11 +18,13 @@ export function useServerCart(prefecture?: string) {
   const [cart, setCart] = useState<PricedCart | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
   const [error, setError] = useState(false);
+  const [fetching, setFetching] = useState(false);
 
   useEffect(() => {
     if (!hydrated) return;
     if (lines.length === 0) { setCart(null); return; }
     let cancelled = false;
+    setFetching(true);
     (async () => {
       try {
         const res = await fetch('/api/shop/cart/validate', {
@@ -44,10 +46,14 @@ export function useServerCart(prefecture?: string) {
         }
       } catch {
         if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setFetching(false);
       }
     })();
     return () => { cancelled = true; };
   }, [lines, hydrated, remove, setQty, prefecture]);
 
-  return { lines, hydrated, cart, messages, error };
+  // カートに商品があるのに、サーバーでの確認結果がまだ届いていない間は読み込み中
+  const loading = !hydrated || (lines.length > 0 && cart === null && !error);
+  return { lines, hydrated, cart, messages, error, loading, fetching };
 }
