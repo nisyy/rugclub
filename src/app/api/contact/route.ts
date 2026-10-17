@@ -21,6 +21,7 @@ interface ContactPayload {
   phone?: string;
   subject: string;
   portfolioUrl?: string;
+  orderNumber?: string;
   message: string;
   images?: AttachedImage[];
 }
@@ -28,6 +29,8 @@ interface ContactPayload {
 // ─────────────────────────────────────────────
 // メール本文 (HTML)
 // ─────────────────────────────────────────────
+const escapeHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
 function buildHtml(data: ContactPayload): string {
   return `
 <div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e;">
@@ -61,6 +64,13 @@ function buildHtml(data: ContactPayload): string {
       </th>
       <td style="padding:10px;border-bottom:1px solid #eee;">${data.subject}</td>
     </tr>
+    ${data.orderNumber ? `
+    <tr>
+      <th style="text-align:left;padding:10px;background:#f5f0e8;font-size:12px;color:#666;">
+        ご注文番号
+      </th>
+      <td style="padding:10px;border-bottom:1px solid #eee;">${escapeHtml(data.orderNumber)}</td>
+    </tr>` : ''}
     ${data.portfolioUrl ? `
     <tr>
       <th style="text-align:left;padding:10px;background:#f5f0e8;font-size:12px;color:#666;">
@@ -92,6 +102,7 @@ function buildText(data: ContactPayload): string {
     `メールアドレス：${data.email}`,
     `電話番号：${data.phone || '未入力'}`,
     `件名：${data.subject}`,
+    ...(data.orderNumber ? [`ご注文番号：${data.orderNumber}`] : []),
     ...(data.portfolioUrl ? [`WEB・SNS・ポートフォリオ：${data.portfolioUrl}`] : []),
     '━━━━━━━━━━━━━━━━━━━━',
     '',
@@ -182,6 +193,7 @@ export async function POST(req: NextRequest) {
             phone: body.phone ?? '',
             subject: body.subject,
             portfolioUrl: body.portfolioUrl ?? '',
+            orderNumber: body.orderNumber ?? '',
             message: body.message,
             imageCount: body.images?.length ?? 0,
           }),

@@ -9,7 +9,20 @@ export interface Product {
   priceYen: number;
   stock: number;
   status: ProductStatus;
+  /** 作家・カテゴリ（マスタのID）。未設定は null */
+  artistId: string | null;
+  categoryId: string | null;
+  /** マスタから解決した表示名（読み取り時に付与） */
+  artistName: string | null;
+  categoryName: string | null;
 }
+
+export interface Taxonomy {
+  id: string;
+  name: string;
+  order: number;
+}
+export type TaxonomyKind = 'artists' | 'categories';
 
 /** ブラウザ（カート）が保持するのは商品IDと数量のみ */
 export interface CartLine {
@@ -70,5 +83,5 @@ export interface OrderRecord {
   mail: { customer: 'sent' | 'failed' | 'skipped'; shop: 'sent' | 'failed' | 'skipped' };
 }
 
-export type ProductInput = Omit<Product, 'id'> & { order: number };
+export type ProductInput = Omit<Product, 'id' | 'artistName' | 'categoryName'> & { order: number };
 export type AdminProduct = Product & { order: number };

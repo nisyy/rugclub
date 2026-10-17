@@ -54,6 +54,13 @@ export default async function AdminDashboard() {
       color: 'from-fuchsia-600 to-purple-600',
       icon: '📦',
     },
+    {
+      label: 'Artists & Categories',
+      labelJa: '作家・カテゴリ管理',
+      href: '/admin/shop/taxonomy',
+      color: 'from-teal-600 to-cyan-600',
+      icon: '🏷️',
+    },
   ];
 
   return (

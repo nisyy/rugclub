@@ -15,6 +15,7 @@ interface FormData {
   phone: string;
   subject: string;
   portfolioUrl: string;
+  orderNumber?: string;
   message: string;
   images: AttachedImage[];
 }
@@ -24,6 +25,7 @@ const FIELD_LABELS: { key: Exclude<keyof FormData, 'images'>; label: string }[] 
   { key: 'email',        label: 'メールアドレス' },
   { key: 'phone',        label: '電話番号' },
   { key: 'subject',      label: 'お問い合わせ件名' },
+  { key: 'orderNumber',  label: 'ご注文番号' },
   { key: 'portfolioUrl', label: 'WEB・SNS・ポートフォリオ' },
   { key: 'message',      label: 'お問い合わせ内容' },
 ];

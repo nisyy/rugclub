@@ -10,6 +10,7 @@ interface FormData {
   phone: string;
   subject: string;
   portfolioUrl: string;
+  orderNumber: string;
   message: string;
 }
 
@@ -24,6 +25,7 @@ const SUBJECT_OPTIONS = [
   '作品展示について',
   '部分レンタル',
   '個展やグループ展レンタル',
+  'オンラインショップのご購入について',
   'その他',
 ];
 
@@ -39,6 +41,7 @@ export default function ContactForm() {
     phone: '',
     subject: '',
     portfolioUrl: '',
+    orderNumber: '',
     message: '',
   });
 
@@ -244,6 +247,24 @@ export default function ContactForm() {
           <p className="mt-1.5 text-xs text-orange">{errors.subject}</p>
         )}
       </div>
+
+      {/* ご注文番号（購入に関するお問い合わせのみ） */}
+      {form.subject === 'オンラインショップのご購入について' && (
+        <div>
+          <label className="block text-sm font-medium text-navy mb-1">
+            ご注文番号
+            <span className="ml-1 text-navy/40 text-xs">（任意）</span>
+          </label>
+          <p className="text-xs text-navy/40 mb-2">ご注文後にお送りしたメールに記載の番号（例：RC-20261017-ABCD）。商品名など、ご購入内容もお問い合わせ内容にご記入ください。</p>
+          <input
+            type="text"
+            value={form.orderNumber}
+            onChange={update('orderNumber')}
+            placeholder="RC-00000000-XXXX"
+            className={inputBase}
+          />
+        </div>
+      )}
 
       {/* WEB・SNS・ポートフォリオ */}
       <div>

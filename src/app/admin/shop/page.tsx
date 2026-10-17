@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import AdminHeader from '../_components/AdminHeader';
 import ImageUploadField from '../_components/ImageUploadField';
-import type { AdminProduct, ProductStatus } from '@/lib/shop/types';
+import type { AdminProduct, ProductStatus, Taxonomy, TaxonomyKind } from '@/lib/shop/types';
 
 const STATUS_LABEL: Record<ProductStatus, string> = { on_sale: '販売中', sold_out: '売り切れ', hidden: '非公開' };
 const STATUS_CLS: Record<ProductStatus, string> = {
@@ -12,8 +12,8 @@ const STATUS_CLS: Record<ProductStatus, string> = {
   hidden: 'bg-gray-800 text-gray-400',
 };
 
-interface Form { name: string; description: string; imageUrl: string; priceYen: string; stock: string; status: ProductStatus }
-const EMPTY: Form = { name: '', description: '', imageUrl: '', priceYen: '', stock: '', status: 'on_sale' };
+interface Form { name: string; description: string; imageUrl: string; priceYen: string; stock: string; status: ProductStatus; artistId: string; categoryId: string }
+const EMPTY: Form = { name: '', description: '', imageUrl: '', priceYen: '', stock: '', status: 'on_sale', artistId: '', categoryId: '' };
 const inputCls = 'w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-indigo-500';
 
 export default function AdminShopProductsPage() {
@@ -26,6 +26,12 @@ export default function AdminShopProductsPage() {
   const [form, setForm] = useState<Form>(EMPTY);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [tax, setTax] = useState<{ artists: Taxonomy[]; categories: Taxonomy[] }>({ artists: [], categories: [] });
+
+  const loadTax = useCallback(async () => {
+    const res = await fetch('/admin/api/shop/taxonomy');
+    if (res.ok) setTax(await res.json());
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -42,12 +48,12 @@ export default function AdminShopProductsPage() {
   }, []);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(); loadTax(); }, [load, loadTax]);
 
   function openNew() { setEditing(null); setForm(EMPTY); setSaveError(''); setOpen(true); }
   function openEdit(p: AdminProduct) {
     setEditing(p);
-    setForm({ name: p.name, description: p.description, imageUrl: p.imageUrl ?? '', priceYen: String(p.priceYen), stock: String(p.stock), status: p.status });
+    setForm({ name: p.name, description: p.description, imageUrl: p.imageUrl ?? '', priceYen: String(p.priceYen), stock: String(p.stock), status: p.status, artistId: p.artistId ?? '', categoryId: p.categoryId ?? '' });
     setSaveError('');
     setOpen(true);
   }
@@ -61,6 +67,8 @@ export default function AdminShopProductsPage() {
       priceYen: Number(form.priceYen),
       stock: Number(form.stock),
       imageUrl: form.imageUrl || null,
+      artistId: form.artistId || null,
+      categoryId: form.categoryId || null,
       order: editing && !usingSamples ? editing.order : maxOrder + 1,
     };
     const res = await fetch('/admin/api/shop/products', {
@@ -70,6 +78,17 @@ export default function AdminShopProductsPage() {
     });
     if (res.ok) { setOpen(false); load(); } else { setSaveError((await res.json().catch(() => ({}))).error ?? '保存に失敗しました'); }
     setSaving(false);
+  }
+
+  // 「＋ 新しく作成」: 選択肢にない作家・カテゴリをその場で作成して選択する
+  async function createTax(kind: TaxonomyKind) {
+    const name = prompt(kind === 'artists' ? '作家名を入力してください' : 'カテゴリ名を入力してください');
+    if (!name || !name.trim()) return;
+    const res = await fetch('/admin/api/shop/taxonomy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, name }) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) { alert(data.error ?? '作成に失敗しました'); return; }
+    await loadTax();
+    setForm((f) => ({ ...f, [kind === 'artists' ? 'artistId' : 'categoryId']: data.id }));
   }
 
   async function remove(p: AdminProduct) {
@@ -109,6 +128,7 @@ export default function AdminShopProductsPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-white font-medium truncate">{p.name}</p>
+                  <p className="text-gray-500 text-[11px] mt-0.5">{[p.artistName, p.categoryName].filter(Boolean).join(' · ') || '作家・カテゴリ未設定'}</p>
                   <p className="text-gray-400 text-xs mt-0.5">¥{p.priceYen.toLocaleString('ja-JP')} · 在庫 {p.stock}</p>
                 </div>
                 <span className={`text-[11px] px-2.5 py-1 rounded-full shrink-0 ${STATUS_CLS[p.status]}`}>{STATUS_LABEL[p.status]}</span>
@@ -130,6 +150,18 @@ export default function AdminShopProductsPage() {
             <h3 className="text-lg font-bold text-white">{editing && !usingSamples ? '商品を編集' : '商品を追加'}</h3>
             <div><label className="block text-xs text-gray-400 mb-1.5">商品名</label><input className={inputCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
             <div><label className="block text-xs text-gray-400 mb-1.5">商品説明</label><textarea rows={4} className={inputCls} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+            <div className="grid grid-cols-2 gap-4">
+              {([['artists', '作家', 'artistId', tax.artists], ['categories', 'カテゴリ', 'categoryId', tax.categories]] as const).map(([kind, label, key, list]) => (
+                <div key={kind}>
+                  <label className="block text-xs text-gray-400 mb-1.5">{label}</label>
+                  <select className={inputCls} value={form[key]} onChange={(e) => (e.target.value === '__new' ? createTax(kind) : setForm({ ...form, [key]: e.target.value }))}>
+                    <option value="">未設定</option>
+                    {list.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+                    <option value="__new">＋ 新しく作成…</option>
+                  </select>
+                </div>
+              ))}
+            </div>
             <ImageUploadField label="商品画像" value={form.imageUrl} onChange={(url) => setForm({ ...form, imageUrl: url })} folder="shop" previewSize="md" />
             <div className="grid grid-cols-2 gap-4">
               <div><label className="block text-xs text-gray-400 mb-1.5">販売価格（税込・円）</label><input inputMode="numeric" className={inputCls} value={form.priceYen} onChange={(e) => setForm({ ...form, priceYen: e.target.value })} /></div>

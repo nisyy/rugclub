@@ -27,6 +27,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <div className="mt-6 grid gap-8 md:grid-cols-2 md:gap-12">
           <ProductImage src={p.imageUrl} alt={p.name} sizes="(min-width: 768px) 50vw, 100vw" />
           <div>
+            {(p.artistName || p.categoryName) && (
+              <p className="mb-2 text-xs tracking-wide text-navy/50">{[p.artistName, p.categoryName].filter(Boolean).join(' / ')}</p>
+            )}
             <h1 className="text-xl font-bold text-navy leading-snug">{p.name}</h1>
             <p className="mt-3 text-2xl text-navy">{formatYen(p.priceYen)}<span className="text-xs text-navy/40 ml-1">（税込）</span></p>
             <p className="mt-2 text-xs font-semibold tracking-wide" style={{ color: purchasable ? '#547443' : '#EF4123' }}>

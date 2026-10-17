@@ -1,4 +1,5 @@
 import { getAdminDb } from '@/lib/firebaseAdmin';
+import { listTaxonomy, SAMPLE_ARTISTS, SAMPLE_CATEGORIES } from './taxonomy';
 import type { AdminProduct, Product, ProductInput, ProductStatus } from './types';
 
 // 商品の保存先は Firestore（コレクション shop_products）。サーバー（Admin SDK）からのみ読み書きする。
@@ -8,18 +9,20 @@ const COLLECTION = 'shop_products';
 
 const SAMPLE_DESC = 'これは表示確認用のサンプル商品です。実際の販売商品ではありません。';
 const SAMPLES: AdminProduct[] = [
-  { id: 'sample-001', name: 'サンプル商品｜オリジナルトートバッグ', imageUrl: null, description: SAMPLE_DESC, priceYen: 2800, stock: 10, status: 'on_sale', order: 1 },
-  { id: 'sample-002', name: 'サンプル商品｜アートポストカード（3枚組）', imageUrl: null, description: SAMPLE_DESC, priceYen: 660, stock: 30, status: 'on_sale', order: 2 },
-  { id: 'sample-003', name: 'サンプル商品｜ステッカーセット', imageUrl: null, description: SAMPLE_DESC, priceYen: 550, stock: 3, status: 'on_sale', order: 3 },
-  { id: 'sample-004', name: 'サンプル商品｜ミニ原画プリント', imageUrl: null, description: SAMPLE_DESC, priceYen: 4400, stock: 0, status: 'sold_out', order: 4 },
-  { id: 'sample-005', name: 'サンプル商品｜マグカップ', imageUrl: null, description: SAMPLE_DESC, priceYen: 2200, stock: 5, status: 'on_sale', order: 5 },
-  { id: 'sample-999', name: '（非公開サンプル）', imageUrl: null, description: '非公開のため一覧・詳細には表示されません。', priceYen: 1000, stock: 1, status: 'hidden', order: 6 },
+  { id: 'sample-001', name: 'サンプル商品｜オリジナルトートバッグ', imageUrl: null, description: SAMPLE_DESC, priceYen: 2800, stock: 10, status: 'on_sale', order: 1, artistId: 'sample-artist-a', categoryId: 'sample-cat-goods', artistName: 'サンプル作家A', categoryName: 'グッズ' },
+  { id: 'sample-002', name: 'サンプル商品｜アートポストカード（3枚組）', imageUrl: null, description: SAMPLE_DESC, priceYen: 660, stock: 30, status: 'on_sale', order: 2, artistId: 'sample-artist-a', categoryId: 'sample-cat-goods', artistName: 'サンプル作家A', categoryName: 'グッズ' },
+  { id: 'sample-003', name: 'サンプル商品｜ステッカーセット', imageUrl: null, description: SAMPLE_DESC, priceYen: 550, stock: 3, status: 'on_sale', order: 3, artistId: 'sample-artist-b', categoryId: 'sample-cat-goods', artistName: 'サンプル作家B', categoryName: 'グッズ' },
+  { id: 'sample-004', name: 'サンプル商品｜ミニ原画プリント', imageUrl: null, description: SAMPLE_DESC, priceYen: 4400, stock: 0, status: 'sold_out', order: 4, artistId: 'sample-artist-b', categoryId: 'sample-cat-print', artistName: 'サンプル作家B', categoryName: 'プリント・原画' },
+  { id: 'sample-005', name: 'サンプル商品｜マグカップ', imageUrl: null, description: SAMPLE_DESC, priceYen: 2200, stock: 5, status: 'on_sale', order: 5, artistId: 'sample-artist-a', categoryId: 'sample-cat-goods', artistName: 'サンプル作家A', categoryName: 'グッズ' },
+  { id: 'sample-999', name: '（非公開サンプル）', imageUrl: null, description: '非公開のため一覧・詳細には表示されません。', priceYen: 1000, stock: 1, status: 'hidden', order: 6, artistId: null, categoryId: null, artistName: null, categoryName: null },
 ];
 
 const STATUSES: ProductStatus[] = ['on_sale', 'sold_out', 'hidden'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function docToProduct(id: string, d: any): AdminProduct {
+function docToProduct(id: string, d: any, artists: Map<string, string>, categories: Map<string, string>): AdminProduct {
+  const artistId = d.artistId ? String(d.artistId) : null;
+  const categoryId = d.categoryId ? String(d.categoryId) : null;
   return {
     id,
     name: String(d.name ?? ''),
@@ -29,6 +32,10 @@ function docToProduct(id: string, d: any): AdminProduct {
     stock: Number.isInteger(d.stock) ? d.stock : 0,
     status: STATUSES.includes(d.status) ? d.status : 'hidden',
     order: Number.isFinite(d.order) ? d.order : 999,
+    artistId,
+    categoryId,
+    artistName: artistId ? artists.get(artistId) ?? null : null,
+    categoryName: categoryId ? categories.get(categoryId) ?? null : null,
   };
 }
 
@@ -39,7 +46,10 @@ export async function listAllProducts(): Promise<{ products: AdminProduct[]; usi
     try {
       const snap = await db.collection(COLLECTION).get();
       if (!snap.empty) {
-        const products = snap.docs.map((d) => docToProduct(d.id, d.data())).sort((a, b) => a.order - b.order);
+        const [artists, categories] = await Promise.all([listTaxonomy('artists'), listTaxonomy('categories')]);
+        const aMap = new Map((artists ?? []).map((t) => [t.id, t.name]));
+        const cMap = new Map((categories ?? []).map((t) => [t.id, t.name]));
+        const products = snap.docs.map((d) => docToProduct(d.id, d.data(), aMap, cMap)).sort((a, b) => a.order - b.order);
         return { products, usingSamples: false };
       }
     } catch (e) {
@@ -65,6 +75,17 @@ export function isPurchasable(p: Product): boolean {
 }
 
 // ─── 管理画面用の書き込み ───
+/** 作家・カテゴリの選択肢（Firestore未使用の間はサンプル） */
+export async function getTaxonomies(forAdmin = false) {
+  const [artists, categories] = await Promise.all([listTaxonomy('artists'), listTaxonomy('categories')]);
+  // 管理画面ではサンプルの作家・カテゴリは出さない（保存すると実在しないIDになるため）
+  const usingSamples = !forAdmin && (await listAllProducts()).usingSamples;
+  return {
+    artists: usingSamples && !artists?.length ? SAMPLE_ARTISTS : artists ?? [],
+    categories: usingSamples && !categories?.length ? SAMPLE_CATEGORIES : categories ?? [],
+  };
+}
+
 export function parseProductInput(raw: unknown): ProductInput | string {
   const r = (raw ?? {}) as Record<string, unknown>;
   const name = typeof r.name === 'string' ? r.name.trim() : '';
@@ -78,7 +99,8 @@ export function parseProductInput(raw: unknown): ProductInput | string {
   const description = typeof r.description === 'string' ? r.description.slice(0, 5000) : '';
   const imageUrl = typeof r.imageUrl === 'string' && r.imageUrl.trim() ? r.imageUrl.trim() : null;
   const order = Number.isFinite(Number(r.order)) ? Number(r.order) : 999;
-  return { name, description, imageUrl, priceYen, stock, status, order };
+  const id = (v: unknown) => (typeof v === 'string' && v.trim() && v.length <= 100 ? v.trim() : null);
+  return { name, description, imageUrl, priceYen, stock, status, order, artistId: id(r.artistId), categoryId: id(r.categoryId) };
 }
 
 function requireDb() {
