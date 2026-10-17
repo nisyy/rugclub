@@ -9,6 +9,7 @@ import { EMPTY_CUSTOMER, PREFECTURES, validateCustomer, type CustomerErrors } fr
 import type { Customer } from '@/lib/shop/types';
 import ShopHeading from '../_components/ShopHeading';
 import FreeShippingNote from '../_components/FreeShippingNote';
+import OrderingOverlay from '../_components/OrderingOverlay';
 import DevNotice from '../_components/DevNotice';
 import { useServerCart } from '../_components/useServerCart';
 
@@ -123,6 +124,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="bg-cream min-h-screen pb-20">
+      <OrderingOverlay active={submitting} testMode={cart.testMode} />
       <ShopHeading eyebrow="Checkout" title="CHECKOUT" bg="ORDER" />
       <div className="max-w-2xl mx-auto px-6 lg:px-10">
         <DevNotice>{cart.testMode ? 'テストモードです。「テスト注文」として保存・メール送信されますが、決済・発送は行われません。送料はテスト用の仮の金額です。' : '決済未接続の開発用画面です。実際の注文・決済は行われません。'}</DevNotice>
