@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import AdminHeader from '../../_components/AdminHeader';
-import { LEGAL_LABELS, type LegalSettings } from '@/lib/shop/legal';
+import { LEGAL_LABELS, type LegalSettings } from '@/lib/shop/legalConfig';
 
 const FIELDS: { key: keyof LegalSettings; hint?: string; long?: boolean; required: boolean }[] = [
   { key: 'sellerName', hint: '事業者（個人の場合は氏名、法人は法人名）。屋号やサイト名だけは不可です', required: true },
