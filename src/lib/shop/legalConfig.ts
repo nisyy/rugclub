@@ -15,7 +15,7 @@ export interface LegalSettings {
 }
 
 export const LEGAL_DEFAULTS: LegalSettings = {
-  sellerName: 'Rug Club（坂本 将）',
+  sellerName: 'CAFE RUG CLUB（坂本 将）',
   representative: '坂本 将',
   address: '〒577-0058 大阪府東大阪市足代北2丁目15-22',
   phone: '06-6224-4030',
