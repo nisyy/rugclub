@@ -10,6 +10,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'invalid_json' }, { status: 400 });
   }
   const lines = sanitizeLines((body as { lines?: unknown })?.lines);
-  const cart = await priceCart(lines);
+  const pref = (body as { prefecture?: unknown })?.prefecture;
+  const cart = await priceCart(lines, typeof pref === 'string' ? pref : undefined);
   return NextResponse.json({ ok: true, cart });
 }

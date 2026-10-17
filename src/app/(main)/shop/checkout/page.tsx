@@ -28,7 +28,8 @@ function Field({ label, required, error, children }: { label: string; required?:
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { hydrated, cart, messages, error } = useServerCart();
+  const [pref, setPref] = useState('');
+  const { hydrated, cart, messages, error } = useServerCart(pref || undefined);
   const { clear } = useCart();
   const idempotencyKey = useRef(crypto.randomUUID());
   const [submitting, setSubmitting] = useState(false);
@@ -41,6 +42,7 @@ export default function CheckoutPage() {
 
   const set = (k: keyof Customer) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setCustomer((p) => ({ ...p, [k]: e.target.value }));
+    if (k === 'prefecture') setPref(e.target.value);
     if (errors[k]) setErrors((p) => ({ ...p, [k]: undefined }));
   };
 
@@ -56,6 +58,7 @@ export default function CheckoutPage() {
       if (id !== zipReq.current) return;
       if (data.ok && data.prefecture) {
         setCustomer((p) => ({ ...p, prefecture: data.prefecture!, city: data.city ?? '' }));
+        setPref(data.prefecture);
         setErrors((p) => ({ ...p, prefecture: undefined, city: undefined }));
         setZipStatus('found');
       } else {

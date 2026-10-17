@@ -1,14 +1,11 @@
 import { getAdminDb } from '@/lib/firebaseAdmin';
-import { isShopTestMode, TEST_SHIPPING_YEN } from './testMode';
+import { isShopTestMode } from './testMode';
+import { computeShipping } from './shippingCalc';
+import type { ShippingSettings } from './shippingCalc';
 
 // 送料設定は管理画面で編集し、Firestore（shop_settings/shipping）に保存する。
 // 地域別などルールを増やす場合は、この resolveShipping の中だけを拡張する。
-export interface ShippingSettings {
-  /** 基本送料（円）。null＝未設定 */
-  flatFeeYen: number | null;
-  /** この小計（税込）以上で送料無料。null＝無料設定なし */
-  freeThresholdYen: number | null;
-}
+export type { ShippingSettings } from './shippingCalc';
 
 const DOC = ['shop_settings', 'shipping'] as const;
 
@@ -21,6 +18,7 @@ export async function getShippingSettings(): Promise<ShippingSettings> {
       if (d) {
         return {
           flatFeeYen: Number.isInteger(d.flatFeeYen) ? d.flatFeeYen : null,
+          remoteFeeYen: Number.isInteger(d.remoteFeeYen) ? d.remoteFeeYen : null,
           freeThresholdYen: Number.isInteger(d.freeThresholdYen) ? d.freeThresholdYen : null,
         };
       }
@@ -28,7 +26,7 @@ export async function getShippingSettings(): Promise<ShippingSettings> {
       console.error('[shop shipping] 読み込み失敗:', e instanceof Error ? e.message : e);
     }
   }
-  return { flatFeeYen: null, freeThresholdYen: null };
+  return { flatFeeYen: null, remoteFeeYen: null, freeThresholdYen: null };
 }
 
 export function parseShippingSettings(raw: unknown): ShippingSettings | string {
@@ -41,9 +39,11 @@ export function parseShippingSettings(raw: unknown): ShippingSettings | string {
   };
   const flat = num(r.flatFeeYen, '基本送料');
   if (typeof flat === 'string') return flat;
+  const remote = num(r.remoteFeeYen, '北海道・沖縄の送料');
+  if (typeof remote === 'string') return remote;
   const free = num(r.freeThresholdYen, '送料無料の条件金額');
   if (typeof free === 'string') return free;
-  return { flatFeeYen: flat, freeThresholdYen: free };
+  return { flatFeeYen: flat, remoteFeeYen: remote, freeThresholdYen: free };
 }
 
 export async function saveShippingSettings(s: ShippingSettings): Promise<void> {
@@ -52,12 +52,8 @@ export async function saveShippingSettings(s: ShippingSettings): Promise<void> {
   await db.collection(DOC[0]).doc(DOC[1]).set({ ...s, updatedAt: new Date().toISOString() });
 }
 
-/** 送料を決める。yen が null の間は注文を確定できない（テストモード時のみ仮送料） */
-export async function resolveShipping(subtotalYen: number): Promise<{ yen: number | null; provisional: boolean }> {
-  const s = await getShippingSettings();
-  if (s.flatFeeYen !== null) {
-    const free = s.freeThresholdYen !== null && subtotalYen >= s.freeThresholdYen;
-    return { yen: free ? 0 : s.flatFeeYen, provisional: false };
-  }
-  return isShopTestMode() ? { yen: TEST_SHIPPING_YEN, provisional: true } : { yen: null, provisional: false };
+export { REMOTE_PREFECTURES, computeShipping } from './shippingCalc';
+
+export async function resolveShipping(subtotalYen: number, prefecture?: string) {
+  return computeShipping(await getShippingSettings(), subtotalYen, prefecture, isShopTestMode());
 }

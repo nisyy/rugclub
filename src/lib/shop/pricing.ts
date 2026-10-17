@@ -22,7 +22,7 @@ export function sanitizeLines(input: unknown): CartLine[] {
 }
 
 // 価格・在庫・販売状態は常にサーバー側の商品データから決める（クライアントの価格は使わない）。金額は整数円。
-export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
+export async function priceCart(lines: CartLine[], prefecture?: string): Promise<PricedCart> {
   const priced: PricedLine[] = [];
   const issues: CartIssue[] = [];
 
@@ -49,11 +49,13 @@ export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
       maxQty,
       categoryId: p.categoryId,
       categoryName: p.categoryName,
+      artistId: p.artistId,
+      artistName: p.artistName,
     });
   }
 
   const subtotalYen = priced.reduce((s, l) => s + l.lineTotalYen, 0);
-  const shipping = priced.length > 0 ? await resolveShipping(subtotalYen) : { yen: null, provisional: false };
+  const shipping = priced.length > 0 ? await resolveShipping(subtotalYen, prefecture) : { yen: null, provisional: false, remoteYen: null };
   const shippingYen = shipping.yen;
   const totalYen = shippingYen === null ? null : subtotalYen + shippingYen;
 
@@ -64,5 +66,5 @@ export async function priceCart(lines: CartLine[]): Promise<PricedCart> {
   // テストモード中は決済未接続でも「テスト注文」として確定できる（実決済は行われない）
   if (!isPaymentConnected() && !testMode) blockedReasons.push('決済が未接続のため、注文を確定できません。');
 
-  return { lines: priced, issues, subtotalYen, shippingYen, shippingProvisional: shipping.provisional, totalYen, blockedReasons, testMode };
+  return { lines: priced, issues, subtotalYen, shippingYen, remoteShippingYen: shipping.remoteYen, shippingProvisional: shipping.provisional, totalYen, blockedReasons, testMode };
 }

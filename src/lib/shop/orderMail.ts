@@ -54,3 +54,40 @@ export async function sendOrderMails(o: OrderRecord): Promise<OrderRecord['mail'
   const [customer, shop] = await Promise.all([send(o.customer.email, 'customer'), send(shopTo, 'shop')]);
   return { customer, shop };
 }
+
+/** 発送通知メール（購入者宛）。追跡番号つき */
+export async function sendShippedMail(o: OrderRecord): Promise<'sent' | 'failed' | 'skipped'> {
+  const user = process.env.CONTACT_GMAIL_USER;
+  const pass = process.env.CONTACT_GMAIL_PASS;
+  const shopTo = process.env.CONTACT_MAIL_TO;
+  if (!user || !pass || !shopTo) return 'skipped';
+  const inquiryUrl = `${SITE_URL}/contact?subject=shop&order=${encodeURIComponent(o.orderNumber)}`;
+  const text = [
+    `${o.customer.name} 様`,
+    '',
+    'ご注文の商品を発送いたしました。',
+    o.testMode ? '\n※これはテスト注文です。実際には発送されていません。\n' : '',
+    `注文番号：${o.orderNumber}`,
+    `配送業者：${o.carrier || '—'}`,
+    `追跡番号：${o.trackingNumber || '—'}`,
+    '',
+    '【ご注文内容】',
+    ...o.lines.map((l) => `・${l.name} × ${l.qty}`),
+    '',
+    '【ご注文に関するお問い合わせ】',
+    inquiryUrl,
+    '',
+    'RUG CLUB',
+  ].join('\n');
+  const html = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e;white-space:pre-wrap;">${esc(text).replace(esc(inquiryUrl), `<a href="${esc(inquiryUrl)}">${esc(inquiryUrl)}</a>`)}</div>`;
+  try {
+    await nodemailer.createTransport({ service: 'gmail', auth: { user, pass } }).sendMail({
+      from: `"RUG CLUB Shop" <${user}>`, to: o.customer.email, replyTo: shopTo,
+      subject: `${o.testMode ? '【テスト注文】' : ''}商品を発送しました（${o.orderNumber}）`, text, html,
+    });
+    return 'sent';
+  } catch (e) {
+    console.error('[Shop] 発送通知メール送信失敗:', e instanceof Error ? e.message : e);
+    return 'failed';
+  }
+}

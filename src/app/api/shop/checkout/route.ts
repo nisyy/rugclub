@@ -33,7 +33,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'invalid_customer', errors }, { status: 400 });
   }
 
-  const cart = await priceCart(sanitizeLines(body.lines));
+  // 送料の地域判定は、送信された届け先の都道府県で行う
+  const cart = await priceCart(sanitizeLines(body.lines), customer.prefecture);
   if (cart.lines.length === 0) {
     return NextResponse.json({ ok: false, error: 'empty_cart' }, { status: 400 });
   }

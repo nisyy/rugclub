@@ -1,6 +1,8 @@
 import { createHash, randomInt } from 'crypto';
 import { getAdminDb } from '@/lib/firebaseAdmin';
 import { listAllProducts, PRODUCTS_COLLECTION } from './products';
+import { calcCommission } from './commission';
+import { listArtists, SAMPLE_ARTISTS } from './taxonomy';
 import type { Customer, OrderRecord, OrderStatus, PricedCart } from './types';
 
 const COLLECTION = 'shop_orders';
@@ -28,12 +30,20 @@ export class OutOfStockError extends Error {
  * idempotencyKey が同じ注文は二重に処理せず、既存の注文を返す（created=false）。
  * Stripe Webhook 実装時は、イベントIDを同じ仕組みの冪等キーとして使う。
  */
+/** 作家IDごとのオンライン販売手数料率（%）。Firestoreの登録が優先、未設定は0% */
+async function commissionRates(): Promise<Map<string, number>> {
+  const m = new Map<string, number>(SAMPLE_ARTISTS.map((a) => [a.id, a.commissionPercent ?? 0]));
+  for (const a of (await listArtists()) ?? []) m.set(a.id, a.commissionPercent ?? 0);
+  return m;
+}
+
 export async function createOrder(
   idempotencyKey: string,
   cart: PricedCart,
   customer: Customer,
 ): Promise<{ order: OrderRecord; created: boolean }> {
   const db = requireDb();
+  const rates = await commissionRates();
   const id = createHash('sha256').update(idempotencyKey).digest('hex').slice(0, 40);
   const ref = db.collection(COLLECTION).doc(id);
 
@@ -60,7 +70,7 @@ export async function createOrder(
       status: 'received',
       testMode: cart.testMode,
       customer,
-      lines: cart.lines.map((l) => ({ id: l.id, name: l.name, unitPriceYen: l.unitPriceYen, qty: l.qty, lineTotalYen: l.lineTotalYen, categoryId: l.categoryId, categoryName: l.categoryName })),
+      lines: cart.lines.map((l) => ({ id: l.id, name: l.name, unitPriceYen: l.unitPriceYen, qty: l.qty, lineTotalYen: l.lineTotalYen, categoryId: l.categoryId, categoryName: l.categoryName, artistId: l.artistId, artistName: l.artistName, ...calcCommission(l.lineTotalYen, l.artistId ? rates.get(l.artistId) ?? 0 : 0) })),
       subtotalYen: cart.subtotalYen,
       shippingYen: cart.shippingYen ?? 0,
       shippingProvisional: cart.shippingProvisional,
@@ -80,15 +90,20 @@ export async function listOrders(): Promise<OrderRecord[]> {
   const snap = await requireDb().collection(COLLECTION).orderBy('createdAt', 'desc').limit(200).get();
   const orders = snap.docs.map((d) => d.data() as OrderRecord);
   // カテゴリ導入前の注文など、カテゴリ情報が無い明細は現在の商品情報から補完する
-  if (orders.some((o) => o.lines.some((l) => l.categoryName === undefined))) {
-    const { products } = await listAllProducts();
+  if (orders.some((o) => o.lines.some((l) => l.categoryName === undefined || l.artistName === undefined))) {
+    const [{ products }, rates] = await Promise.all([listAllProducts(), commissionRates()]);
     const byId = new Map(products.map((p) => [p.id, p]));
     for (const o of orders) {
       for (const l of o.lines) {
+        const p = byId.get(l.id);
         if (l.categoryName === undefined) {
-          const p = byId.get(l.id);
           l.categoryId = p?.categoryId ?? null;
           l.categoryName = p?.categoryName ?? null;
+        }
+        if (l.artistName === undefined) {
+          l.artistId = p?.artistId ?? null;
+          l.artistName = p?.artistName ?? null;
+          Object.assign(l, calcCommission(l.lineTotalYen, l.artistId ? rates.get(l.artistId) ?? 0 : 0));
         }
       }
     }
@@ -98,4 +113,23 @@ export async function listOrders(): Promise<OrderRecord[]> {
 
 export async function updateOrderStatus(id: string, status: OrderStatus): Promise<void> {
   await requireDb().collection(COLLECTION).doc(id).update({ status });
+}
+
+export async function getOrder(id: string): Promise<OrderRecord | null> {
+  const snap = await requireDb().collection(COLLECTION).doc(id).get();
+  return snap.exists ? (snap.data() as OrderRecord) : null;
+}
+
+export async function updateOrderFields(id: string, fields: Partial<OrderRecord>): Promise<void> {
+  await requireDb().collection(COLLECTION).doc(id).update(fields);
+}
+
+/** 作家ごとの精算済みチェック（settled=false で取り消し） */
+export async function setSettlement(id: string, artistId: string, settled: boolean): Promise<void> {
+  const { FieldValue } = await import('firebase-admin/firestore');
+  const key = `settlements.${artistId}`;
+  await requireDb()
+    .collection(COLLECTION)
+    .doc(id)
+    .update({ [key]: settled ? { settledAt: new Date().toISOString() } : FieldValue.delete() });
 }

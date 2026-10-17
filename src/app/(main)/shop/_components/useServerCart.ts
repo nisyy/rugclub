@@ -13,7 +13,7 @@ function issueMessage(i: CartIssue): string {
 }
 
 // カートの内容をサーバーで再計算した結果を返す。差異（売り切れ・在庫超過）はローカルカートへ反映する。
-export function useServerCart() {
+export function useServerCart(prefecture?: string) {
   const { lines, hydrated, remove, setQty } = useCart();
   const [cart, setCart] = useState<PricedCart | null>(null);
   const [messages, setMessages] = useState<string[]>([]);
@@ -28,7 +28,7 @@ export function useServerCart() {
         const res = await fetch('/api/shop/cart/validate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ lines }),
+          body: JSON.stringify({ lines, prefecture }),
         });
         if (!res.ok) throw new Error();
         const data = (await res.json()) as { cart: PricedCart };
@@ -47,7 +47,7 @@ export function useServerCart() {
       }
     })();
     return () => { cancelled = true; };
-  }, [lines, hydrated, remove, setQty]);
+  }, [lines, hydrated, remove, setQty, prefecture]);
 
   return { lines, hydrated, cart, messages, error };
 }

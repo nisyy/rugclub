@@ -34,7 +34,10 @@ export default function AdminShopProductsPage() {
 
   const loadTax = useCallback(async () => {
     const res = await fetch('/admin/api/shop/taxonomy');
-    if (res.ok) setTax(await res.json());
+    if (res.ok) {
+      const d = await res.json();
+      setTax({ artists: d.artists.map((a: { id: string; name: string; order: number }) => ({ id: a.id, name: a.name, order: a.order })), categories: d.categories });
+    }
   }, []);
 
   const load = useCallback(async () => {
@@ -54,6 +57,13 @@ export default function AdminShopProductsPage() {
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { load(); loadTax(); }, [load, loadTax]);
+
+  // 作家管理画面で登録して戻ってきたら、選択肢を更新する
+  useEffect(() => {
+    const onFocus = () => loadTax();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [loadTax]);
 
   function openNew() { setEditing(null); setForm(EMPTY); setSaveError(''); setOpen(true); }
   function openEdit(p: AdminProduct) {
@@ -109,13 +119,18 @@ export default function AdminShopProductsPage() {
 
   // 「＋ 新しく作成」: 選択肢にない作家・カテゴリをその場で作成して選択する
   async function createTax(kind: TaxonomyKind) {
-    const name = prompt(kind === 'artists' ? '作家名を入力してください' : 'カテゴリ名を入力してください');
+    if (kind === 'artists') {
+      // 作家は連絡先・手数料が必須のため、作家管理画面で登録してから選択する
+      window.open('/admin/shop/taxonomy', '_blank');
+      return;
+    }
+    const name = prompt('カテゴリ名を入力してください');
     if (!name || !name.trim()) return;
     const res = await fetch('/admin/api/shop/taxonomy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ kind, name }) });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) { alert(data.error ?? '作成に失敗しました'); return; }
     await loadTax();
-    setForm((f) => ({ ...f, [kind === 'artists' ? 'artistId' : 'categoryId']: data.id }));
+    setForm((f) => ({ ...f, categoryId: data.id }));
   }
 
   async function remove(p: AdminProduct) {
@@ -189,7 +204,7 @@ export default function AdminShopProductsPage() {
                   <select className={inputCls} value={form[key]} onChange={(e) => (e.target.value === '__new' ? createTax(kind) : setForm({ ...form, [key]: e.target.value }))}>
                     <option value="">未設定</option>
                     {list.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-                    <option value="__new">＋ 新しく作成…</option>
+                    <option value="__new">{kind === 'artists' ? '＋ 作家を登録…（別タブ）' : '＋ 新しく作成…'}</option>
                   </select>
                 </div>
               ))}

@@ -11,6 +11,7 @@ const navItems = [
   { label: 'ギャラリー', href: '/admin/gallery' },
   { label: 'ショップ商品', href: '/admin/shop' },
   { label: 'ショップ注文', href: '/admin/shop/orders' },
+  { label: '精算管理', href: '/admin/shop/settlements' },
   { label: '作家・カテゴリ', href: '/admin/shop/taxonomy' },
   { label: '送料設定', href: '/admin/shop/shipping' },
 ];

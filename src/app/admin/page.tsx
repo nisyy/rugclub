@@ -55,6 +55,13 @@ export default async function AdminDashboard() {
       icon: '📦',
     },
     {
+      label: 'Settlements',
+      labelJa: '作家精算管理',
+      href: '/admin/shop/settlements',
+      color: 'from-lime-600 to-green-600',
+      icon: '💴',
+    },
+    {
       label: 'Artists & Categories',
       labelJa: '作家・カテゴリ管理',
       href: '/admin/shop/taxonomy',
