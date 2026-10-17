@@ -3,8 +3,13 @@ import { isShopTestMode } from './testMode';
 import { computeShipping } from './shippingCalc';
 import type { ShippingSettings } from './shippingCalc';
 
-// 送料設定は管理画面で編集し、Firestore（shop_settings/shipping）に保存する。
-// 地域別などルールを増やす場合は、この resolveShipping の中だけを拡張する。
+// 標準の送料設定（コードで確定）。管理画面の「送料設定」で保存すると、その内容が優先される。
+// 地域別などルールを増やす場合は、shippingCalc.ts の computeShipping を拡張する。
+export const DEFAULT_SHIPPING: ShippingSettings = {
+  flatFeeYen: 800,          // 北海道・沖縄以外
+  remoteFeeYen: 1000,       // 北海道・沖縄
+  freeThresholdYen: 5000,   // 税込5,000円以上で全国送料無料
+};
 export type { ShippingSettings } from './shippingCalc';
 
 const DOC = ['shop_settings', 'shipping'] as const;
@@ -26,7 +31,8 @@ export async function getShippingSettings(): Promise<ShippingSettings> {
       console.error('[shop shipping] 読み込み失敗:', e instanceof Error ? e.message : e);
     }
   }
-  return { flatFeeYen: null, remoteFeeYen: null, freeThresholdYen: null };
+  // 管理画面で保存されていない（または読み込めない）場合は標準設定
+  return { ...DEFAULT_SHIPPING };
 }
 
 export function parseShippingSettings(raw: unknown): ShippingSettings | string {

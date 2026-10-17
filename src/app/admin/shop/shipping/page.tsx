@@ -41,7 +41,7 @@ export default function AdminShopShippingPage() {
       <AdminHeader />
       <main className="max-w-2xl mx-auto px-6 py-10">
         <h2 className="text-xl font-bold text-white">送料設定</h2>
-        <p className="text-xs text-gray-500 mt-1 mb-8">金額はすべて税込（円）。保存すると、ショップのカート・購入手続きにすぐ反映されます。</p>
+        <p className="text-xs text-gray-500 mt-1 mb-8">金額はすべて税込（円）。保存していない間は標準設定（基本800円・北海道/沖縄1,000円・5,000円以上で無料）が使われます。保存すると、ショップのカート・購入手続きにすぐ反映されます。</p>
         {loading ? <div className="text-center py-20 text-gray-500 text-sm">読み込み中...</div> : (
           <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-6">
             <div>

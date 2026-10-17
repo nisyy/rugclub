@@ -68,13 +68,6 @@ export default async function AdminDashboard() {
       icon: '🏷️',
     },
     {
-      label: 'Legal',
-      labelJa: '特定商取引法の表記',
-      href: '/admin/shop/legal',
-      color: 'from-slate-600 to-gray-600',
-      icon: '📜',
-    },
-    {
       label: 'Shipping',
       labelJa: '送料設定',
       href: '/admin/shop/shipping',
